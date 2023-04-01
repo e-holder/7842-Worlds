@@ -225,8 +225,10 @@ public class Lift implements CONSTANTS {
             case IDLE:
                 break;
             case REQUEST_MOVE_TO_BOTTOM:
-                m_delayForMoveToBottom = (m_liftPos_in < MED_POLE_IN ?
-                        DELAY_FOR_MOVE_TO_BOTTOM : 0);
+                if (m_liftPos_in <= 10.0) {
+                    m_delayForMoveToBottom = (m_liftPos_in < MED_POLE_IN ?
+                            DELAY_FOR_MOVE_TO_BOTTOM : 0);
+                }
                 m_state = LiftState.MOVE_TO_BOTTOM;
                 break;
             case MOVE_TO_BOTTOM:
