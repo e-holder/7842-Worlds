@@ -81,12 +81,15 @@ public class Lift implements CONSTANTS {
     private double m_liftPos_in;
     private double m_liftMotor_amp;
 
+    private Vera m_vera;
     private LiftState m_state;
     private LiftState m_priorState = LiftState.IDLE;  // Set to anything but INIT.
     private PlaceConeCommand m_placeConeCommand = PlaceConeCommand.STOP;
 
     // SUBSYSTEM has a public constructor here.
     public Lift(Vera vera) {
+        m_vera = vera;
+
         // SUBSYSTEM gets its corresponding hardware class instance here.
         m_hwLift = vera.getHwLift();
 
@@ -103,7 +106,11 @@ public class Lift implements CONSTANTS {
     private void resetLift() {
         m_hwLift.resetLiftMotor(m_liftPos_tick);
         m_liftTargetPos_in = 0.0;
-        openClaw();
+        if (!m_hasLiftBeenReset && m_vera.isAutonomous()) {
+            closeClaw();
+        } else {
+            openClaw();
+        }
         m_hasLiftBeenReset = true;
     }
 
@@ -112,10 +119,6 @@ public class Lift implements CONSTANTS {
     }
 
     private void moveLiftToTargetPositionAtTargetSpeed() {
-        // Ensure cone is dropped if this move might drive a held cone into the robot and damage it.
-        if (m_liftTargetPos_in < m_liftPos_in  && m_liftTargetPos_in < ENTERING_ROBOT_IN) {
-            openClaw();
-        }
         m_liftTarget_tick = m_hwLift.liftRunToPosition(m_liftTargetPos_in, m_liftTargetSpeed);
     }
 
@@ -235,7 +238,9 @@ public class Lift implements CONSTANTS {
                 } else {
                     m_liftTargetPos_in = RESET_POS_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
-                    openClaw();
+                    if (m_hasLiftBeenReset) {
+                        openClaw();
+                    }
                     m_state = LiftState.MOVING_TO_BOTTOM;
                 }
                 break;
@@ -343,14 +348,14 @@ public class Lift implements CONSTANTS {
             logCsvString("lift" +
                     ", motorAmp, " + df3.format(m_liftMotor_amp) +
                     ", isBottom, " + m_isLiftAtBottom +
+                    ", posIn, " + df3.format(m_liftPos_in) +
                     ", posTick, " + m_liftPos_tick +
-                    ", pos, " + df3.format(m_liftPos_in) +
+                    ", targetIn, " + df3.format(m_liftTargetPos_in) +
                     ", targetTick, " + m_liftTarget_tick +
-                    ", targetPos, " + df3.format(m_liftTargetPos_in) +
 //                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
 //                    ", isBusy, " + m_isLiftBusy +
-//                    ", isClawClosed, " + m_isClawClosed +
+                    ", isClawClosed, " + m_isClawClosed +
 //                    ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +
 //                    ", downDelay, " + m_delayForMoveToBottom +

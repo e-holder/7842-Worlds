@@ -33,7 +33,7 @@ public class Intake {
         UP_SLOW
     }
 
-    private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 300;
+    private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 10;
 
     private final double ARM_RESET_DEG = -33.0;
     private final double ARM_EJECT_DEG = ARM_RESET_DEG;
@@ -53,6 +53,7 @@ public class Intake {
     private final double ARM_TARGET_DELTA_DEG = 1.0;
     private final double ARM_SLOW_RESET_DELTA_DEG = 10.0;  // Drive arm slowly if it is near reset
     private final double ARM_FAST_RESET_DELTA_DEG = 30.0;  // Drive arm fast if it is far from reset
+    private final double ARM_DELTA_CONESTACK_WRIST_DELAY_DEG = 5.0;
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2000;  // Used for initial reset, and driver control
@@ -97,6 +98,7 @@ public class Intake {
     private double m_wristCmdPos_deg = 0.0;
     private double m_armPos_deg;    // 0 is vertical, 90 is extended/front parallel to floor.
     private double m_armTargetPos_deg;
+    private double m_armPosAtHasCone_deg;
     private double m_armTargetSpeed;
     private double m_intakeArmMotor_amp;
     private double m_intakeWheelMotor_amp;
@@ -198,8 +200,9 @@ public class Intake {
         double wristPos_deg = 0.0;
         if (m_hasResetOccurred) {
             if (m_isConeStackMode) {
-                if (m_armTargetPos_deg < (m_armPos_deg - 20.0) &&
-                        m_armPos_deg < ARM_CONE_STACK_EJECT_START_DEG) {
+                if (m_state == IntakeState.MOVING_TO_EJECT_POS &&
+                        ((m_armPosAtHasCone_deg - m_armPos_deg) >
+                                ARM_DELTA_CONESTACK_WRIST_DELAY_DEG)) {
                     wristPos_deg = WRIST_POS_EJECT_CONE_DEG;
                 } else {
                     wristPos_deg = m_armPos_deg + WRIST_POS_STACK_DELTA_DEG;
@@ -464,6 +467,7 @@ public class Intake {
                     m_intakeWheelSpeed = INTAKE_CONE_HOLD_WHEEL_SPEED;
                     m_state = IntakeState.HOLD_AT_LOW_JUNCTION_POS;
                 } else if (m_hasCone && !m_isBeaconMode) {
+                    m_armPosAtHasCone_deg = m_armPos_deg;
                     m_intakeWheelSpeed = INTAKE_CONE_HOLD_WHEEL_SPEED;
                     m_state = IntakeState.MOVE_TO_EJECT_POS;
                 }
@@ -530,11 +534,10 @@ public class Intake {
 //                    ", armCmd," + df3.format(m_armDriverCmd) +
 //                    ", wristPos, " + df3.format(m_wristServoPos) +
 //                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
-//                    ", wristDeg, " + df3.format(m_wristPos_deg) +
+                    ", wristDeg, " + df3.format(m_wristPos_deg) +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
-//                    ", limit, " + m_isLimitSwitchPressed +
-//                    ", delay, " + m_initDelayCounter +
+                    ", delay, " + m_initDelayCounter +
                     ".");
         }
 

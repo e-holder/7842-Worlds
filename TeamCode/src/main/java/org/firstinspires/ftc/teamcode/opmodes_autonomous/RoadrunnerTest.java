@@ -30,8 +30,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .waitSeconds(1.0)
                 .addTemporalMarker(1, () -> {
+                    m_vera.intake.setAutonomousInitDelayCount(12);
                     m_vera.lift.moveLiftToLowPole();
-                    m_vera.intake.moveToIdlePos();
                 })
                 .back(42.0)
                 .addTemporalMarker(3, () -> {
