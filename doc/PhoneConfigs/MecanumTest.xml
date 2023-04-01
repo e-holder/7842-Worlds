@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+            <ModernRobotics-GB5203 name="FL" port="0" />
+            <ModernRobotics-GB5203 name="BL" port="1" />
+            <ModernRobotics-GB5203 name="FR" port="2" />
+            <ModernRobotics-GB5203 name="BR" port="3" />
+            <LynxEmbeddedIMU name="imu" port="0" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <Webcam name="" serialNumber="CDE2BB10" />
+</Robot>
