@@ -21,7 +21,6 @@ public class HwVera {
 
     // EACH SUBSYSTEM will have a hardware class instance (member data) created by calling a
     // constructor here.
-    private HwDrivetrain m_hwDrivetrain = new HwDrivetrain();
     private HwIntake m_hwIntake = new HwIntake();
     private HwLift m_hwLift = new HwLift();
     private HwPoleNav m_hwPoleNav = new HwPoleNav();
@@ -54,7 +53,6 @@ public class HwVera {
 
         // EACH SUBSYSTEM will be initialized here.
         if (!Vera.isVisionTestMode) {
-            m_hwDrivetrain.init(hwMap);
             m_hwIntake.init(hwMap);
             m_hwLift.init(hwMap);
             m_hwPoleNav.init(hwMap);
@@ -91,7 +89,6 @@ public class HwVera {
     }
 
     // EACH SUBSYSTEM will have an accessor to "get" a pointer to the hardware subsystem class.
-    public HwDrivetrain getHwDrivetrain() { return m_hwDrivetrain; }
     public HwIntake getHwIntake() { return m_hwIntake; }
     public HwLift getHwLift() { return m_hwLift; }
     public HwPoleNav getHwPoleNav() { return m_hwPoleNav; }

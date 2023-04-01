@@ -28,7 +28,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -54,7 +56,17 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-public class SampleMecanumDrive extends MecanumDrive {
+public class Drivetrain extends MecanumDrive {
+
+    // Adjustment constants for low-thrust control in drone mode.
+    private static final double DRONE_CONTROLS_SLOW_THRESH = -0.5;
+    private static final double DRONE_CONTROLS_SLOW_FACTOR = 0.65;
+
+    // Factor to reduce overall sensitivity in teleop.
+    // Added for 2022 KY scrimmage 1 (0.9 factor)
+    // Reduced for new drivers in 2022 KY scrimmage 2 (0.75 factor)
+    private static final double TELEOP_POWER_FACTOR = 0.9;
+
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6, 0, 0.3);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
@@ -69,6 +81,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
+    private StringBuilder m_csvLogStr = new StringBuilder();
+
     private TrajectoryFollower follower;
 
     private DcMotorEx motorFL, motorBL, motorBR, motorFR;
@@ -80,7 +94,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+    public Drivetrain(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
@@ -136,6 +150,31 @@ public class SampleMecanumDrive extends MecanumDrive {
                 follower, HEADING_PID, batteryVoltageSensor,
                 lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
         );
+    }
+
+    public void logCsvString(String record) { m_csvLogStr.append(record).append("\n"); }
+
+    public StringBuilder getLogString() {
+        return m_csvLogStr;
+    }
+
+    public void translateSticksDroneFlightControls(double pitch, double yaw,
+                                                   double roll, double thrust) {
+        double fl = (pitch + yaw + roll) * TELEOP_POWER_FACTOR;
+        double fr = (pitch - yaw - roll) * TELEOP_POWER_FACTOR;
+        double bl = (pitch + yaw - roll) * TELEOP_POWER_FACTOR;
+        double br = (pitch - yaw + roll) * TELEOP_POWER_FACTOR;
+
+        if (thrust < DRONE_CONTROLS_SLOW_THRESH) { // Incorporate Thrust (slow down)
+            fl *= DRONE_CONTROLS_SLOW_FACTOR;
+            fr *= DRONE_CONTROLS_SLOW_FACTOR;
+            bl *= DRONE_CONTROLS_SLOW_FACTOR;
+            br *= DRONE_CONTROLS_SLOW_FACTOR;
+        }
+        motorFL.setPower(fl);
+        motorFR.setPower(fr);
+        motorBL.setPower(bl);
+        motorBR.setPower(br);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -309,5 +348,12 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    public void reportData(Telemetry telemetry) {
+//        if (false) {
+//            // Add CSV logging and/or telemetry here
+//            logCsvString("remDist, " + df3.format(m_remainingDist_in));
+//        }
     }
 }

@@ -72,7 +72,7 @@ public class Intake {
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.5;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
-    private final int EJECT_COUNT = 3;
+    private final int EJECT_COUNT = 10;
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.

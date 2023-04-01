@@ -35,6 +35,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         m_vera.init(hardwareMap, false, false,
                 VeraPipelineType.SIGNAL, telemetry);
 
+        // TODO: Set all drive motors to BRAKE
+
         if (Vera.isVisionTestMode) {
             telemetry.addData("WARNING:", "vision test mode!");
         } else {
@@ -44,7 +46,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     }
 
     private void getInputsFromSticksAndTriggers() {
-        // Read gamepad1 sticks and pass commands to the drivetrain. Translates (mixes) Pitch,
+        // Read gamepad1 sticks and pass commands to the drivetrainOld. Translates (mixes) Pitch,
         // Yaw, Roll, & Thrust commands from gamepad Sticks into Motor inputs.
         m_vera.drivetrain.translateSticksDroneFlightControls(
                 -gamepad1.right_stick_y,

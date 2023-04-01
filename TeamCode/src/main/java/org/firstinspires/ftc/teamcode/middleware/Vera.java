@@ -5,15 +5,13 @@ import android.os.Environment;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.hardware.HwDrivetrain;
 import org.firstinspires.ftc.teamcode.hardware.HwIntake;
 import org.firstinspires.ftc.teamcode.hardware.HwLift;
 import org.firstinspires.ftc.teamcode.hardware.HwPoleNav;
 import org.firstinspires.ftc.teamcode.hardware.HwVera;
 import org.firstinspires.ftc.teamcode.hardware.HwVision;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -44,7 +42,6 @@ public class Vera implements CONSTANTS {
 
 
     // EACH SUBSYSTEM will have an accessor for its hardware layer object.
-    public HwDrivetrain getHwDrivetrain() { return m_hwVera.getHwDrivetrain(); }
     public HwIntake getHwIntake() { return m_hwVera.getHwIntake(); }
     public HwLift getHwLift() { return m_hwVera.getHwLift(); }
     public HwPoleNav getHwPoleNav() { return m_hwVera.getHwPoleNav(); }
@@ -76,7 +73,6 @@ public class Vera implements CONSTANTS {
 
         // EACH SUBSYSTEM will construct its middleware class instance here.
         if (!Vera.isVisionTestMode) {
-            drivetrain = new Drivetrain(this);
             intake = new Intake(this);
             lift = new Lift(this);
             poleNav = new PoleNav( this);
@@ -177,7 +173,7 @@ public class Vera implements CONSTANTS {
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.
         if (drivetrain != null && drivetrain.getLogString().length() > 0) {
-            logCsvString(" Drivetrain ");
+            logCsvString(" DrivetrainOld ");
             logCsvString(drivetrain.getLogString().toString());
         }
         if (intake != null && intake.getLogString().length() > 0) {
