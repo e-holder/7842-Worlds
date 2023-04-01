@@ -73,6 +73,7 @@ public class Vera implements CONSTANTS {
 
         // EACH SUBSYSTEM will construct its middleware class instance here.
         if (!Vera.isVisionTestMode) {
+            drivetrain = new Drivetrain(hwMap);
             intake = new Intake(this);
             lift = new Lift(this);
             poleNav = new PoleNav( this);

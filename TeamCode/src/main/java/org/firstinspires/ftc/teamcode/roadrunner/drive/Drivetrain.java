@@ -67,8 +67,8 @@ public class Drivetrain extends MecanumDrive {
     // Reduced for new drivers in 2022 KY scrimmage 2 (0.75 factor)
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6, 0, 0.3);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 0.3);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7.5, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1.3275;
 
@@ -150,6 +150,13 @@ public class Drivetrain extends MecanumDrive {
                 follower, HEADING_PID, batteryVoltageSensor,
                 lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
         );
+    }
+
+    public void initMotorsToBrake() {
+        motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void logCsvString(String record) { m_csvLogStr.append(record).append("\n"); }

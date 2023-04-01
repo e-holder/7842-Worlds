@@ -35,7 +35,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         m_vera.init(hardwareMap, false, false,
                 VeraPipelineType.SIGNAL, telemetry);
 
-        // TODO: Set all drive motors to BRAKE
+        m_vera.drivetrain.initMotorsToBrake();
 
         if (Vera.isVisionTestMode) {
             telemetry.addData("WARNING:", "vision test mode!");

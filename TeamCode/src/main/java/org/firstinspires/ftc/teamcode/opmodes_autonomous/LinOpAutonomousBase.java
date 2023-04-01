@@ -37,7 +37,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         m_fieldSide = fieldSide;
     }
 
-    private void initializeVera() {
+    protected void initializeVera() {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
         preInitSetup();  // Allows for override in various child OpModes.
