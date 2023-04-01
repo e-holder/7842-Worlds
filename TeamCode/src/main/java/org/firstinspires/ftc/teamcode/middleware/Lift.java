@@ -34,7 +34,7 @@ public class Lift implements CONSTANTS {
         DOWN_SLOW
     }
 
-    private final int LIFT_AT_BOTTOM_TOL_TICK = 3;
+    private final int LIFT_AT_BOTTOM_TOL_TICK = 10;
 
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
@@ -71,7 +71,7 @@ public class Lift implements CONSTANTS {
     private int m_clawGrabbingCounter = CLAW_GRABBING_COUNT_MAX;
     private int m_clawOpeningCounter = CLAW_OPENING_COUNT_MAX;
     private int m_delayForGrabCounter;
-    private int m_delayForMoveToBottom;
+    private int m_delayForMoveToBottom = 0;
     private int m_moveToPoleCounter;
     private int m_liftPos_tick;
     private int m_liftTarget_tick;
@@ -225,10 +225,8 @@ public class Lift implements CONSTANTS {
             case IDLE:
                 break;
             case REQUEST_MOVE_TO_BOTTOM:
-                if (m_liftPos_in <= 10.0) {
-                    m_delayForMoveToBottom = (m_liftPos_in < MED_POLE_IN ?
-                            DELAY_FOR_MOVE_TO_BOTTOM : 0);
-                }
+                m_delayForMoveToBottom = (m_liftPos_in <= LOW_POLE_IN ?
+                        DELAY_FOR_MOVE_TO_BOTTOM : 0);
                 m_state = LiftState.MOVE_TO_BOTTOM;
                 break;
             case MOVE_TO_BOTTOM:
@@ -344,18 +342,18 @@ public class Lift implements CONSTANTS {
         if (true) {
             logCsvString("lift" +
                     ", motorAmp, " + df3.format(m_liftMotor_amp) +
-//                    ", isBottom, " + m_isLiftAtBottom +
-//                    ", posTick, " + m_liftPos_tick +
+                    ", isBottom, " + m_isLiftAtBottom +
+                    ", posTick, " + m_liftPos_tick +
                     ", pos, " + df3.format(m_liftPos_in) +
-//                    ", targetTick, " + m_liftTarget_tick +
+                    ", targetTick, " + m_liftTarget_tick +
                     ", targetPos, " + df3.format(m_liftTargetPos_in) +
 //                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
 //                    ", isBusy, " + m_isLiftBusy +
 //                    ", isClawClosed, " + m_isClawClosed +
-                    ", grabDelay, " + m_delayForGrabCounter +
-                    ", grabCount, " + m_clawGrabbingCounter +
-                    ", downDelay, " + m_delayForMoveToBottom +
+//                    ", grabDelay, " + m_delayForGrabCounter +
+//                    ", grabCount, " + m_clawGrabbingCounter +
+//                    ", downDelay, " + m_delayForMoveToBottom +
 //                    ", openCount, " + m_clawOpeningCounter +
 //                    ", poleCount, " + m_moveToPoleCounter +
                     ".");

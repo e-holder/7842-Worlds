@@ -28,16 +28,17 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         if (isStopRequested()) return;
 
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
-                .addTemporalMarker(0, () -> {
+                .waitSeconds(1.0)
+                .addTemporalMarker(1, () -> {
                     m_vera.lift.moveLiftToLowPole();
                     m_vera.intake.moveToIdlePos();
                 })
                 .back(42.0)
-                .addTemporalMarker(2, () -> {
+                .addTemporalMarker(3, () -> {
                     m_vera.lift.moveLiftToHighPole();
                 })
                 .lineToLinearHeading(new Pose2d(-50.5,-11.5, Math.toRadians(-62)))
-                .addTemporalMarker(4.25, () -> {
+                .addTemporalMarker(5.25, () -> {
                     m_vera.lift.dropCone();
                     m_vera.lift.moveLiftToBottom();
                 })
@@ -51,8 +52,10 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
             m_vera.drivetrain.update();
             m_vera.getInputs(true);
             m_vera.commandVera();
+            m_vera.reportData(telemetry);
         }
 
+        stopVera();
     }
 
     protected void initializeRoute() {

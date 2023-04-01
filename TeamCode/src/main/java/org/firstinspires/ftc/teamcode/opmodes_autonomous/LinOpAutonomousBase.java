@@ -68,7 +68,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         telemetry.update();
     }
 
-    private void stopVera() {
+    protected void stopVera() {
         String stopMessage = m_vera.writeCsvLogData();
         telemetry.addData("Stop", stopMessage);
         telemetry.update();

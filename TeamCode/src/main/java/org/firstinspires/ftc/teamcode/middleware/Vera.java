@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.HwIntake;
 import org.firstinspires.ftc.teamcode.hardware.HwLift;
-import org.firstinspires.ftc.teamcode.hardware.HwPoleNav;
 import org.firstinspires.ftc.teamcode.hardware.HwVera;
 import org.firstinspires.ftc.teamcode.hardware.HwVision;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
@@ -36,7 +35,6 @@ public class Vera implements CONSTANTS {
     public Drivetrain drivetrain;
     public Intake intake;
     public Lift lift;
-    public PoleNav poleNav;
     public Vision vision;
     // EACH SUBSYSTEM (end)
 
@@ -44,7 +42,6 @@ public class Vera implements CONSTANTS {
     // EACH SUBSYSTEM will have an accessor for its hardware layer object.
     public HwIntake getHwIntake() { return m_hwVera.getHwIntake(); }
     public HwLift getHwLift() { return m_hwVera.getHwLift(); }
-    public HwPoleNav getHwPoleNav() { return m_hwVera.getHwPoleNav(); }
     public HwVision getHwVision() { return m_hwVera.getHwVision(); }
     // EACH SUBSYSTEM (end)
 
@@ -76,7 +73,6 @@ public class Vera implements CONSTANTS {
             drivetrain = new Drivetrain(hwMap);
             intake = new Intake(this);
             lift = new Lift(this);
-            poleNav = new PoleNav( this);
         }
         vision = new Vision(this, telemetry);
         // EACH SUBSYSTEM (end)
@@ -122,7 +118,6 @@ public class Vera implements CONSTANTS {
         if (!isVisionTestMode) {
             if (isAutonomous) {
                 // Get input(s) specific to the Vera middleware (the hubs).
-                poleNav.getInputs(true);
             }
             intake.getInputs();
             lift.getInputs();
@@ -136,7 +131,6 @@ public class Vera implements CONSTANTS {
             drivetrain.reportData(telemetry);
             intake.reportData(telemetry);
             lift.reportData(telemetry);
-            poleNav.reportData(telemetry);
         }
         vision.reportData(telemetry);
         // EACH SUBSYSTEM (end)
@@ -174,8 +168,7 @@ public class Vera implements CONSTANTS {
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.
         if (drivetrain != null && drivetrain.getLogString().length() > 0) {
-            logCsvString(" DrivetrainOld ");
-            logCsvString(drivetrain.getLogString().toString());
+     logCsvString(drivetrain.getLogString().toString());
         }
         if (intake != null && intake.getLogString().length() > 0) {
             logCsvString(" Intake ");
@@ -184,10 +177,6 @@ public class Vera implements CONSTANTS {
         if (lift != null && lift.getLogString().length() > 0) {
             logCsvString(" lift ");
             logCsvString(lift.getLogString().toString());
-        }
-        if (poleNav != null && poleNav.getLogString().length() > 0) {
-            logCsvString(" PoleNav ");
-            logCsvString(poleNav.getLogString().toString());
         }
         if (vision != null && vision.getLogString().length() > 0) {
             logCsvString(" Vision ");
