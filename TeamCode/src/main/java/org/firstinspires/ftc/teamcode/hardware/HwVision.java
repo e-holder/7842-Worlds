@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraException;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -33,7 +34,9 @@ public class HwVision {
                 hwMap.get(WebcamName.class, "LogiWebcam"),
                 cameraMonitorViewId);
 
-        m_cameraServo = hwMap.get(Servo.class, "CameraServo");
+        if (!Vera.isVisionTestMode);{
+            m_cameraServo = hwMap.get(Servo.class, "CameraServo");
+        }
     }
 
     public void startWebcamStreaming(OpenCvPipeline pipeline) {
