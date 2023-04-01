@@ -51,7 +51,7 @@ public class Lift implements CONSTANTS {
     private final double ENTERING_ROBOT_IN = 5.0; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
     private final double MED_POLE_IN = 24.0;
-    private final double HIGH_POLE_IN = 39.5;
+    private final double HIGH_POLE_IN = 38.5;
 
     private final double LIFT_MOTOR_DOWN_STALL_AMP = 5.0;
     private final double LIFT_SPEED_FAST_TPS = 4500;

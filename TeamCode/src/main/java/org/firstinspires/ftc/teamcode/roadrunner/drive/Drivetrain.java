@@ -68,7 +68,7 @@ public class Drivetrain extends MecanumDrive {
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5.5, 0, 0.7);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7.5, 0, 0.7);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(3.0, 0, 1.4);
 
     public static double LATERAL_MULTIPLIER = 1.3275;
 

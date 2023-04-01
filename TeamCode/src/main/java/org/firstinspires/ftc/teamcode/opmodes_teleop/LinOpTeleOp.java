@@ -65,11 +65,11 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         if (gamepad1.left_bumper && !m_1LeftBumper_AlreadyPressed) {
             m_vera.lift.dropCone();
         } else if (gamepad1.right_bumper && !m_1RightBumper_AlreadyPressed) {
-            m_vera.intake.moveToIntakeConePos();
+            m_vera.intake.moveToIntakeConePos(1);
         } else if (gamepad1.b && !m_1B_AlreadyPressed) {
             m_vera.intake.setLowJunctionMode();
         } else if (gamepad1.a && !m_1A_AlreadyPressed) {
-            m_vera.intake.toggleConeStackMode();
+            m_vera.intake.moveToIntakeConePos(5);
         } else if (gamepad1.x && !m_1X_AlreadyPressed) {
             m_vera.lift.moveLiftToHighPole();
         } else if (gamepad1.y && !m_1Y_AlreadyPressed) {
@@ -99,7 +99,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         if (gamepad2.left_bumper && !m_2LeftBumper_AlreadyPressed) {
             m_vera.lift.dropCone();
         } else if (gamepad2.right_bumper && !m_2RightBumper_AlreadyPressed) {
-            m_vera.intake.moveToIntakeConePos();
+            m_vera.intake.moveToIntakeConePos(1);
         } else if (gamepad2.a && !m_2A_AlreadyPressed) {
             m_vera.lift.moveLiftToBottom();
         } else if (gamepad2.b && !m_2B_AlreadyPressed) {

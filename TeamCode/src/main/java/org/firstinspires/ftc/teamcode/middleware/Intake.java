@@ -297,10 +297,10 @@ public class Intake {
         m_hasCone |= m_hasConeOverride;
     }
 
-    public void moveToIntakeConePos() {
-        m_targetConeStackLevel = 1;
+    public void moveToIntakeConePos(int coneLevel) {
+        m_targetConeStackLevel = coneLevel;
         m_state = IntakeState.MOVE_TO_CONE_POS;
-        m_isConeStackMode = false;
+        m_isConeStackMode = (coneLevel > 1);
         m_isBeaconMode = false;
         // NOTE: Low Junction Mode is LEGAL here.
     }
@@ -310,19 +310,6 @@ public class Intake {
         m_isConeStackMode = false;
         m_isLowJunctionMode = false;
         m_isBeaconMode = false;
-    }
-
-    public void toggleConeStackMode() {
-        m_isConeStackMode = !m_isConeStackMode;
-        m_isBeaconMode = false;
-        // NOTE: Low junction mode is LEGAL here.
-
-        if (m_isConeStackMode) {
-            m_targetConeStackLevel = 5;
-            m_state = IntakeState.MOVE_TO_CONE_POS;
-        } else {
-            moveToIdlePos();
-        }
     }
 
     public void toggleBeaconMode() {
@@ -409,7 +396,6 @@ public class Intake {
                 }
                 break;
             case INIT:
-                m_targetConeStackLevel = m_vera.isAutonomous() ? 5 : 1;
                 if (m_isLimitSwitchPressed) {
                     resetArmMotor();
                     m_state = IntakeState.MOVE_TO_IDLE_POS;
@@ -496,6 +482,7 @@ public class Intake {
                 if (m_ejectCounter <= 0) {
                     m_intakeWheelSpeed = 0.0;
                     m_hasCone = false;
+                    m_isConeStackMode = false;
                     m_state = IntakeState.MOVE_TO_IDLE_POS;
                 }
                 break;
