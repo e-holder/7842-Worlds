@@ -73,6 +73,7 @@ public class Intake {
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
+    private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_COUNT = 10;
 
     // MEMBER DATA ================================================================================
@@ -108,6 +109,7 @@ public class Intake {
     private double m_armDriverCmd;
     private int m_autonomousInitDelayCount = DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT;
     private int m_initDelayCounter = 0;
+    private int m_ejectDelayCounter = 0;
     private int m_ejectCounter;
     private int m_targetConeStackLevel;
     private int m_armPos_ticks;
@@ -200,12 +202,16 @@ public class Intake {
         double wristPos_deg = 0.0;
         if (m_hasResetOccurred) {
             if (m_isConeStackMode) {
-                if (m_state == IntakeState.MOVING_TO_EJECT_POS &&
-                        ((m_armPosAtHasCone_deg - m_armPos_deg) >
-                                ARM_DELTA_CONESTACK_WRIST_DELAY_DEG)) {
-                    wristPos_deg = WRIST_POS_EJECT_CONE_DEG;
-                } else {
-                    wristPos_deg = m_armPos_deg + WRIST_POS_STACK_DELTA_DEG;
+                wristPos_deg = m_armPos_deg + WRIST_POS_STACK_DELTA_DEG;
+                switch (m_state) {
+                    case MOVING_TO_EJECT_POS:
+                    case EJECT_CONE:
+                    case EJECTING_CONE:
+                        if ((m_armPosAtHasCone_deg - m_armPos_deg) >
+                                ARM_DELTA_CONESTACK_WRIST_DELAY_DEG) {
+                            wristPos_deg = WRIST_POS_EJECT_CONE_DEG;
+                        }
+                        break;
                 }
             } else if (m_isBeaconMode) {
                 wristPos_deg = m_armPos_deg - WRIST_POS_BEACON_DELTA_DEG;
@@ -435,6 +441,7 @@ public class Intake {
                 break;
             case MOVING_TO_EJECT_POS:
                 if (!m_isArmBusy) {
+                    m_ejectDelayCounter = (m_isConeStackMode ? EJECT_CONESTACK_DELAY_COUNT : 0);
                     m_state = IntakeState.EJECT_CONE;
                 }
                 break;
@@ -473,17 +480,20 @@ public class Intake {
                 }
                 break;
             case EJECT_CONE:
-                if (m_hasCone) {
-                    m_intakeWheelSpeed = DEFAULT_INTAKE_WHEEL_EJECT_SPEED;
-                    m_ejectCounter = 0;
-                    m_state = IntakeState.EJECTING_CONE;
-                } else {
-                    m_state = IntakeState.MOVE_TO_IDLE_POS;
+                m_ejectDelayCounter--;
+                if (m_ejectDelayCounter <= 0) {
+                    if (m_hasCone) {
+                        m_intakeWheelSpeed = DEFAULT_INTAKE_WHEEL_EJECT_SPEED;
+                        m_ejectCounter = EJECT_COUNT;
+                        m_state = IntakeState.EJECTING_CONE;
+                    } else {
+                        m_state = IntakeState.MOVE_TO_IDLE_POS;
+                    }
                 }
                 break;
             case EJECTING_CONE:
-                m_ejectCounter++;
-                if (m_ejectCounter > EJECT_COUNT) {
+                m_ejectCounter--;
+                if (m_ejectCounter <= 0) {
                     m_intakeWheelSpeed = 0.0;
                     m_hasCone = false;
                     m_state = IntakeState.MOVE_TO_IDLE_POS;
@@ -524,9 +534,9 @@ public class Intake {
             logCsvString("intake" +
                     ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
                     ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
-//                    ", hasCone, " + m_hasCone +
+                    ", hasCone, " + m_hasCone +
 //                    ", armTicks, " + m_armPos_ticks +
-//                    ", armDeg, " + df3.format(m_armPos_deg) +
+                    ", armDeg, " + df3.format(m_armPos_deg) +
 //                    ", armTgt, " + df3.format(m_armTargetPos_deg) +
 //                    ", armBusy, " + m_isArmBusy +
 //                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
@@ -537,7 +547,8 @@ public class Intake {
                     ", wristDeg, " + df3.format(m_wristPos_deg) +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
-                    ", delay, " + m_initDelayCounter +
+                    ", ejectDelay, " + m_ejectDelayCounter +
+//                    ", initDelay, " + m_initDelayCounter +
                     ".");
         }
 
