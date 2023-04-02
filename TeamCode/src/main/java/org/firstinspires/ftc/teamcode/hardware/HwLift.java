@@ -43,6 +43,8 @@ public class HwLift {
        return m_liftMotor.getCurrent(CurrentUnit.AMPS);
     }
 
+    public boolean isLiftHoming() { return m_liftMotor.getPower() < -0.05; }
+
     public boolean isLiftBusy () {
         return m_liftMotor.isBusy();
     }

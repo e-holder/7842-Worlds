@@ -67,8 +67,8 @@ public class Drivetrain extends MecanumDrive {
     // Reduced for new drivers in 2022 KY scrimmage 2 (0.75 factor)
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5.5, 0, 0.7);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(3.0, 0, 1.4);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6.0, 0, 0.5);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.0, 0.1, 0.3);
 
     public static double LATERAL_MULTIPLIER = 1.3275;
 

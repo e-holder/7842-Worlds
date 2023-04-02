@@ -146,13 +146,13 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    public boolean isGyroCalibrated() {
-        return m_hwVera.isGyroCalibrated();
-    }
+    //public boolean isGyroCalibrated() {
+    //    return m_hwVera.isGyroCalibrated();
+    //}
 
-    public String getGyroCalibrationStatus() {
-        return m_hwVera.getGyroCalibrationStatus();
-    }
+    //public String getGyroCalibrationStatus() {
+    //    return m_hwVera.getGyroCalibrationStatus();
+    //}
 
     public void logCsvString(String record) {
         m_csvLogString.append(record).append("\n");

@@ -17,9 +17,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
  */
 @Config
 @Autonomous(group = "drive")
-@Disabled
 public class StraightTest extends LinearOpMode {
-    public static double DISTANCE = 60; // in
+    public static double DISTANCE = -48; // in
 
     @Override
     public void runOpMode() throws InterruptedException {

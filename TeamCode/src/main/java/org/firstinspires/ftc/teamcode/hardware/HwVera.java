@@ -16,7 +16,7 @@ import java.util.List;
 
 // This class encapsulates the hardware within the Robot Controller (i.e., the IMU and Hubs).
 public class HwVera {
-    private BNO055IMU m_imu;
+    //private BNO055IMU m_imu;
     private List<LynxModule> m_allHubs = null;
 
     // EACH SUBSYSTEM will have a hardware class instance (member data) created by calling a
@@ -33,13 +33,13 @@ public class HwVera {
         //  been wired in to the Control Hub (no interface cable). Also, Vera had the IMU on I2C
         //  Bus 0, Device 0, but I couldn't get the Color Sensor to work unless it was Device 0,
         //  so I moved the IMU to Device 1.
-        m_imu = hwMap.get(BNO055IMU.class, "imu");
+        /*m_imu = hwMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters imuParams = new BNO055IMU.Parameters();
         imuParams.mode           = BNO055IMU.SensorMode.IMU;
         imuParams.angleUnit      = BNO055IMU.AngleUnit.DEGREES;
         imuParams.accelUnit      = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imuParams.loggingEnabled = false;
-        m_imu.initialize(imuParams);
+        m_imu.initialize(imuParams);*/
 
         if (enableManualBulkCaching) {
             // Get access to a list of Expansion Hub Modules to enable changing caching methods.
@@ -59,15 +59,15 @@ public class HwVera {
         // EACH SUBSYSTEM (end)
     }
 
-    public boolean isGyroCalibrated() {
-        return m_imu.isGyroCalibrated();
-    }
+    //public boolean isGyroCalibrated() {
+    //    return m_imu.isGyroCalibrated();
+    //}
 
-    public String getGyroCalibrationStatus() {
-        return m_imu.getCalibrationStatus().toString();
-    }
+    //public String getGyroCalibrationStatus() {
+    //    return m_imu.getCalibrationStatus().toString();
+    //}
 
-    public double getImuHeading_deg() {
+    /*public double getImuHeading_deg() {
         Orientation angles = m_imu.getAngularOrientation(
                 AxesReference.INTRINSIC,
                 AxesOrder.ZYX,
@@ -76,7 +76,7 @@ public class HwVera {
         // heading turns counter-clockwise. This is opposite what we want. So, we need to negate
         // the angle.
         return -angles.firstAngle;
-    }
+    }*/
 
     // This function must be called EVERY time through the main OpMode loop.
     // This should only be used if init was called with enableManualBulkCaching true.

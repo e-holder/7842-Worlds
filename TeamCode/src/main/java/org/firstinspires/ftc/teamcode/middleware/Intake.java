@@ -40,7 +40,6 @@ public class Intake {
     private final double ARM_IDLE_DEG = -10.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
-    private final double ARM_CONE_STACK_EJECT_START_DEG = 70.0;
     private final double ARM_CONE5_DEG = 85.0;
     private final double ARM_CONE4_DEG = 94.0;
     private final double ARM_CONE3_DEG = 102.0;
@@ -124,6 +123,7 @@ public class Intake {
 
         m_vera = vera;
         m_isLimitSwitchPressed = false;
+        m_hwIntake.wristMoveToPosition(10.0);
         m_state = IntakeState.INIT_DELAY;
     }
 
@@ -519,22 +519,22 @@ public class Intake {
 
         if (true) {
             logCsvString("intake" +
-                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
+//                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
                     ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
                     ", hasCone, " + m_hasCone +
-//                    ", armTicks, " + m_armPos_ticks +
+                    ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
-//                    ", armTgt, " + df3.format(m_armTargetPos_deg) +
+//                    ", armTicks, " + m_armPos_ticks +
 //                    ", armBusy, " + m_isArmBusy +
 //                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
 //                    ", coneCmd, " + m_intakeConeCommand +
 //                    ", armCmd," + df3.format(m_armDriverCmd) +
-//                    ", wristPos, " + df3.format(m_wristServoPos) +
 //                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
                     ", wristDeg, " + df3.format(m_wristPos_deg) +
+//                    ", wristPos, " + df3.format(m_wristServoPos) +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
-                    ", ejectDelay, " + m_ejectDelayCounter +
+//                    ", ejectDelay, " + m_ejectDelayCounter +
 //                    ", initDelay, " + m_initDelayCounter +
                     ".");
         }

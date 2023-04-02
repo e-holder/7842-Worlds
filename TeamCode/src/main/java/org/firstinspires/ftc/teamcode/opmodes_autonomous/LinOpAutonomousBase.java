@@ -44,14 +44,6 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         m_vera.init(hardwareMap, true,
                 m_isVisionTestMode, m_initialPipelineType, telemetry);
 
-        // Make sure the IMU gyro is calibrated before continuing.
-        while (!isStopRequested() && !m_vera.isGyroCalibrated()) {
-            sleep(IMU_CALIBRATION_TIME_MS);
-            idle();
-        }
-        telemetry.addData("IMU calibration status:", m_vera.getGyroCalibrationStatus());
-        telemetry.update();
-
         // Call abstract function defined in the autonomous OpMode.
         initializeRoute();
 

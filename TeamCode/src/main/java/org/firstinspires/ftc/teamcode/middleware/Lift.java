@@ -35,6 +35,7 @@ public class Lift implements CONSTANTS {
     }
 
     private final int LIFT_AT_BOTTOM_TOL_TICK = 10;
+    private final int LIFT_AT_JUNCTION_TOL_TICK = 15;
 
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
@@ -51,7 +52,7 @@ public class Lift implements CONSTANTS {
     private final double ENTERING_ROBOT_IN = 5.0; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
     private final double MED_POLE_IN = 24.0;
-    private final double HIGH_POLE_IN = 38.5;
+    private final double HIGH_POLE_IN = 38.0;
 
     private final double LIFT_MOTOR_DOWN_STALL_AMP = 5.0;
     private final double LIFT_SPEED_FAST_TPS = 4500;
@@ -93,6 +94,7 @@ public class Lift implements CONSTANTS {
         // SUBSYSTEM gets its corresponding hardware class instance here.
         m_hwLift = vera.getHwLift();
 
+        m_hwLift.setLiftClawPos(CLAW_CLOSED);
         m_state = LiftState.INIT;
     }
 
@@ -261,7 +263,9 @@ public class Lift implements CONSTANTS {
             case MOVING_TO_MED_POLE_POS:   // Intentional fall-through
             case MOVING_TO_HIGH_POLE_POS:
                 m_moveToPoleCounter++;
-                if (!m_isLiftBusy || m_moveToPoleCounter > MOVE_TO_POLE_COUNT_MAX) {
+                double delta = Math.abs(m_liftTarget_tick - m_liftPos_tick);
+                if (!m_isLiftBusy || delta <= LIFT_AT_JUNCTION_TOL_TICK ||
+                        m_moveToPoleCounter > MOVE_TO_POLE_COUNT_MAX) {
                     m_state = LiftState.DRIVER_PLACE_CONE;
                 }
                 break;
