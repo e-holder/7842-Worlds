@@ -148,10 +148,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     }
 
     private void stopVera() {
-        String stopMessage = m_vera.writeCsvLogData();
-        telemetry.addData("Stop", stopMessage);
-        telemetry.update();
-
         m_vera.stopVera();
     }
 

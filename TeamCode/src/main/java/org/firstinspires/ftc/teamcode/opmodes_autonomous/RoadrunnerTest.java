@@ -1,16 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.middleware.Vera;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-
 
 @Autonomous
 public class RoadrunnerTest extends LinOpAutonomousBase {
@@ -47,15 +40,17 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
                 .build();
 
         m_vera.drivetrain.followTrajectorySequenceAsync(master);
+
         while(!isStopRequested()) {
-            m_vera.drivetrain.update();
-            m_vera.getInputs(true);
-            m_vera.commandVera();
+            getInputs();
+            commandVera();
+            reportData();
         }
+        stopVera();
     }
 
     protected void initializeRoute() {
-        setupAlliance(Alliance.BLUE, FieldSide.SOUTH);
+        setupAlliance(Alliance.BLUE, FieldSide.RIGHT);
     }
 }
 

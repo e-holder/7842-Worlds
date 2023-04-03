@@ -12,8 +12,8 @@ public interface CONSTANTS {
 
     public enum FieldSide {
         UNDEFINED,
-        NORTH,  // Away from audience
-        SOUTH   // Toward audience
+        LEFT,
+        RIGHT
     }
 
     public enum VeraPipelineType {

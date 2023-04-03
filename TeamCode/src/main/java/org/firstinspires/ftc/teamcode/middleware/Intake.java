@@ -390,7 +390,7 @@ public class Intake {
         return m_rightTapeSensor;
     }
 
-    public void commandComponents() {
+    public void update() {
         switch (m_state) {
             case INIT_DELAY:
                 m_initDelayCounter++;

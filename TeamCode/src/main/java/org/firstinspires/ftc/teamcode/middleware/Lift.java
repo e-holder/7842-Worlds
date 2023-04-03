@@ -211,7 +211,7 @@ public class Lift implements CONSTANTS {
         }
     }
 
-    public void commandComponents () {
+    public void update() {
         // Always keep this logging block.
         if (true && (m_priorState != m_state)) {
             m_priorState = m_state;
