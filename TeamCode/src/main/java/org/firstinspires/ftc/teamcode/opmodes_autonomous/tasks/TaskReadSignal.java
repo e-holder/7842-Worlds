@@ -28,6 +28,12 @@ public class TaskReadSignal extends AutonomousTask {
     public void addSignalTelemetry() {
         telemetry.addData("Park = ", parkingZone +
                 ", Signal = " + signal);
+        telemetry.addData("averages",
+                (int)m_avgBox + " (" + (int)m_avgTop + " / " + (int)m_avgBottom + ")");
+    }
+
+    public Signal getParkingZone() {
+        return parkingZone;
     }
 
     @Override

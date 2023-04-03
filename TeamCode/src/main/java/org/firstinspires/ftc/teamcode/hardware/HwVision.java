@@ -34,11 +34,7 @@ public class HwVision {
                 hwMap.get(WebcamName.class, "LogiWebcam"),
                 cameraMonitorViewId);
 
-        if (Vera.isVisionTestMode) {
-            m_cameraServo = hwMap.get(Servo.class, "Servo");
-        } else {
-            m_cameraServo = hwMap.get(Servo.class, "CameraServo");
-        }
+        m_cameraServo = hwMap.get(Servo.class, "CameraServo");
     }
 
     public void startWebcamStreaming(OpenCvPipeline pipeline) {
