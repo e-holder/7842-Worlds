@@ -1,26 +1,38 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.middleware.Vera;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.AutonomousTask.TaskStatus;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
-
-@Autonomous
+@Autonomous(name = "RoadRunner Test")
 public class RoadrunnerTest extends LinOpAutonomousBase {
+
+    private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
+
+    protected void initializeRoute() {
+        setupAlliance(Alliance.BLUE, FieldSide.LEFT);
+    }
+
+    // Use vision (webcam) to read the signal cone.
+    private void readSignalCone() {
+        TaskStatus status;
+        do {
+            status = m_taskReadSignal.update();
+            m_taskReadSignal.addSignalTelemetry();
+            reportData();
+        } while ((status != TaskStatus.DONE) && !isStopRequested());
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
+        readSignalCone();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
-
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         waitForStart();
@@ -46,26 +58,16 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
                 .waitSeconds(2)
                 .lineToSplineHeading(new Pose2d(-47.75,18, Math.toRadians(-120)))
                 .addTemporalMarker(12, () -> {m_vera.lift.moveLiftToHighPole();})
-
-
-
                 .build();
 
         m_vera.drivetrain.followTrajectorySequenceAsync(master);
+
         while(!isStopRequested()) {
-            m_vera.drivetrain.update();
-            m_vera.getInputs(true);
-            m_vera.commandVera();
-            m_vera.reportData(telemetry);
+            getInputs();
+            commandVera();
+            reportData();
         }
-
         stopVera();
-    }
-
-    protected void initializeRoute() {
-        setupAlliance(Alliance.BLUE, FieldSide.SOUTH);
-
-        // TODO: How to get tasks (see lines 14-15) sequenced in new architecture?
     }
 }
 

@@ -61,6 +61,8 @@ public class Vision implements CONSTANTS {
         if (m_isFirstPipeline) {
             // 'start' is used the first time
             m_hwVision.startWebcamStreaming(pipeline);
+            // TODO: Nix
+            logCsvString("Pipeline = " + pipeline.toString());
             m_isFirstPipeline = false;
         } else {
             // 'change' is used for subsequent pipelines

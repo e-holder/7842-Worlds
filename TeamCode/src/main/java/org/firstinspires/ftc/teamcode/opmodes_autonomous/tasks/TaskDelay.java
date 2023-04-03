@@ -29,8 +29,8 @@ public class TaskDelay extends AutonomousTask {
     }
 
     @Override
-    public CONSTANTS.TaskStatus update(double runTime_s) {
-        CONSTANTS.TaskStatus taskStatus = CONSTANTS.TaskStatus.RUNNING;
+    public TaskStatus update() {
+        TaskStatus taskStatus = TaskStatus.RUNNING;
         switch (m_state) {
             case START_TIMER:
                 m_delayTimer.reset();
@@ -42,7 +42,7 @@ public class TaskDelay extends AutonomousTask {
                 }
                 break;
             case DONE:
-                taskStatus = CONSTANTS.TaskStatus.DONE;
+                taskStatus = TaskStatus.DONE;
                 break;
         }
         return taskStatus;
