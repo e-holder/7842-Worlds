@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks;
 
-import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
-import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal;
+import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 
 public class TaskReadSignal extends AutonomousTask {
 
@@ -9,7 +8,6 @@ public class TaskReadSignal extends AutonomousTask {
         WAIT_FOR_NON_BLACK_IMAGES,
         WAIT_FOR_WEBCAM,
         READ_SIGNAL,
-        WAIT_FOR_HW_TO_INITIALIZE
     }
 
     private TaskState m_state;
@@ -26,24 +24,25 @@ public class TaskReadSignal extends AutonomousTask {
         m_isTelemetryOn = isTelemetryOn;
     }
 
+    public void displaySignalTelemetry() {
+        if (m_isTelemetryOn) {
+            telemetry.addData("Park = ", parkingZone +
+                    ", Signal = " + signal);
+        }
+    }
+
     @Override
-    public CONSTANTS.TaskStatus update(double runTime_s) {
+    public TaskStatus update() {
         if (m_state != m_priorState) {
             m_priorState = m_state;
-            vera.logCsvString("RS state, " + m_state);
+            vera.logCsvString("ReadSignal state, " + m_state);
         }
 
-        CONSTANTS.TaskStatus taskStatus = CONSTANTS.TaskStatus.RUNNING;
+        TaskStatus taskStatus = TaskStatus.RUNNING;
 
         m_avgBox = vera.vision.getSignalBoxAvg();
         m_avgTop = vera.vision.getSignalBoxTopAvg();
         m_avgBottom = vera.vision.getSignalBoxBottomAvg();
-        if (m_isTelemetryOn) {
-            telemetry.addData("Signal = ", vera.vision.getSignal() +
-                    " A " + df3.format(m_avgBox) +
-                    " T " + df3.format(m_avgTop) +
-                    " B " + df3.format(m_avgBottom));
-        }
 
         switch (m_state) {
             case WAIT_FOR_NON_BLACK_IMAGES:
@@ -65,18 +64,12 @@ public class TaskReadSignal extends AutonomousTask {
             case READ_SIGNAL:
                 vera.vision.ReadSignal(alliance, fieldSide);
                 signal = vera.vision.getSignal();
-                if (signal == VisionPipelineSignal.Signal.UNKNOWN) {
-                    telemetry.addData("ERROR", "READ SIGNAL FAIL");
-                }
-                vera.logCsvString("TaskReadSignal, signal, " + signal +
+                parkingZone = (signal != Signal.UNKNOWN ? signal : Signal.ZONE3);
+                vera.logCsvString("TaskReadSignal: signal, " + signal +
                         ", avgBox, " + df3.format(m_avgBox) +
                         ", avgTop, " + df3.format(m_avgTop) +
                         ", avgBottom, " + df3.format(m_avgBottom));
-
-                m_state = TaskState.WAIT_FOR_HW_TO_INITIALIZE;
-                break;
-            case WAIT_FOR_HW_TO_INITIALIZE:
-                taskStatus = CONSTANTS.TaskStatus.DONE;
+                taskStatus = TaskStatus.DONE;
                 break;
         }
         return taskStatus;

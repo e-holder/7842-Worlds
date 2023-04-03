@@ -22,8 +22,6 @@ public class Vision implements CONSTANTS {
         // SUBSYSTEM constructs its corresponding hardware class instance here.
         m_hwVision = vera.getHwVision();
 
-        vera.
-
         setCameraTiltForSignal();
 
         // Update startStreaming if list of pipelines change

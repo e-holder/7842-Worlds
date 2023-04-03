@@ -4,11 +4,6 @@ import java.text.DecimalFormat;
 
 public interface CONSTANTS {
 
-    enum TaskStatus {
-        RUNNING,
-        DONE
-    }
-
     enum Alliance {
         UNDEFINED,
         RED,

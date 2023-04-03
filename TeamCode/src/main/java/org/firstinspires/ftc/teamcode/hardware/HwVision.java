@@ -34,7 +34,9 @@ public class HwVision {
                 hwMap.get(WebcamName.class, "LogiWebcam"),
                 cameraMonitorViewId);
 
-        if (!Vera.isVisionTestMode);{
+        if (Vera.isVisionTestMode) {
+            m_cameraServo = hwMap.get(Servo.class, "Servo");
+        } else {
             m_cameraServo = hwMap.get(Servo.class, "CameraServo");
         }
     }

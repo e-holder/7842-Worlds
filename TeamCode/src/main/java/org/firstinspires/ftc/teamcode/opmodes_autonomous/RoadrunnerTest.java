@@ -52,13 +52,10 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
             m_vera.getInputs(true);
             m_vera.commandVera();
         }
-
     }
 
     protected void initializeRoute() {
         setupAlliance(Alliance.BLUE, FieldSide.SOUTH);
-
-        // TODO: How to get tasks (see lines 14-15) sequenced in new architecture?
     }
 }
 

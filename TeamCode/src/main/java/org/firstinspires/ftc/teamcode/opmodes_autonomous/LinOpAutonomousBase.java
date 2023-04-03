@@ -4,12 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.AutonomousTask;
 
 // This is a "base" class for all autonomous OpModes. All code that is shared between autonomous
 // modes will go here.
 public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTANTS {
-
-    private static final int IMU_CALIBRATION_TIME_MS = 50;
 
     protected Alliance m_alliance;
     protected FieldSide m_fieldSide;
@@ -40,17 +39,16 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
     protected void initializeVera() {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
+
+        // Setup old AutonomousTask (slight hack here) so it still works after eliminating the
+        // route_engine approach to autonomous.
+        AutonomousTask.vera = m_vera;
+        AutonomousTask.telemetry = telemetry;
+
         preInitSetup();  // Allows for override in various child OpModes.
+
         m_vera.init(hardwareMap, true,
                 m_isVisionTestMode, m_initialPipelineType, telemetry);
-
-        // Make sure the IMU gyro is calibrated before continuing.
-        while (!isStopRequested() && !m_vera.isGyroCalibrated()) {
-            sleep(IMU_CALIBRATION_TIME_MS);
-            idle();
-        }
-        telemetry.addData("IMU calibration status:", m_vera.getGyroCalibrationStatus());
-        telemetry.update();
 
         // Call abstract function defined in the autonomous OpMode.
         initializeRoute();
@@ -63,12 +61,20 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         telemetry.update();
     }
 
-    private void reportData() {
+    protected void getInputs() {
+        m_vera.getInputs(true);
+    }
+
+    protected void commandVera() {
+        m_vera.commandVera();
+    }
+
+    protected void reportData() {
         m_vera.reportData(telemetry);
         telemetry.update();
     }
 
-    private void stopVera() {
+    protected void stopVera() {
         String stopMessage = m_vera.writeCsvLogData();
         telemetry.addData("Stop", stopMessage);
         telemetry.update();
@@ -85,15 +91,10 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         waitForStart();
 
         // Run until time runs out, the driver presses STOP.
-        TaskStatus taskStatus = TaskStatus.RUNNING;
         while (opModeIsActive()) {
-
             // getInputs MUST be the first thing called at the beginning of the main loop.
-            m_vera.getInputs(true);
-
-
-            m_vera.commandVera();
-
+            getInputs();
+            commandVera();
             reportData();
         }
 
