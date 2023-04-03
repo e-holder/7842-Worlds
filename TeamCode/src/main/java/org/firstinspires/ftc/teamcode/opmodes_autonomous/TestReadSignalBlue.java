@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 @Autonomous(name = "Test Vision Read Signal Blue")
 public class TestReadSignalBlue extends LinOpAutonomousBase implements CONSTANTS {
 
-    private TaskReadSignal m_taskReadSignal = new TaskReadSignal(true);
+    private TaskReadSignal m_taskReadSignal = new TaskReadSignal();
     private TaskDelay m_taskDelay = new TaskDelay(30000);
 
     @Override

@@ -10,25 +10,23 @@ public class TaskReadSignal extends AutonomousTask {
         READ_SIGNAL,
     }
 
+    private final int WAIT_FOR_NON_BLACK_FRAMES_COUNT = 100;
+    private final int WAIT_FRAMES_PRIOR_TO_USE = 2;
+
     private TaskState m_state;
     private TaskState m_priorState = TaskState.READ_SIGNAL; //Anything but WAIT_FOR_NON_BLACK_IMAGES
     private int m_webcamWaitCounter = 0;
-    private final boolean m_isTelemetryOn;
     private double m_avgBox;
     private double m_avgTop;
     private double m_avgBottom;
 
-    public TaskReadSignal(boolean isTelemetryOn) {
+    public TaskReadSignal() {
         m_state = TaskState.WAIT_FOR_NON_BLACK_IMAGES;
-
-        m_isTelemetryOn = isTelemetryOn;
     }
 
     public void displaySignalTelemetry() {
-        if (m_isTelemetryOn) {
-            telemetry.addData("Park = ", parkingZone +
-                    ", Signal = " + signal);
-        }
+        telemetry.addData("Park = ", parkingZone +
+                ", Signal = " + signal);
     }
 
     @Override
@@ -46,18 +44,22 @@ public class TaskReadSignal extends AutonomousTask {
 
         switch (m_state) {
             case WAIT_FOR_NON_BLACK_IMAGES:
-                // ONLY transition to RUN state after we know the pipeline is processing frames with
-                // non-empty images.
+                m_webcamWaitCounter++;
+                // Transition to RUN state after we know the pipeline is processing frames with
+                // non-empty images (or until we give up).
                 if (vera.vision.areSignalImagesValid()) {
-                    vera.logCsvString("RS frames to non-black: " +
+                    vera.logCsvString("ReadSignal frames until non-black: " +
                             vera.vision.getSignalPipelineFrameCount());
+                    m_webcamWaitCounter = 0;
                     m_state = TaskState.WAIT_FOR_WEBCAM;
-
+                } else if (m_webcamWaitCounter > WAIT_FOR_NON_BLACK_FRAMES_COUNT) {
+                    vera.logCsvString("ReadSignal frames are all BLACK!");
+                    m_state = TaskState.READ_SIGNAL;
                 }
                 break;
             case WAIT_FOR_WEBCAM:
-                // Skip an image or two in case the first is sketchy.
-                if (++m_webcamWaitCounter >= 2) {
+                // Skip a few frames in case the first is sketchy.
+                if (m_webcamWaitCounter++ >= WAIT_FRAMES_PRIOR_TO_USE) {
                     m_state = TaskState.READ_SIGNAL;
                 }
                 break;

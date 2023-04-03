@@ -10,8 +10,7 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 //@Disabled
 public class TestReadSignalRed extends LinOpAutonomousBase implements CONSTANTS {
 
-    // TODO: How to get these tasks sequenced in new architecture?
-    private TaskReadSignal m_taskReadSignal = new TaskReadSignal(true);
+    private TaskReadSignal m_taskReadSignal = new TaskReadSignal();
     private TaskDelay m_taskDelay = new TaskDelay(8000);
 
     @Override
