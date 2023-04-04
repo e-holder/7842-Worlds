@@ -77,8 +77,6 @@ public class Vera implements CONSTANTS {
 
         if (m_isAutonomous) {
             vision.startStreaming(initialPipelineType);
-            // TODO: Nix
-            logCsvString("Started streaming " + initialPipelineType);
         }
     }
 
@@ -87,8 +85,8 @@ public class Vera implements CONSTANTS {
     }
 
     public void stopVera() {
+        writeCsvLogData();
         vision.stopWebcamStreaming();
-//        writeCsvLogData();
     }
 
     public void setAlliance(Alliance matchAlliance) {
