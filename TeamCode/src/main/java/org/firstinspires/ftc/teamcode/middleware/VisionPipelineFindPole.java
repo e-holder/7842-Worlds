@@ -54,7 +54,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     // Gaussian blur parameters. Size must be an odd number.
     private final int BLUR_SIZE = 15;    // Original: 5
-    private final double SIGMA = 0.0;    // Original: 0.0
+    private final double SIGMA_X = 0.0;    // Original: 0.0
+    private final double SIGMA_Y = 0.0;    // Original: 0.0
     private final Size GAUSSIAN_BLUR_SIZE = new Size(BLUR_SIZE, BLUR_SIZE);
 
     private Telemetry m_telemetry;
@@ -165,7 +166,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // Remove noise from the image data in the sample box using a Gaussian blur filter. This
         // is so one stray dark pixel will not be seen as the pole. We are looking for a column
         // of dark pixels.
-        Imgproc.GaussianBlur(m_matBox, m_matBox, GAUSSIAN_BLUR_SIZE, SIGMA, SIGMA);
+        Imgproc.GaussianBlur(m_matBox, m_matBox, GAUSSIAN_BLUR_SIZE, SIGMA_X, SIGMA_Y);
 
         // First get the row data and find average and minimum of the pixel values in both rows.
         short pixVal;
