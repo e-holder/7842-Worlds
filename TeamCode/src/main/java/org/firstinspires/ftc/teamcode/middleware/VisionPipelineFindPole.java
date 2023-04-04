@@ -53,7 +53,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final Scalar WHITE = new Scalar(255);
 
     // Gaussian blur parameters. Size must be an odd number.
-    private final int BLUR_SIZE = 5;
+    private final int BLUR_SIZE = 7;
     private final double SIGMA = 0.0;
     private final Size GAUSSIAN_BLUR_SIZE = new Size(BLUR_SIZE, BLUR_SIZE);
 
@@ -271,15 +271,6 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             point2 = new Point(BOX_LEFT +
                     Vision.NOMINAL_MID_POLE_CENTER_PIX + Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,
                     POLE_UPPER_ROW + 15);
-            Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
-
-            // Draw the nominal low pole position and width.
-            point1 = new Point(BOX_LEFT +
-                    Vision.NOMINAL_LOW_POLE_CENTER_PIX - Vision.NOMINAL_LOW_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 25);
-            point2 = new Point(BOX_LEFT +
-                    Vision.NOMINAL_LOW_POLE_CENTER_PIX + Vision.NOMINAL_LOW_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 25);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
             if (m_poleUpperWidth_pix.get() > 0) {

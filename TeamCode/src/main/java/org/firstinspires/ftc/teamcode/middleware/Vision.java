@@ -9,16 +9,19 @@ public class Vision implements CONSTANTS {
     private final double CAMERA_TILT_SIGNAL = 0.0;
     // For the pole vision camera tilt, the following settings need to allow us to see just the pole
     // in our detection box without seeing any of a 4-stack on cones on that pole.
-    private final double CAMERA_TILT_HIGH_POLE = 0.285;
-    private final double CAMERA_TILT_MID_POLE = 0.33;
+    private final double CAMERA_TILT_HIGH_POLE = 0.285;    // About 12 degrees up
+    private final double CAMERA_TILT_MID_POLE = 0.33;      // About 30 degrees up
 
     // SUBSYSTEM has an instance of its corresponding hardware class here.
     private HwVision m_hwVision;
 
     private StringBuilder m_csvLogStr = new StringBuilder();
+    private final PoleType m_defaultPoleType;
 
     // SUBSYSTEM has a public constructor here.
-    public Vision(Vera vera, Telemetry telemetry) {
+    public Vision(Vera vera, Telemetry telemetry, PoleType defaultPoleType) {
+        m_defaultPoleType = defaultPoleType;
+
         // SUBSYSTEM constructs its corresponding hardware class instance here.
         m_hwVision = vera.getHwVision();
 
@@ -48,7 +51,11 @@ public class Vision implements CONSTANTS {
         OpenCvPipeline pipeline;
         switch (veraPipelineType) {
             case FIND_POLE:
-                setCameraTiltForMidPole();
+                if (m_defaultPoleType == PoleType.HIGH) {
+                    setCameraTiltForHighPole();
+                } else {
+                    setCameraTiltForMidPole();
+                }
                 pipeline = m_findPolePipeline;
                 setMinPoleWidth();
                 break;
@@ -77,17 +84,22 @@ public class Vision implements CONSTANTS {
     //============================================================================================
     // Find Pole Vision Functionality
 
-    // Note: Camera will be about 19.5 inches from High Poles, 10 inches from Mid Poles, and 2.5
-    // inches from Low Poles.
-    public static final int NOMINAL_HIGH_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 0;
+    // Camera will be about 19 inches (18-20) from High poles
+    // Camera will be about 4 inches above the floor and about 45 degrees up from horizontal
+    // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
+    public static final int NOMINAL_HIGH_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 48;
     public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
     private final int MIN_HIGH_POLE_WIDTH_PIX = 24;
 
-    public static final int NOMINAL_MID_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 17;
-    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 60;
-    private final int MIN_MID_POLE_WIDTH_PIX = 45;
+    // Camera will be about 10 inches (9-11) from Mid poles
+    // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
+    // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
+    public static final int NOMINAL_MID_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 51;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
+    private final int MIN_MID_POLE_WIDTH_PIX = 37;
 
     // TODO: Calibrate low pole constants (if we ever need them in autonomous)
+    // Camera will be about 2.5 inches (2-4) from Low poles.
     public static final int NOMINAL_LOW_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 - 4;
     public static final int NOMINAL_LOW_POLE_WIDTH_PIX = 160;
     private final int MIN_LOW_POLE_WIDTH_PIX = 100;

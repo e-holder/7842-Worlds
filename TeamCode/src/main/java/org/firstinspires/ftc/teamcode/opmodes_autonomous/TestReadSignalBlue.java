@@ -25,7 +25,7 @@ public class TestReadSignalBlue extends LinOpAutonomousBase implements CONSTANTS
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.HIGH);
 
         TaskStatus status;
         do {

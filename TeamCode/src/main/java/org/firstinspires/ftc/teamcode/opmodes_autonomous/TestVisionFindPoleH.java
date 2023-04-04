@@ -28,7 +28,7 @@ public class TestVisionFindPoleH extends LinOpAutonomousBase implements CONSTANT
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.HIGH);
 
         waitForStart();
 

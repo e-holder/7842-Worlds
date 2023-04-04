@@ -50,7 +50,8 @@ public class Vera implements CONSTANTS {
     }
 
     public void init(HardwareMap hwMap, boolean isAutonomous, boolean visionTestMode,
-                     VeraPipelineType initialPipelineType, Telemetry telemetry) {
+                     VeraPipelineType initialPipelineType, PoleType defaultPoleType,
+                     Telemetry telemetry) {
         m_isAutonomous = isAutonomous;
         Vera.isVisionTestMode = visionTestMode;
         m_hwVera.init(hwMap, true);
@@ -72,7 +73,7 @@ public class Vera implements CONSTANTS {
             intake = new Intake(this);
             lift = new Lift(this);
         }
-        vision = new Vision(this, telemetry);
+        vision = new Vision(this, telemetry, defaultPoleType);
         // EACH SUBSYSTEM (end)
 
         if (m_isAutonomous) {

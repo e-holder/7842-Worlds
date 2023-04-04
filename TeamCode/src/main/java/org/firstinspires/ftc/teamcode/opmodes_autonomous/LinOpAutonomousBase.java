@@ -36,7 +36,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         m_fieldSide = fieldSide;
     }
 
-    protected void initializeVera() {
+    protected void initializeVera(PoleType defaultPoleType) {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
@@ -48,7 +48,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         preInitSetup();  // Allows for override in various child OpModes.
 
         m_vera.init(hardwareMap, true,
-                m_isVisionTestMode, m_initialPipelineType, telemetry);
+                m_isVisionTestMode, m_initialPipelineType, defaultPoleType, telemetry);
 
         // Call abstract function defined in the autonomous OpMode.
         initializeRoute();
@@ -81,7 +81,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.HIGH);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

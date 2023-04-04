@@ -28,7 +28,7 @@ public class TestVisionFindPoleM extends LinOpAutonomousBase implements CONSTANT
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.MID);
 
         waitForStart();
 

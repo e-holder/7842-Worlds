@@ -2,23 +2,23 @@
 <Robot type="FirstInspires-FTC">
     <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
         <LynxModule name="Expansion Hub 2" port="2">
-            <ModernRobotics-GB5203-2402-0005 name="LiftMotor" port="0" />
-            <ModernRobotics-GB5203-2402-0005 name="IntakeMotor" port="1" />
-            <ModernRobotics-GB5203-2402-0027 name="ArmMotor" port="2" />
-            <ModernRobotics-GB5202-0002-0051 name="WristMotor" port="3" />
-            <REV_VL53L0X_RANGE_SENSOR name="PoleSensorL" port="0" bus="0" />
-            <REV_VL53L0X_RANGE_SENSOR name="PoleSensorR" port="0" bus="1" />
+            <goBILDA5202SeriesMotor name="LiftMotor" port="0" />
+            <goBILDA5202SeriesMotor name="IntakeMotor" port="1" />
+            <goBILDA5202SeriesMotor name="ArmMotor" port="2" />
+            <goBILDA5202SeriesMotor name="WristMotor" port="3" />
             <RevColorSensorV3 name="RightTapeSensor" port="0" bus="2" />
             <RevColorSensorV3 name="LeftTapeSensor" port="0" bus="3" />
+            <RevColorSensorV3 name="MiddlemanDistanceSensor" port="0" bus="1" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
-            <ModernRobotics-GB5203-2402-0014 name="FL" port="0" />
-            <ModernRobotics-GB5203-2402-0014 name="BL" port="1" />
-            <ModernRobotics-GB5203-2402-0014 name="FR" port="2" />
-            <ModernRobotics-GB5203-2402-0014 name="BR" port="3" />
+            <goBILDA5202SeriesMotor name="FL" port="0" />
+            <goBILDA5202SeriesMotor name="BL" port="1" />
+            <goBILDA5202SeriesMotor name="FR" port="2" />
+            <goBILDA5202SeriesMotor name="BR" port="3" />
             <Servo name="LiftClawServo" port="0" />
             <Servo name="WristServo" port="1" />
             <Servo name="CameraServo" port="5" />
+            <DigitalDevice name="LiftLimitSwitch" port="0" />
             <DigitalDevice name="ArmLimitSwitch" port="4" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
         </LynxModule>

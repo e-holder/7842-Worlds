@@ -57,6 +57,7 @@ public class TaskFindPole extends AutonomousTask {
         switch (m_state) {
             case INIT:
                 vera.vision.setPoleType(m_poleType);
+                vera.logCsvString("setPole, " + m_poleType);
                 m_state = TaskState.WAIT_FOR_NON_BLACK_IMAGES;
                 break;
             case WAIT_FOR_NON_BLACK_IMAGES:

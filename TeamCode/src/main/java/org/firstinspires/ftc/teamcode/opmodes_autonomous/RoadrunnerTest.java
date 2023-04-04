@@ -31,7 +31,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.HIGH);
         Signal parkingZone = readSignalCone();
 
         Pose2d startPose = new Pose2d(0, 0, 0);

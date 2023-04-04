@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
 import org.firstinspires.ftc.teamcode.middleware.Vision;
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.AutonomousTask.Ta
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
 @Autonomous(name = "Test Vision Find Pole-L")
-//@Disabled
+@Disabled
 public class TestVisionFindPoleL extends LinOpAutonomousBase implements CONSTANTS {
 
     private TaskFindPole m_taskFindPole = new TaskFindPole(PoleType.LOW);
@@ -28,7 +29,7 @@ public class TestVisionFindPoleL extends LinOpAutonomousBase implements CONSTANT
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera();
+        initializeVera(PoleType.LOW);
 
         waitForStart();
 
