@@ -169,7 +169,7 @@ public class Lift implements CONSTANTS {
 
     public boolean isConeInMiddleman() {
         boolean isConeInMiddleman;
-        if (m_middlemanSensorDist_in >= 2.0) {
+        if (m_middlemanSensorDist_in <= 1.0) {
             isConeInMiddleman = true;
         }
         else {
