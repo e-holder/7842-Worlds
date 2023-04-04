@@ -20,10 +20,10 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     // In the Cb plane of a YCrCb image, the yellow poles should be very dark. Define a percentage
     // of the range between the minimum pixel value and the average pixel value.
-    public final double POLE_LIGHT_THRESH_PERCENT = 0.60;
+    public final double POLE_LIGHT_THRESH_PERCENT = 0.80;   // Original: 0.60
     // Poles further away are darker. May need a low threshold to try and eliminate those from
     // consideration.
-    public final double POLE_DARK_THRESH_PERCENT = 0.00;
+    public final double POLE_DARK_THRESH_PERCENT = 0.0;     // Original: 0.0
 
 
     // Note: The origin (0, 0) of the input image is the top-left of the screen.
@@ -53,8 +53,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final Scalar WHITE = new Scalar(255);
 
     // Gaussian blur parameters. Size must be an odd number.
-    private final int BLUR_SIZE = 7;
-    private final double SIGMA = 0.0;
+    private final int BLUR_SIZE = 15;    // Original: 5
+    private final double SIGMA = 0.0;    // Original: 0.0
     private final Size GAUSSIAN_BLUR_SIZE = new Size(BLUR_SIZE, BLUR_SIZE);
 
     private Telemetry m_telemetry;
@@ -273,7 +273,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     POLE_UPPER_ROW + 15);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
-            if (m_poleUpperWidth_pix.get() > 0) {
+            if (m_poleUpperWidth_pix.get() > 0 && m_poleLowerWidth_pix.get() > 0) {
                 // Draw the pole center "detection line"
                 point1 = new Point(BOX_LEFT + m_poleUpperCol_pix.get(), POLE_UPPER_ROW);
                 point2 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW);
