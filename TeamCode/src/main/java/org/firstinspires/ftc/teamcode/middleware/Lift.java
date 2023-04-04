@@ -61,6 +61,8 @@ public class Lift implements CONSTANTS {
 
     private final double LIFT_MAX_BOTTOM_IDLE_AMP = 0.5;
 
+    private final double MIDDLEMAN_HAS_CONE_THRESH_IN = 1.0;
+
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
     private HwLift m_hwLift;
@@ -179,14 +181,7 @@ public class Lift implements CONSTANTS {
     }
 
     public boolean isConeInMiddleman() {
-        boolean isConeInMiddleman;
-        if (m_middlemanSensorDist_in <= 1.0) {
-            isConeInMiddleman = true;
-        }
-        else {
-            isConeInMiddleman = false;
-        }
-        return isConeInMiddleman;
+        return (m_middlemanSensorDist_in <= MIDDLEMAN_HAS_CONE_THRESH_IN);
     }
 
     public void driverPlaceConeCommand(double cmd) {

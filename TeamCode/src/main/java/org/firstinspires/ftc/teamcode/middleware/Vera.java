@@ -77,6 +77,7 @@ public class Vera implements CONSTANTS {
 
         if (m_isAutonomous) {
             vision.startStreaming(initialPipelineType);
+            logCsvString("Started streaming " + initialPipelineType);
         }
     }
 
