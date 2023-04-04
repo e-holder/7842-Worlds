@@ -264,12 +264,12 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     POLE_UPPER_ROW + 5);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
-            // Draw the nominal medium pole position and width.
+            // Draw the nominal mid pole position and width.
             point1 = new Point(BOX_LEFT +
-                    Vision.NOMINAL_MED_POLE_CENTER_PIX - Vision.NOMINAL_MED_POLE_WIDTH_PIX / 2.0,
+                    Vision.NOMINAL_MID_POLE_CENTER_PIX - Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,
                     POLE_UPPER_ROW + 15);
             point2 = new Point(BOX_LEFT +
-                    Vision.NOMINAL_MED_POLE_CENTER_PIX + Vision.NOMINAL_MED_POLE_WIDTH_PIX / 2.0,
+                    Vision.NOMINAL_MID_POLE_CENTER_PIX + Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,
                     POLE_UPPER_ROW + 15);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 

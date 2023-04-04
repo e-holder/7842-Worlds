@@ -21,12 +21,10 @@ public interface CONSTANTS {
         FIND_POLE
     }
 
-    public enum CornerType {
-        W, // Wall
-        G, // Ground Junction
-        L, // Low Junction
-        M, // Medium Junction
-        H  // High Junction
+    public enum PoleType {
+        LOW,
+        MID,
+        HIGH
     }
 
     public enum Rotation {

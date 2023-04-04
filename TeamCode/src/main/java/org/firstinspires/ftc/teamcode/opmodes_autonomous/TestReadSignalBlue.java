@@ -42,6 +42,5 @@ public class TestReadSignalBlue extends LinOpAutonomousBase implements CONSTANTS
         }
         stopVera();
     }
-
 }
 

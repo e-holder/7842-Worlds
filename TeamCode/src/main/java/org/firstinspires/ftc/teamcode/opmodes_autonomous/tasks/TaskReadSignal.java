@@ -67,6 +67,7 @@ public class TaskReadSignal extends AutonomousTask {
             case READ_SIGNAL:
                 m_frameNumber = vera.vision.getSignalPipelineFrameCount();
                 if (m_frameNumber != m_priorFrameNumber) {
+                    m_priorFrameNumber = m_frameNumber;
                     vera.vision.ReadSignal(alliance, fieldSide);
                     signal = vera.vision.getSignal();
                     parkingZone = (signal != Signal.UNKNOWN ? signal : Signal.ZONE3);
@@ -75,7 +76,6 @@ public class TaskReadSignal extends AutonomousTask {
                             ", avgTop, " + df3.format(m_avgTop) +
                             ", avgBottom, " + df3.format(m_avgBottom) +
                             ", frame, " + m_frameNumber);
-                    m_priorFrameNumber = m_frameNumber;
                 }
                 if (m_frameNumber >= m_minFrameNumber) {
                     // Skip a few frames in case the first is sketchy.
