@@ -7,10 +7,10 @@ public class Lift implements CONSTANTS {
 
     private enum LiftState {
         INIT,
-        IDLE,
         REQUEST_MOVE_TO_BOTTOM,
         MOVE_TO_BOTTOM,
         MOVING_TO_BOTTOM,
+        IDLE_AT_BOTTOM,
         REQUEST_MOVE_TO_LOW_POLE,
         MOVE_TO_LOW_POLE_POS,
         MOVING_TO_LOW_POLE_POS,
@@ -21,6 +21,7 @@ public class Lift implements CONSTANTS {
         MOVE_TO_HIGH_POLE_POS,
         MOVING_TO_HIGH_POLE_POS,
         DRIVER_PLACE_CONE,
+        IDLE,
         GRAB_CONE,
         GRABBING_CONE,
         DROP_CONE,
@@ -48,14 +49,17 @@ public class Lift implements CONSTANTS {
 
     private final double DRIVE_LIFT_TO_BOTTOM_DELTA_IN = 10.0;
     private final double RESET_POS_IN = -10.0;    // Drive into the stops FAST!
-    private final double ENTERING_ROBOT_IN = 5.0; // Distance to drop cone on descent (safety)
+    private final double ENTERING_ROBOT_IN = 8.75; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
     private final double MED_POLE_IN = 24.0;
     private final double HIGH_POLE_IN = 38.5;
 
     private final double LIFT_SPEED_FAST_TPS = 4500;
     private final double LIFT_SPEED_SLOW_TPS = 800.0;
-    private final double LIFT_TARGET_DELTA_IN = 0.5;
+    private final double LIFT_BOTTOM_TOL_IN = 0.3;
+    private final double LIFT_DRIVER_PLACE_DELTA_IN = 0.5;
+
+    private final double LIFT_MAX_BOTTOM_IDLE_AMP = 0.5;
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
@@ -78,7 +82,6 @@ public class Lift implements CONSTANTS {
     private double m_liftTargetDelta_in;
     private double m_liftPos_in;
     private double m_liftMotorCurrent_amp;
-    private double m_liftMotorPower;
     private double m_middlemanSensorDist_in;
 
     private Vera m_vera;
@@ -93,7 +96,9 @@ public class Lift implements CONSTANTS {
         // SUBSYSTEM gets its corresponding hardware class instance here.
         m_hwLift = vera.getHwLift();
 
-        m_hwLift.setLiftClawPos(CLAW_CLOSED);
+        if (m_vera.isAutonomous()) {
+            closeClaw();  // Grabs pre-load cone for autonomous startup.
+        }
         m_state = LiftState.INIT;
     }
 
@@ -107,15 +112,22 @@ public class Lift implements CONSTANTS {
     private void resetLift() {
         m_hwLift.resetLiftMotor(m_liftPos_tick);
         m_liftTargetPos_in = 0.0;
-        if (!m_hasLiftBeenReset && m_vera.isAutonomous()) {
-            closeClaw();
-        } else {
-            openClaw();
-        }
         m_hasLiftBeenReset = true;
     }
 
     private void moveLiftToTargetPositionAtTargetSpeed() {
+        if (m_isLimitPressed) {
+            m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
+            m_liftTargetSpeed = 0.0;
+        } else if (m_state == LiftState.IDLE_AT_BOTTOM) {
+            if (m_liftPos_in <= LIFT_BOTTOM_TOL_IN) {
+                m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
+                m_liftTargetSpeed = 0.0;
+            } else if (m_liftMotorCurrent_amp > LIFT_MAX_BOTTOM_IDLE_AMP) {
+                m_liftTargetPos_in += LIFT_BOTTOM_TOL_IN;
+            }
+        }
+
         m_liftTarget_tick = m_hwLift.liftRunToPosition(m_liftTargetPos_in, m_liftTargetSpeed);
     }
 
@@ -128,6 +140,11 @@ public class Lift implements CONSTANTS {
         }
         m_liftTargetPos_in = pos_in;
         m_liftTargetSpeed = LIFT_SPEED_SLOW_TPS;
+
+        // Prevent a grabbed cone from being driven back into the robot.
+        if (m_liftTargetPos_in < m_liftPos_in && m_liftPos_in < ENTERING_ROBOT_IN) {
+            openClaw();
+        }
     }
 
     private void closeClaw() {
@@ -135,7 +152,9 @@ public class Lift implements CONSTANTS {
     }
 
     private void openClaw() {
-        m_hwLift.setLiftClawPos(CLAW_OPEN);
+        if (!m_vera.isAutonomous() && m_hasLiftBeenReset) {
+            m_hwLift.setLiftClawPos(CLAW_OPEN);
+        }
     }
 
     // ===================== PUBLIC FUNCTIONS ==============================
@@ -151,7 +170,6 @@ public class Lift implements CONSTANTS {
         m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
         m_liftPos_in = m_hwLift.getLiftPosition_in();
         m_liftMotorCurrent_amp = m_hwLift.getLiftMotorCurrent_amp();
-        m_liftMotorPower = m_hwLift.getLiftMotorPower();
         m_isLimitPressed = m_hwLift.isLimitSwitchPressed();
         m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
 
@@ -172,7 +190,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void driverPlaceConeCommand(double cmd) {
-        m_liftTargetDelta_in = Math.abs(cmd) * LIFT_TARGET_DELTA_IN;
+        m_liftTargetDelta_in = Math.abs(cmd) * LIFT_DRIVER_PLACE_DELTA_IN;
         if (cmd > 0.05) {
             m_placeConeCommand = PlaceConeCommand.UP_SLOW;
         } else if (cmd < -0.05) {
@@ -198,10 +216,6 @@ public class Lift implements CONSTANTS {
 
     public void moveLiftToHighPole() {
         m_state = LiftState.REQUEST_MOVE_TO_HIGH_POLE;
-    }
-
-    public boolean isBusy() {
-        return !(m_state == LiftState.IDLE);
     }
 
     // This is really just a driver manual override command. It should only happen if the driver
@@ -231,11 +245,14 @@ public class Lift implements CONSTANTS {
 
         switch (m_state) {
             case INIT:
+                m_delayForMoveToBottom = 0;
                 m_state = LiftState.MOVE_TO_BOTTOM;
                 break;
+            case IDLE_AT_BOTTOM:  // Intentional fall-through
             case IDLE:
                 break;
             case REQUEST_MOVE_TO_BOTTOM:
+                openClaw();
                 m_delayForMoveToBottom = (m_liftPos_in <= LOW_POLE_IN ?
                         DELAY_FOR_MOVE_TO_BOTTOM : 0);
                 m_state = LiftState.MOVE_TO_BOTTOM;
@@ -253,7 +270,7 @@ public class Lift implements CONSTANTS {
             case MOVING_TO_BOTTOM:
                 if (m_isLimitPressed) {
                     resetLift();
-                    m_state = LiftState.IDLE;
+                    m_state = LiftState.IDLE_AT_BOTTOM;
                 } else if (!m_isLiftBusy) {
                     // If we finish moving down, but haven't hit the bottom, move down more.
                     m_liftTargetPos_in = m_liftPos_in - DRIVE_LIFT_TO_BOTTOM_DELTA_IN;
@@ -352,8 +369,7 @@ public class Lift implements CONSTANTS {
         if (true) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
-                    ", pwr, " + m_liftMotorPower +
-                    ", amp, " + m_liftMotorCurrent_amp +
+                    ", amp, " + df3.format(m_liftMotorCurrent_amp) +
                     ", tgtIn, " + df3.format(m_liftTargetPos_in) +
                     ", posIn, " + df3.format(m_liftPos_in) +
                     ", tgtTick, " + m_liftTarget_tick +
