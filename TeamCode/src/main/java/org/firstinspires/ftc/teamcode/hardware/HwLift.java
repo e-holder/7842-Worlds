@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.apache.commons.math3.ml.distance.DistanceMeasure;
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREVColorDistance;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class HwLift {
 
@@ -23,8 +28,10 @@ public class HwLift {
     private DcMotorEx m_liftMotor = null;
     private Servo m_liftClaw = null;
     private PIDFCoefficients m_pidf;
-
+    private DistanceSensor m_middleManDistanceSensor;
     public void init(HardwareMap hwMap) {
+        m_middleManDistanceSensor = hwMap.get(DistanceSensor.class, "MiddlemanDistanceSensor");
+
         m_liftMotor = hwMap.get(DcMotorEx.class, "LiftMotor"); // Expansion Hub port 0.
         m_liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         m_liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -37,6 +44,9 @@ public class HwLift {
         m_liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         m_liftClaw = hwMap.get(Servo.class, "LiftClawServo");
+    }
+    public double getMiddlemanSensorDistance_in() {
+        return m_middleManDistanceSensor.getDistance(DistanceUnit.INCH);
     }
 
     public double getLiftMotorCurrent_amp() {

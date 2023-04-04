@@ -82,6 +82,9 @@ public class Lift implements CONSTANTS {
     private double m_liftPos_in;
     private double m_liftMotor_amp;
 
+    private double m_middlemanSensorDist_in;
+
+
     private Vera m_vera;
     private LiftState m_state;
     private LiftState m_priorState = LiftState.IDLE;  // Set to anything but INIT.
@@ -156,6 +159,7 @@ public class Lift implements CONSTANTS {
         m_isLiftBusy = m_hwLift.isLiftBusy();
         m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
         m_liftPos_in = m_hwLift.getLiftPosition_in();
+        m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
 
         m_isLiftMotorStalled = (m_liftMotor_amp >= LIFT_MOTOR_DOWN_STALL_AMP);
         m_isLiftAtBottom = m_isLiftMotorStalled ||
@@ -163,6 +167,17 @@ public class Lift implements CONSTANTS {
         // NOTE: getLiftClawPos only reflects what the servo has been commanded. It does not
         //  necessarily reflect where the claw servo actually is.
         m_isClawClosed = (m_hwLift.getLiftClawPos() <= (CLAW_CLOSED + 0.1));
+    }
+
+    public boolean isConeInMiddleman() {
+        boolean isConeInMiddleman;
+        if (m_middlemanSensorDist_in >= 2.0) {
+            isConeInMiddleman = true;
+        }
+        else {
+            isConeInMiddleman = false;
+        }
+        return isConeInMiddleman;
     }
 
     public void driverPlaceConeCommand(double cmd) {
