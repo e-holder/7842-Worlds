@@ -169,7 +169,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             commandVera();
             reportData();
         }
-
+        m_vera.writeCsvLogData();
         stopVera();
     }
 }

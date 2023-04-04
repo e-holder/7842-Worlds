@@ -25,7 +25,6 @@ public class Vera implements CONSTANTS {
     private String CSV_LOG_PATH;
     private HwVera m_hwVera = new HwVera();
     private StringBuilder m_csvLogString = new StringBuilder();
-    private StringBuilder m_autoNavLogString = new StringBuilder();
     private boolean m_isAutonomous = false;
     public Alliance alliance;
 
@@ -65,7 +64,6 @@ public class Vera implements CONSTANTS {
             CSV_LOG_PATH = String.format("%s/CsvLogs/robot-data-t.csv", extStoragePath);
         }
         m_csvLogString.setLength(0);
-        m_autoNavLogString.setLength(0);
 
 
         // EACH SUBSYSTEM will construct its middleware class instance here.
@@ -90,7 +88,7 @@ public class Vera implements CONSTANTS {
 
     public void stopVera() {
         vision.stopWebcamStreaming();
-        writeCsvLogData();
+//        writeCsvLogData();
     }
 
     public void setAlliance(Alliance matchAlliance) {
@@ -146,27 +144,15 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    //public boolean isGyroCalibrated() {
-    //    return m_hwVera.isGyroCalibrated();
-    //}
-
-    //public String getGyroCalibrationStatus() {
-    //    return m_hwVera.getGyroCalibrationStatus();
-    //}
-
     public void logCsvString(String record) {
         m_csvLogString.append(record).append("\n");
     }
 
-    public void logAutoNavString(String record) {
-        m_autoNavLogString.append(record).append("\n");
-    }
-
-    private void writeCsvLogData() {
+    public void writeCsvLogData() {
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.
         if (drivetrain != null && drivetrain.getLogString().length() > 0) {
-     logCsvString(drivetrain.getLogString().toString());
+            logCsvString(drivetrain.getLogString().toString());
         }
         if (intake != null && intake.getLogString().length() > 0) {
             logCsvString(" Intake ");
@@ -184,10 +170,9 @@ public class Vera implements CONSTANTS {
         // If any data was requested to be logged (non-zero length string), then write the log
         // data to a file on the robot controller's file system.
 
-        if ((m_autoNavLogString.length() + m_csvLogString.length()) > 0) {
+        if (m_csvLogString.length() > 0) {
             // The "false" argument indicates "do not append". We want a new file each time.
             try (FileWriter csvWriter = new FileWriter(CSV_LOG_PATH, false)) {
-                csvWriter.write(m_autoNavLogString.toString());
                 csvWriter.write(m_csvLogString.toString());
             } catch (IOException e) {
                 // Ignore exceptions

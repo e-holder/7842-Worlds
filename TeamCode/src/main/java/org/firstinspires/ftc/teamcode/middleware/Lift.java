@@ -34,7 +34,6 @@ public class Lift implements CONSTANTS {
         DOWN_SLOW
     }
 
-    private final int LIFT_AT_BOTTOM_TOL_TICK = 10;
     private final int LIFT_AT_JUNCTION_TOL_TICK = 15;
 
     private final int CLAW_GRABBING_COUNT_MAX = 30;
@@ -52,9 +51,8 @@ public class Lift implements CONSTANTS {
     private final double ENTERING_ROBOT_IN = 5.0; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
     private final double MED_POLE_IN = 24.0;
-    private final double HIGH_POLE_IN = 38.0;
+    private final double HIGH_POLE_IN = 38.5;
 
-    private final double LIFT_MOTOR_DOWN_STALL_AMP = 5.0;
     private final double LIFT_SPEED_FAST_TPS = 4500;
     private final double LIFT_SPEED_SLOW_TPS = 800.0;
     private final double LIFT_TARGET_DELTA_IN = 0.5;
@@ -65,8 +63,7 @@ public class Lift implements CONSTANTS {
 
     private StringBuilder m_csvLogStr = new StringBuilder();
     private boolean m_hasLiftBeenReset = false;
-    private boolean m_isLiftMotorStalled;
-    private boolean m_isLiftAtBottom;
+    private boolean m_isLimitPressed;
     private boolean m_isLiftBusy;
     private boolean m_isClawClosed;
     private int m_clawGrabbingCounter = CLAW_GRABBING_COUNT_MAX;
@@ -80,7 +77,6 @@ public class Lift implements CONSTANTS {
     private double m_liftTargetPos_in;
     private double m_liftTargetDelta_in;
     private double m_liftPos_in;
-    private double m_liftMotor_amp;
     private double m_middlemanSensorDist_in;
 
     private Vera m_vera;
@@ -117,10 +113,6 @@ public class Lift implements CONSTANTS {
         m_hasLiftBeenReset = true;
     }
 
-    private void stopLift() {
-        m_liftTargetPos_in = 0.0;
-    }
-
     private void moveLiftToTargetPositionAtTargetSpeed() {
         m_liftTarget_tick = m_hwLift.liftRunToPosition(m_liftTargetPos_in, m_liftTargetSpeed);
     }
@@ -153,15 +145,12 @@ public class Lift implements CONSTANTS {
     }
 
     public void getInputs() {
-        m_liftMotor_amp = m_hwLift.getLiftMotorCurrent_amp();
+        m_isLimitPressed = m_hwLift.isLimitSwitchPressed();
         m_isLiftBusy = m_hwLift.isLiftBusy();
         m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
         m_liftPos_in = m_hwLift.getLiftPosition_in();
         m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
 
-        m_isLiftMotorStalled = (m_liftMotor_amp >= LIFT_MOTOR_DOWN_STALL_AMP);
-        m_isLiftAtBottom = m_isLiftMotorStalled ||
-                (m_hasLiftBeenReset && m_liftPos_tick <= LIFT_AT_BOTTOM_TOL_TICK);
         // NOTE: getLiftClawPos only reflects what the servo has been commanded. It does not
         //  necessarily reflect where the claw servo actually is.
         m_isClawClosed = (m_hwLift.getLiftClawPos() <= (CLAW_CLOSED + 0.1));
@@ -231,7 +220,7 @@ public class Lift implements CONSTANTS {
 
     public void update() {
         // Always keep this logging block.
-        if (true && (m_priorState != m_state)) {
+        if (m_priorState != m_state) {
             m_priorState = m_state;
             logCsvString("state, " + m_state);
         }
@@ -253,18 +242,13 @@ public class Lift implements CONSTANTS {
                 } else {
                     m_liftTargetPos_in = RESET_POS_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
-                    if (m_hasLiftBeenReset) {
-                        openClaw();
-                    }
+                    openClaw();
                     m_state = LiftState.MOVING_TO_BOTTOM;
                 }
                 break;
             case MOVING_TO_BOTTOM:
-                if (!m_hasLiftBeenReset && m_isLiftAtBottom) {
+                if (m_isLimitPressed) {
                     resetLift();
-                    m_state = LiftState.IDLE;
-                } else if (m_isLiftAtBottom) {
-                    stopLift();
                     m_state = LiftState.IDLE;
                 } else if (!m_isLiftBusy) {
                     // If we finish moving down, but haven't hit the bottom, move down more.
@@ -326,8 +310,8 @@ public class Lift implements CONSTANTS {
                 break;
             case DRIVER_PLACE_CONE:
                 driverControlConePlacement();
-                if (m_isLiftAtBottom) {
-                    stopLift();
+                if (m_isLimitPressed) {
+                    resetLift();
                     m_state = LiftState.IDLE;
                 }
                 break;
@@ -363,15 +347,14 @@ public class Lift implements CONSTANTS {
     public void reportData(Telemetry telemetry) {
         if (true) {
             logCsvString("lift" +
-                    ", motorAmp, " + df3.format(m_liftMotor_amp) +
-                    ", isBottom, " + m_isLiftAtBottom +
+                    ", isLimit, " + m_isLimitPressed +
                     ", posIn, " + df3.format(m_liftPos_in) +
                     ", posTick, " + m_liftPos_tick +
                     ", targetIn, " + df3.format(m_liftTargetPos_in) +
                     ", targetTick, " + m_liftTarget_tick +
-//                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
+                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
-//                    ", isBusy, " + m_isLiftBusy +
+                    ", isBusy, " + m_isLiftBusy +
                     ", isClawClosed, " + m_isClawClosed +
 //                    ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +

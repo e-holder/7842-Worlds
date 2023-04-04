@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -26,9 +27,10 @@ public class HwLift {
     private final double LIFT_INCHES_PER_TICK = LIFT_MAX_IN / LIFT_MAX_TICKS;
 
     private DcMotorEx m_liftMotor = null;
+    private DigitalChannel m_limitSwitch = null;
     private Servo m_liftClaw = null;
-    private PIDFCoefficients m_pidf;
     private DistanceSensor m_middleManDistanceSensor;
+    private PIDFCoefficients m_pidf;
 
     public void init(HardwareMap hwMap) {
         m_liftMotor = hwMap.get(DcMotorEx.class, "LiftMotor"); // Expansion Hub port 0.
@@ -42,16 +44,13 @@ public class HwLift {
         m_liftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, m_pidf);
         m_liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        m_limitSwitch = hwMap.get(DigitalChannel.class, "LiftLimitSwitch");
+        m_limitSwitch.setMode(DigitalChannel.Mode.INPUT);
+
         m_liftClaw = hwMap.get(Servo.class, "LiftClawServo");
 
         m_middleManDistanceSensor = hwMap.get(DistanceSensor.class, "MiddlemanDistanceSensor");
     }
-
-    public double getLiftMotorCurrent_amp() {
-       return m_liftMotor.getCurrent(CurrentUnit.AMPS);
-    }
-
-    public boolean isLiftHoming() { return m_liftMotor.getPower() < -0.05; }
 
     public boolean isLiftBusy () {
         return m_liftMotor.isBusy();
@@ -79,6 +78,10 @@ public class HwLift {
 
     public double getLiftPosition_in() {
         return m_liftMotor.getCurrentPosition() * LIFT_INCHES_PER_TICK;
+    }
+
+    public boolean isLimitSwitchPressed() {
+        return m_limitSwitch.getState();
     }
 
     public void setLiftClawPos(double position) {

@@ -447,8 +447,10 @@ public class Intake {
                 m_state = IntakeState.MOVING_TO_CONE_POS;
                 break;
             case MOVING_TO_CONE_POS:
-                if (!m_isArmBusy) {
+                if (m_armPos_deg > ARM_FAST_RESET_POINT_DEG) {
                     m_intakeWheelSpeed = DEFAULT_INTAKE_WHEEL_SPEED;
+                }
+                if (!m_isArmBusy) {
                     m_state = IntakeState.DRIVER_CONE_INTAKE;
                 }
                 break;
