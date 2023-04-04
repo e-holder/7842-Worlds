@@ -77,6 +77,8 @@ public class Lift implements CONSTANTS {
     private double m_liftTargetPos_in;
     private double m_liftTargetDelta_in;
     private double m_liftPos_in;
+    private double m_liftMotorCurrent_amp;
+    private double m_liftMotorPower;
     private double m_middlemanSensorDist_in;
 
     private Vera m_vera;
@@ -145,10 +147,12 @@ public class Lift implements CONSTANTS {
     }
 
     public void getInputs() {
-        m_isLimitPressed = m_hwLift.isLimitSwitchPressed();
         m_isLiftBusy = m_hwLift.isLiftBusy();
         m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
         m_liftPos_in = m_hwLift.getLiftPosition_in();
+        m_liftMotorCurrent_amp = m_hwLift.getLiftMotorCurrent_amp();
+        m_liftMotorPower = m_hwLift.getLiftMotorPower();
+        m_isLimitPressed = m_hwLift.isLimitSwitchPressed();
         m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
 
         // NOTE: getLiftClawPos only reflects what the servo has been commanded. It does not
@@ -348,14 +352,17 @@ public class Lift implements CONSTANTS {
         if (true) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
+                    ", pwr, " + m_liftMotorPower +
+                    ", amp, " + m_liftMotorCurrent_amp +
+                    ", tgtIn, " + df3.format(m_liftTargetPos_in) +
                     ", posIn, " + df3.format(m_liftPos_in) +
+                    ", tgtTick, " + m_liftTarget_tick +
                     ", posTick, " + m_liftPos_tick +
-                    ", targetIn, " + df3.format(m_liftTargetPos_in) +
-                    ", targetTick, " + m_liftTarget_tick +
+                    ", tgtSpeed, " + m_liftTargetSpeed +
                     ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
                     ", isBusy, " + m_isLiftBusy +
-                    ", isClawClosed, " + m_isClawClosed +
+//                    ", isClawClosed, " + m_isClawClosed +
 //                    ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +
 //                    ", downDelay, " + m_delayForMoveToBottom +
@@ -367,8 +374,8 @@ public class Lift implements CONSTANTS {
 //        This is useful for calibrating inches per motor tick.
         if (true) {
             telemetry.addData("Lift",
-                    "HasCone = " + isConeInMiddleman() +
-                    "DistSensor_in = " + df3.format(m_middlemanSensorDist_in));
+                    "hasCone = " + isConeInMiddleman() +
+                    "coneDist_in = " + df3.format(m_middlemanSensorDist_in));
         }
     }
 }

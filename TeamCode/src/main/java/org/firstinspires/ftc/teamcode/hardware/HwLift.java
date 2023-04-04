@@ -80,9 +80,19 @@ public class HwLift {
         return m_liftMotor.getCurrentPosition() * LIFT_INCHES_PER_TICK;
     }
 
+    public double getLiftMotorCurrent_amp() {
+        return m_liftMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getLiftMotorPower() {
+        return m_liftMotor.getPower();
+    }
+
     public boolean isLimitSwitchPressed() {
         return m_limitSwitch.getState();
     }
+
+    // ========== Claw Servo ===================
 
     public void setLiftClawPos(double position) {
         m_liftClaw.setPosition(position);
@@ -92,9 +102,13 @@ public class HwLift {
         return m_liftClaw.getPosition();
     }
 
+    // ========== Middleman Cone Sensor ==============
+
     public double getMiddlemanSensorDistance_in() {
         return m_middleManDistanceSensor.getDistance(DistanceUnit.INCH);
     }
+
+    // ===============================================
 
     private void useSomeVariablesToSatisfyAndroidStudio() {
         double x = LIFT_TICKS_PER_IN + LIFT_INCHES_PER_TICK;
