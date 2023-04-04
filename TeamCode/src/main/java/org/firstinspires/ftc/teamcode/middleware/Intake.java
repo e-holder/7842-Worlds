@@ -324,10 +324,11 @@ public class Intake {
         }
     }
 
-    public void setLowJunctionMode() {
-        m_isLowJunctionMode = true;
+    public boolean toggleLowJunctionMode() {
+        m_isLowJunctionMode = !m_isLowJunctionMode;
         m_isBeaconMode = false;
         // NOTE: ConeStackMode is LEGAL here
+        return m_isLowJunctionMode;
     }
 
     public void moveWristParallelToArm() {
