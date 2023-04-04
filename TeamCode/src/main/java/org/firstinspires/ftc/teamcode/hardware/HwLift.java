@@ -29,9 +29,8 @@ public class HwLift {
     private Servo m_liftClaw = null;
     private PIDFCoefficients m_pidf;
     private DistanceSensor m_middleManDistanceSensor;
-    public void init(HardwareMap hwMap) {
-        m_middleManDistanceSensor = hwMap.get(DistanceSensor.class, "MiddlemanDistanceSensor");
 
+    public void init(HardwareMap hwMap) {
         m_liftMotor = hwMap.get(DcMotorEx.class, "LiftMotor"); // Expansion Hub port 0.
         m_liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         m_liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -44,9 +43,8 @@ public class HwLift {
         m_liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         m_liftClaw = hwMap.get(Servo.class, "LiftClawServo");
-    }
-    public double getMiddlemanSensorDistance_in() {
-        return m_middleManDistanceSensor.getDistance(DistanceUnit.INCH);
+
+        m_middleManDistanceSensor = hwMap.get(DistanceSensor.class, "MiddlemanDistanceSensor");
     }
 
     public double getLiftMotorCurrent_amp() {
@@ -89,6 +87,10 @@ public class HwLift {
 
     public double getLiftClawPos() {
         return m_liftClaw.getPosition();
+    }
+
+    public double getMiddlemanSensorDistance_in() {
+        return m_middleManDistanceSensor.getDistance(DistanceUnit.INCH);
     }
 
     private void useSomeVariablesToSatisfyAndroidStudio() {

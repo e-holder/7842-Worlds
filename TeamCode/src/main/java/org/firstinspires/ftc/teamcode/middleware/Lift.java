@@ -81,9 +81,7 @@ public class Lift implements CONSTANTS {
     private double m_liftTargetDelta_in;
     private double m_liftPos_in;
     private double m_liftMotor_amp;
-
     private double m_middlemanSensorDist_in;
-
 
     private Vera m_vera;
     private LiftState m_state;
