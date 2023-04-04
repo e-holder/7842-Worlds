@@ -366,7 +366,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (true) {
+        if (false) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
@@ -387,11 +387,11 @@ public class Lift implements CONSTANTS {
                     ".");
         }
 
-//        This is useful for calibrating inches per motor tick.
-        if (true) {
+        if (false) {
             telemetry.addData("Lift",
-                    "hasCone = " + isConeInMiddleman() +
-                    "coneDist_in = " + df3.format(m_middlemanSensorDist_in));
+//                    "hasCone = " + isConeInMiddleman() +
+//                    "coneDist_in = " + df3.format(m_middlemanSensorDist_in) +
+                    "");
         }
     }
 }
