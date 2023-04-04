@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
-import org.firstinspires.ftc.teamcode.middleware.Lift;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
 
 @TeleOp(name = "TeleOp")
@@ -149,12 +148,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     }
 
     private void stopVera() {
-        String stopMessage = m_vera.writeCsvLogData();
-        telemetry.addData("Stop", stopMessage);
-        telemetry.addData("DistSensorDist_in", m_vera.lift.isConeInMiddleman());
-        //TODO: remove
-        telemetry.update();
-
         m_vera.stopVera();
     }
 

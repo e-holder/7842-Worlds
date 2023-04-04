@@ -23,7 +23,7 @@ public class TestVisionFindPoleM extends LinOpAutonomousBase implements CONSTANT
 
     @Override
     protected void initializeRoute() {
-        setupAlliance(Alliance.BLUE, FieldSide.NORTH);
+        setupAlliance(Alliance.BLUE, FieldSide.LEFT);
 
         // TODO: How to get tasks (line 14) sequenced in new architecture?
     }

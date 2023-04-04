@@ -37,13 +37,13 @@ public class TaskTestVisionFindPole extends AutonomousTask {
     }
 
     @Override
-    public CONSTANTS.TaskStatus update(double runTime_s) {
+    public TaskStatus update() {
         if (m_state != m_priorState) {
             m_priorState = m_state;
             vera.logCsvString("TVFP state, " + m_state);
         }
 
-        CONSTANTS.TaskStatus taskStatus = CONSTANTS.TaskStatus.RUNNING;
+        TaskStatus taskStatus = TaskStatus.RUNNING;
 
         switch (m_state) {
             case INIT:

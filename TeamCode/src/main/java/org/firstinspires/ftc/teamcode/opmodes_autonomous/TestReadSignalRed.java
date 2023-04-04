@@ -3,16 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
-import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskDelay;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.AutonomousTask.TaskStatus;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 
 @Autonomous(name = "Test Vision Read Signal Red")
-//@Disabled
 public class TestReadSignalRed extends LinOpAutonomousBase implements CONSTANTS {
 
-    // TODO: How to get these tasks sequenced in new architecture?
-    private TaskReadSignal m_taskReadSignal = new TaskReadSignal(true);
-    private TaskDelay m_taskDelay = new TaskDelay(8000);
+    private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
     @Override
     protected void preInitSetup() {
@@ -22,8 +19,28 @@ public class TestReadSignalRed extends LinOpAutonomousBase implements CONSTANTS 
 
     @Override
     protected void initializeRoute() {
-        setupAlliance(Alliance.RED, FieldSide.SOUTH);
-
-        // TODO: How to get tasks (see lines 14-15) sequenced in new architecture?
+        setupAlliance(Alliance.RED, FieldSide.UNDEFINED);
     }
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        initializeVera();
+
+        TaskStatus status;
+        do {
+            status = m_taskReadSignal.update();
+            m_taskReadSignal.addSignalTelemetry();
+            reportData();
+        } while ((status != TaskStatus.DONE) && !isStopRequested());
+
+        waitForStart();
+
+        while(!isStopRequested()) {
+            m_taskReadSignal.addSignalTelemetry();
+            reportData();
+        }
+        stopVera();
+    }
+
 }

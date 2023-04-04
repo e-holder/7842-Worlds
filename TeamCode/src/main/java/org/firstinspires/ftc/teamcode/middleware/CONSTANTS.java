@@ -4,11 +4,6 @@ import java.text.DecimalFormat;
 
 public interface CONSTANTS {
 
-    enum TaskStatus {
-        RUNNING,
-        DONE
-    }
-
     enum Alliance {
         UNDEFINED,
         RED,
@@ -17,8 +12,8 @@ public interface CONSTANTS {
 
     public enum FieldSide {
         UNDEFINED,
-        NORTH,  // Away from audience
-        SOUTH   // Toward audience
+        LEFT,
+        RIGHT
     }
 
     public enum VeraPipelineType {

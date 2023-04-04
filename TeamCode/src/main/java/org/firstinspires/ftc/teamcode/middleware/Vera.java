@@ -79,6 +79,8 @@ public class Vera implements CONSTANTS {
 
         if (m_isAutonomous) {
             vision.startStreaming(initialPipelineType);
+            // TODO: Nix
+            logCsvString("Started streaming " + initialPipelineType);
         }
     }
 
@@ -88,6 +90,7 @@ public class Vera implements CONSTANTS {
 
     public void stopVera() {
         vision.stopWebcamStreaming();
+        writeCsvLogData();
     }
 
     public void setAlliance(Alliance matchAlliance) {
@@ -116,9 +119,6 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM will get its inputs here.
         // Note: vision is omitted because pipelines run independently in another thread.
         if (!isVisionTestMode) {
-            if (isAutonomous) {
-                // Get input(s) specific to the Vera middleware (the hubs).
-            }
             intake.getInputs();
             lift.getInputs();
         }
@@ -139,9 +139,9 @@ public class Vera implements CONSTANTS {
     public void commandVera() {
         // EACH SUBSYSTEM will process robot commands here.
         if (!isVisionTestMode) {
-            intake.commandComponents();
-            lift.commandComponents();
-            // poleNav has no active components
+            drivetrain.update();
+            intake.update();
+            lift.update();
         }
         // EACH SUBSYSTEM (end)
     }
@@ -162,9 +162,7 @@ public class Vera implements CONSTANTS {
         m_autoNavLogString.append(record).append("\n");
     }
 
-    public String writeCsvLogData() {
-        StringBuilder stopMsg = new StringBuilder("Stop.");
-
+    private void writeCsvLogData() {
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.
         if (drivetrain != null && drivetrain.getLogString().length() > 0) {
@@ -187,15 +185,13 @@ public class Vera implements CONSTANTS {
         // data to a file on the robot controller's file system.
 
         if ((m_autoNavLogString.length() + m_csvLogString.length()) > 0) {
-            stopMsg.append("data logged.");
             // The "false" argument indicates "do not append". We want a new file each time.
             try (FileWriter csvWriter = new FileWriter(CSV_LOG_PATH, false)) {
                 csvWriter.write(m_autoNavLogString.toString());
                 csvWriter.write(m_csvLogString.toString());
             } catch (IOException e) {
-                stopMsg.append(e.getMessage());
+                // Ignore exceptions
             }
         }
-        return stopMsg.toString();
     }
 }

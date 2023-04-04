@@ -21,8 +21,8 @@ public class VisionPipelineSignal extends OpenCvPipeline {
     }
 
     // TODO: Adjust these two constants to adjust signal vision based on venue lighting.
-    private final double TOP_DELTA = 0.1;
-    private final double BOTTOM_DELTA = 0.05;
+    private final double BOTTOM_PAD = 0.1;
+    private final double TOP_PAD = 0.1;
 
     // Note: The origin (0, 0) of the input image is the top-left of the screen.
     // Adjust these numbers to adjust the box size so it fits the signal cone image (with a little
@@ -30,8 +30,8 @@ public class VisionPipelineSignal extends OpenCvPipeline {
     private final int BOX_WIDTH = 85;
     private final int BOX_HEIGHT = 80;
     // Adjust the top/left constants in these expressions to position the box.
-    private final int BOX_TOP = HwVision.WEBCAM_HEIGHT_PIX - BOX_HEIGHT - 133;
-    private final int BOX_LEFT = (HwVision.WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + 48;
+    private final int BOX_TOP = HwVision.WEBCAM_HEIGHT_PIX - BOX_HEIGHT - 130;
+    private final int BOX_LEFT = (HwVision.WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + 42;
 
     // These constants are derived from the above and the camera image size.
     private final Point BOX_TOP_LEFT = new Point(BOX_LEFT, BOX_TOP);
@@ -104,9 +104,9 @@ public class VisionPipelineSignal extends OpenCvPipeline {
         double topRatio = m_avgTop / sum;
         double bottomRatio = m_avgBottom / sum;
 
-        if (topRatio > (bottomRatio + TOP_DELTA)) {
+        if (topRatio > (bottomRatio + BOTTOM_PAD)) {
             m_signal = Signal.ZONE1;
-        } else if (bottomRatio > (topRatio + BOTTOM_DELTA)) {
+        } else if (bottomRatio > (topRatio + TOP_PAD)) {
             m_signal = Signal.ZONE2;
         } else  {
             m_signal = Signal.ZONE3;

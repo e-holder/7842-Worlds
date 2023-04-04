@@ -229,7 +229,7 @@ public class Lift implements CONSTANTS {
         }
     }
 
-    public void commandComponents () {
+    public void update() {
         // Always keep this logging block.
         if (true && (m_priorState != m_state)) {
             m_priorState = m_state;
@@ -382,10 +382,10 @@ public class Lift implements CONSTANTS {
         }
 
 //        This is useful for calibrating inches per motor tick.
-//        if (true) {
-//            telemetry.addData("Lift",
-//                    " ticks " + m_liftPos_ticks +
-//                    " inches " + df3.format(m_liftPos_in));
-//        }
+        if (true) {
+            telemetry.addData("Lift",
+                    "HasCone = " + isConeInMiddleman() +
+                    "DistSensor_in = " + df3.format(m_middlemanSensorDist_in));
+        }
     }
 }
