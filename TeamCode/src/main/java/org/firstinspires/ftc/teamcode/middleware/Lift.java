@@ -243,7 +243,11 @@ public class Lift implements CONSTANTS {
                 m_delayForMoveToBottom = 0;
                 m_state = LiftState.MOVE_TO_BOTTOM;
                 break;
-            case IDLE_AT_BOTTOM:  // Intentional fall-through
+            case IDLE_AT_BOTTOM:
+                if (isConeInMiddleman()) {
+                    m_state = LiftState.REQUEST_MOVE_TO_LOW_POLE;
+                }
+                break;
             case IDLE:
                 break;
             case REQUEST_MOVE_TO_BOTTOM:
