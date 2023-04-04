@@ -496,6 +496,7 @@ public class Intake {
             case MOVE_TO_IDLE_POS:
                 m_armTargetPos_deg = ARM_IDLE_DEG;
                 m_armTargetSpeed = ARM_SPEED_FAST;
+                m_intakeWheelSpeed = 0.0;
                 m_state = IntakeState.MOVING_TO_IDLE_POS;
                 break;
             case MOVING_TO_IDLE_POS:

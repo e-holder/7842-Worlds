@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
@@ -28,6 +29,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_2X_AlreadyPressed = false;
     private boolean m_2Y_AlreadyPressed = false;
 
+    private Gamepad.RumbleEffect m_doubleRumble;
+
     private void initializeVera() {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
@@ -36,6 +39,12 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
                 VeraPipelineType.SIGNAL, telemetry);
 
         m_vera.drivetrain.initMotorsToBrake();
+
+        m_doubleRumble = new Gamepad.RumbleEffect.Builder()
+                .addStep(1.0, 1.0, 300)
+                .addStep(0.0, 0.0, 100)
+                .addStep(1.0, 1.0, 300)
+                .build();
 
         if (Vera.isVisionTestMode) {
             telemetry.addData("WARNING:", "vision test mode!");
@@ -68,9 +77,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.intake.moveToIntakeConePos(1);
         } else if (gamepad1.b && !m_1B_AlreadyPressed) {
             if (m_vera.intake.toggleLowJunctionMode()) {
-                gamepad1.rumbleBlips(2);
+                gamepad1.runRumbleEffect(m_doubleRumble);
             } else {
-                gamepad1.rumble(50);
+                gamepad1.rumble(300);
             }
         } else if (gamepad1.a && !m_1A_AlreadyPressed) {
             m_vera.intake.moveToIntakeConePos(5);
