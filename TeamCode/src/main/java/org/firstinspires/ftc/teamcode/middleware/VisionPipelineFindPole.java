@@ -53,7 +53,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final Scalar WHITE = new Scalar(255);
 
     // Gaussian blur parameters. Size must be an odd number.
-    private final int BLUR_SIZE = 15;    // Original: 5
+    private final int BLUR_SIZE = 9;    // Original: 5
     private final double SIGMA_X = 0.0;    // Original: 0.0
     private final double SIGMA_Y = 0.0;    // Original: 0.0
     private final Size GAUSSIAN_BLUR_SIZE = new Size(BLUR_SIZE, BLUR_SIZE);
@@ -84,9 +84,11 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private volatile short m_poleDarkThresh;
 
     private StringBuilder m_csvLogString = new StringBuilder();
+
     private void logCsvString(String record) {
         m_csvLogString.append(record).append("\n");
     }
+
     public StringBuilder getLogString() {
         return m_csvLogString;
     }
@@ -166,7 +168,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // Remove noise from the image data in the sample box using a Gaussian blur filter. This
         // is so one stray dark pixel will not be seen as the pole. We are looking for a column
         // of dark pixels.
-        Imgproc.GaussianBlur(m_matBox, m_matBox, GAUSSIAN_BLUR_SIZE, SIGMA_X, SIGMA_Y);
+//        Imgproc.GaussianBlur(m_matBox, m_matBox, GAUSSIAN_BLUR_SIZE, SIGMA_X, SIGMA_Y);
+        Imgproc.medianBlur(m_matBox, m_matBox, 21);
+
 
         // First get the row data and find average and minimum of the pixel values in both rows.
         short pixVal;
@@ -185,8 +189,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             sumPix += pixVal;
         }
         int pixAvg = sumPix / (BOX_WIDTH * 2);
-        m_poleLightThresh = (short)(((pixAvg - minPix) * POLE_LIGHT_THRESH_PERCENT) + minPix);
-        m_poleDarkThresh = (short)(((pixAvg - minPix) * POLE_DARK_THRESH_PERCENT) + minPix);
+        m_poleLightThresh = (short) (((pixAvg - minPix) * POLE_LIGHT_THRESH_PERCENT) + minPix);
+        m_poleDarkThresh = (short) (((pixAvg - minPix) * POLE_DARK_THRESH_PERCENT) + minPix);
 //        logCsvString("dkThresh, " + m_poleDarkThresh +
 //                ", ltThresh, " + m_poleLightThresh +
 //                ", minPoleW, " + m_minPoleWidth_pix.get());
@@ -274,15 +278,22 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     POLE_UPPER_ROW + 15);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
-            if (m_poleUpperWidth_pix.get() > 0 && m_poleLowerWidth_pix.get() > 0) {
+            if (m_poleUpperWidth_pix.get() > 0) {
                 // Draw the pole center "detection line"
                 point1 = new Point(BOX_LEFT + m_poleUpperCol_pix.get(), POLE_UPPER_ROW);
-                point2 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW);
-                Imgproc.line(m_matOutputCb, point1, point2, WHITE, 3);
+                point2 = new Point(BOX_LEFT + m_poleUpperCol_pix.get(), POLE_UPPER_ROW + 10);
+                Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
+            }
 
+            if (m_poleLowerWidth_pix.get() > 0) {
+                // Draw the pole center "detection line"
+                point1 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW - 10);
+                point2 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW);
+                Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
         }
 
         return m_matOutputCb;
     }
+
 }
