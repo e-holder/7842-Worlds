@@ -14,9 +14,9 @@ public class Lift implements CONSTANTS {
         REQUEST_MOVE_TO_LOW_POLE,
         MOVE_TO_LOW_POLE_POS,
         MOVING_TO_LOW_POLE_POS,
-        REQUEST_MOVE_TO_MED_POLE,
-        MOVE_TO_MED_POLE_POS,
-        MOVING_TO_MED_POLE_POS,
+        REQUEST_MOVE_TO_MID_POLE,
+        MOVE_TO_MID_POLE_POS,
+        MOVING_TO_MID_POLE_POS,
         REQUEST_MOVE_TO_HIGH_POLE,
         MOVE_TO_HIGH_POLE_POS,
         MOVING_TO_HIGH_POLE_POS,
@@ -51,7 +51,7 @@ public class Lift implements CONSTANTS {
     private final double RESET_POS_IN = -10.0;    // Drive into the stops FAST!
     private final double ENTERING_ROBOT_IN = 8.75; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
-    private final double MED_POLE_IN = 24.0;
+    private final double MID_POLE_IN = 24.0;
     private final double HIGH_POLE_IN = 38.5;
 
     private final double LIFT_SPEED_FAST_TPS = 4500;
@@ -205,8 +205,8 @@ public class Lift implements CONSTANTS {
         m_state = LiftState.REQUEST_MOVE_TO_LOW_POLE;
     }
 
-    public void moveLiftToMediumPole() {
-        m_state = LiftState.REQUEST_MOVE_TO_MED_POLE;
+    public void moveLiftToMidPole() {
+        m_state = LiftState.REQUEST_MOVE_TO_MID_POLE;
     }
 
     public void moveLiftToHighPole() {
@@ -277,7 +277,7 @@ public class Lift implements CONSTANTS {
                 }
                 break;
             case MOVING_TO_LOW_POLE_POS:   // Intentional fall-through
-            case MOVING_TO_MED_POLE_POS:   // Intentional fall-through
+            case MOVING_TO_MID_POLE_POS:   // Intentional fall-through
             case MOVING_TO_HIGH_POLE_POS:
                 m_moveToPoleCounter++;
                 double delta = Math.abs(m_liftTarget_tick - m_liftPos_tick);
@@ -288,7 +288,7 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_LOW_POLE:
                 closeClaw();
-                m_delayForGrabCounter = DELAY_FOR_GRAB_COUNT;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
                 m_state = LiftState.MOVE_TO_LOW_POLE_POS;
                 break;
             case MOVE_TO_LOW_POLE_POS:
@@ -300,23 +300,23 @@ public class Lift implements CONSTANTS {
                     m_state = LiftState.MOVING_TO_LOW_POLE_POS;
                 }
                 break;
-            case REQUEST_MOVE_TO_MED_POLE:
+            case REQUEST_MOVE_TO_MID_POLE:
                 closeClaw();
-                m_delayForGrabCounter = DELAY_FOR_GRAB_COUNT;
-                m_state = LiftState.MOVE_TO_MED_POLE_POS;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
+                m_state = LiftState.MOVE_TO_MID_POLE_POS;
                 break;
-            case MOVE_TO_MED_POLE_POS:
+            case MOVE_TO_MID_POLE_POS:
                 closeClaw();
                 if (m_delayForGrabCounter-- <= 0) {
                     m_moveToPoleCounter = 0;
-                    m_liftTargetPos_in = MED_POLE_IN;
+                    m_liftTargetPos_in = MID_POLE_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
-                    m_state = LiftState.MOVING_TO_MED_POLE_POS;
+                    m_state = LiftState.MOVING_TO_MID_POLE_POS;
                 }
                 break;
             case REQUEST_MOVE_TO_HIGH_POLE:
                 closeClaw();
-                m_delayForGrabCounter = DELAY_FOR_GRAB_COUNT;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
                 m_state = LiftState.MOVE_TO_HIGH_POLE_POS;
                 break;
             case MOVE_TO_HIGH_POLE_POS:
@@ -365,7 +365,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (false) {
+        if (true) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
@@ -386,7 +386,7 @@ public class Lift implements CONSTANTS {
                     ".");
         }
 
-        if (false) {
+        if (true) {
             telemetry.addData("Lift",
 //                    "hasCone = " + isConeInMiddleman() +
 //                    "coneDist_in = " + df3.format(m_middlemanSensorDist_in) +

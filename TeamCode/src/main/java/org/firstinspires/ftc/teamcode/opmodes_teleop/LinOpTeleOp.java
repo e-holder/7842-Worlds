@@ -86,7 +86,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         } else if (gamepad1.x && !m_1X_AlreadyPressed) {
             m_vera.lift.moveLiftToHighPole();
         } else if (gamepad1.y && !m_1Y_AlreadyPressed) {
-            m_vera.lift.moveLiftToMediumPole();
+            m_vera.lift.moveLiftToMidPole();
         } else if (gamepad1.dpad_up && !m_1DpadUp_AlreadyPressed) {
             m_vera.intake.moveToIdlePos();
         }
@@ -120,7 +120,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         } else if (gamepad2.x && !m_2X_AlreadyPressed) {
             m_vera.lift.moveLiftToHighPole();
         } else if (gamepad2.y && !m_2Y_AlreadyPressed) {
-            m_vera.lift.moveLiftToMediumPole();
+            m_vera.lift.moveLiftToMidPole();
         } else if (gamepad2.dpad_right && !m_2DpadRight_AlreadyPressed) {
             m_vera.lift.toggleClawOverride();
         } else if (gamepad2.dpad_up && !m_2DpadUp_AlreadyPressed) {
