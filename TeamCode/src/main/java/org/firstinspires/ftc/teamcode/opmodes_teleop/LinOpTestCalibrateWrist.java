@@ -17,7 +17,7 @@ public class LinOpTestCalibrateWrist extends LinearOpMode {
 
     private final double WRIST_MIN_DEG = 0.0;
     private final double WRIST_MAX_DEG = 290.0;
-    private final double WRIST_MIN_DEG_SERVO = 0.07;  // We can command the servo below this.
+    private final double WRIST_MIN_DEG_SERVO = 0.09;  // We can command the servo below this.
     private final double WRIST_MAX_DEG_SERVO = 1.0;
 
     private final double WRIST_SERVO_PER_DEG = (WRIST_MAX_DEG_SERVO - WRIST_MIN_DEG_SERVO) /
