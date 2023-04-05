@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.hardware.HwVera;
 import org.firstinspires.ftc.teamcode.hardware.HwVision;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -92,6 +94,7 @@ public class Vera implements CONSTANTS {
     }
 
     public void setAlliance(Alliance matchAlliance) {
+        logCsvString("Alliance: " + matchAlliance);
         alliance = matchAlliance;
         vision.setAlliance(alliance);
 
@@ -105,6 +108,30 @@ public class Vera implements CONSTANTS {
             } catch (Exception e) {
                 logCsvString("setAlliance - file write failed.");
             }
+        }
+    }
+
+    // This function is called by TeleOp during initialization to set the alliance to what was
+    // used for the most recent Autonomous OpMode that was run.
+    public void setAllianceFromPriorAutonomousRun() {
+        String line = null;
+        try {
+            FileReader reader = new FileReader(ALLIANCE_PATH);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            line = bufferedReader.readLine();
+            reader.close();
+
+        } catch (Exception e) {
+            logCsvString("determineAlliance - file read failed.");
+        }
+
+        if (line != null && line.contains("RED")) {
+            setAlliance(Alliance.RED);
+        } else if (line != null && line.contains("BLUE")) {
+            setAlliance(Alliance.BLUE);
+        } else {
+            logCsvString("determineAlliance - alliance string check failed.");
+            setAlliance(Alliance.RED);
         }
     }
 

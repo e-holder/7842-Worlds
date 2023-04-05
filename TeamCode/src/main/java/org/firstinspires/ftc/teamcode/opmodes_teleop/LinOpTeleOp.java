@@ -37,6 +37,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
         m_vera.init(hardwareMap, false, false,
                 VeraPipelineType.SIGNAL, PoleType.HIGH, telemetry);
+        m_vera.setAllianceFromPriorAutonomousRun();
 
         m_vera.drivetrain.initMotorsToBrake();
 
