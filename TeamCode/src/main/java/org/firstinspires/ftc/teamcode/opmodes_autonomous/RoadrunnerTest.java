@@ -43,25 +43,40 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .waitSeconds(1.0)
-                .addTemporalMarker(1, () -> {m_vera.intake.setAutonomousInitDelayCount(12);})
+                //.addTemporalMarker(1, () -> {m_vera.intake.setAutonomousInitDelayCount(12);})
                 //.addTemporalMarker(1, () -> {m_vera.lift.moveLiftToLowPole();})
 
                 // Preload cone
-                .lineToSplineHeading(new Pose2d(-56,-1, Math.toRadians(-120)))
-                .waitSeconds(0.33)
-                .addTemporalMarker(3, () -> {m_vera.lift.moveLiftToHighPole();})
-                .lineToSplineHeading(new Pose2d(-47.75,18, Math.toRadians(-120)))
-                .addTemporalMarker(5, () -> {m_vera.lift.dropCone();})
-                .addTemporalMarker(7, () -> {m_vera.lift.moveLiftToBottom();})
+                .lineToLinearHeading(new Pose2d(-24,2, Math.toRadians(-90)))
+                .lineToSplineHeading(new Pose2d(-37.5,-4, Math.toRadians(-90)))
+
+                .waitSeconds(1.5)
+                .addTemporalMarker(2.5, () -> {m_vera.lift.moveLiftToMidPole();})
+                .addTemporalMarker(3.5, () -> {m_vera.lift.dropCone();})
+                .addTemporalMarker(4.75, () -> {m_vera.lift.moveLiftToBottom();})
+                .addTemporalMarker(4.75, () -> {m_vera.intake.moveToIntakeConePos(5);})
+                .lineToLinearHeading(new Pose2d(-48,-4, Math.toRadians(-90)))
+                .lineToLinearHeading(new Pose2d(-48,-16, Math.toRadians(-90)))
+                .lineToSplineHeading(new Pose2d(-44,-2, Math.toRadians(-108)))
+                .addTemporalMarker(6.5, () -> {m_vera.lift.dropCone();})
+                .addTemporalMarker(7.75, () -> {m_vera.lift.moveLiftToBottom();})
+                .addTemporalMarker(7.75, () -> {m_vera.intake.moveToIntakeConePos(4);})
+
+
+
+
+//                .lineToSplineHeading(new Pose2d(-47.75,18, Math.toRadians(-120)))
+//                .addTemporalMarker(5, () -> {m_vera.lift.dropCone();})
+//                .addTemporalMarker(7, () -> {m_vera.lift.moveLiftToBottom();})
 
                 // Stack cone 5
-                .addTemporalMarker(7.5, () -> {m_vera.intake.moveToIntakeConePos(5);})
-                .waitSeconds(2.75)
-                .lineToSplineHeading(new Pose2d(-48,0, Math.toRadians(-85)))
-                .lineToSplineHeading(new Pose2d(-48,-16, Math.toRadians(-90)))
-                .waitSeconds(2)
-                .lineToSplineHeading(new Pose2d(-47.75,18, Math.toRadians(-120)))
-                .addTemporalMarker(12, () -> {m_vera.lift.moveLiftToHighPole();})
+//                .addTemporalMarker(7.5, () -> {m_vera.intake.moveToIntakeConePos(5);})
+//                .waitSeconds(2.75)
+//                .lineToSplineHeading(new Pose2d(-48,0, Math.toRadians(-85)))
+//                .lineToSplineHeading(new Pose2d(-48,-16, Math.toRadians(-90)))
+//                .waitSeconds(2)
+//                .lineToSplineHeading(new Pose2d(-47.75,18, Math.toRadians(-120)))
+//                .addTemporalMarker(12, () -> {m_vera.lift.moveLiftToHighPole();})
 
                 // Stack cone 4
 

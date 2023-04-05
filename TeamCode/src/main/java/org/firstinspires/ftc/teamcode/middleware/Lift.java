@@ -154,7 +154,7 @@ public class Lift implements CONSTANTS {
     }
 
     private void openClaw() {
-        if (!m_vera.isAutonomous() && m_hasLiftBeenReset) {
+        if (!m_vera.isAutonomous() || m_hasLiftBeenReset) {
             m_hwLift.setLiftClawPos(CLAW_OPEN);
         }
     }
@@ -245,7 +245,8 @@ public class Lift implements CONSTANTS {
                 break;
             case IDLE_AT_BOTTOM:
                 if (isConeInMiddleman()) {
-                    m_state = LiftState.REQUEST_MOVE_TO_LOW_POLE;
+                    m_state = m_vera.isAutonomous() ? LiftState.REQUEST_MOVE_TO_MID_POLE :
+                            LiftState.REQUEST_MOVE_TO_LOW_POLE;
                 }
                 break;
             case IDLE:
@@ -371,17 +372,17 @@ public class Lift implements CONSTANTS {
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
                     ", tgtIn, " + df3.format(m_liftTargetPos_in) +
                     ", posIn, " + df3.format(m_liftPos_in) +
-                    ", tgtTick, " + m_liftTarget_tick +
-                    ", posTick, " + m_liftPos_tick +
-                    ", tgtSpeed, " + m_liftTargetSpeed +
-                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
+//                    ", tgtTick, " + m_liftTarget_tick +
+//                    ", posTick, " + m_liftPos_tick +
+//                    ", tgtSpeed, " + m_liftTargetSpeed +
+//                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
-                    ", isBusy, " + m_isLiftBusy +
-//                    ", isClawClosed, " + m_isClawClosed +
+//                    ", isBusy, " + m_isLiftBusy +
+                    ", isClawClosed, " + m_isClawClosed +
 //                    ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +
+                    ", openCount, " + m_clawOpeningCounter +
 //                    ", downDelay, " + m_delayForMoveToBottom +
-//                    ", openCount, " + m_clawOpeningCounter +
 //                    ", poleCount, " + m_moveToPoleCounter +
                     ".");
         }
