@@ -89,14 +89,14 @@ public class Vision implements CONSTANTS {
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     public static final int NOMINAL_HIGH_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 48;
     public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
-    private final int MIN_HIGH_POLE_WIDTH_PIX = 24;
+    private final int MIN_HIGH_POLE_WIDTH_PIX = 26;
 
     // Camera will be about 10 inches (9-11) from Mid poles
     // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     public static final int NOMINAL_MID_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 51;
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
-    private final int MIN_MID_POLE_WIDTH_PIX = 37;
+    private final int MIN_MID_POLE_WIDTH_PIX = 46;
 
     // TODO: Calibrate low pole constants (if we ever need them in autonomous)
     // Camera will be about 2.5 inches (2-4) from Low poles.
