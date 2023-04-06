@@ -17,7 +17,6 @@ public class TestVisionFindPoleM extends LinOpAutonomousBase implements CONSTANT
     protected void preInitSetup() {
         m_isVisionTestMode = true;
         m_initialPipelineType = VeraPipelineType.FIND_POLE;
-        m_taskFindPole.setPoleType(PoleType.MID);
     }
 
     @Override
@@ -29,6 +28,7 @@ public class TestVisionFindPoleM extends LinOpAutonomousBase implements CONSTANT
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
+        m_taskFindPole.setPoleType(PoleType.MID);
 
         waitForStart();
 

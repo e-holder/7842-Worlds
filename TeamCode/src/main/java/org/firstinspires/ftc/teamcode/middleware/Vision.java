@@ -106,6 +106,7 @@ public class Vision implements CONSTANTS {
             newFrameCount = m_findPolePipeline.getFrameCount();
             if (m_findPoleFrameCount != newFrameCount) {
                 m_findPoleFrameCount = newFrameCount;
+                m_findPoleLogFlag = true;
                 getFindPolePipelineInputs();
                 computeFindPoleNavigation();
             }
@@ -157,6 +158,7 @@ public class Vision implements CONSTANTS {
     private PoleType m_poleType = PoleType.MID;
     private final VisionPipelineFindPole m_findPolePipeline;
     private boolean m_isFindPoleStreaming = false;
+    private boolean m_findPoleLogFlag = false;
     private int m_findPoleUpdateCount = 0;
     private int m_findPoleFrameCount = -1;
     private boolean m_isFindPolePipelineFrameBlack = true;
@@ -216,13 +218,13 @@ public class Vision implements CONSTANTS {
                 MAX_DELTA_MID_PIX);
         m_detectionsUsed = D_NONE;
         if (Math.abs(m_rowADelta_pix) > maxDelta_pix) {
-            m_detectionsUsed -= D_A;
+            m_detectionsUsed &= 0x011;  // Remove A
         }
         if (Math.abs(m_rowBDelta_pix) > maxDelta_pix) {
-            m_detectionsUsed -= D_B;
+            m_detectionsUsed &= 0x101;  // Remove B
         }
         if (Math.abs(m_rowCDelta_pix) > maxDelta_pix) {
-            m_detectionsUsed -= D_C;
+            m_detectionsUsed &= 0x110;  // Remove C
         }
     }
 
@@ -231,13 +233,13 @@ public class Vision implements CONSTANTS {
                 SUPER_WIDE_HIGH_PIX :
                 SUPER_WIDE_MID_PIX);
         if (((m_detectionsUsed & D_A) == D_A) && (m_rowAWidthDelta_pix > superWide_pix)) {
-            m_detectionsUsed -= D_A;
+            m_detectionsUsed &= 0x011;  // Remove A
         }
         if (((m_detectionsUsed & D_B) == D_B) && (m_rowBWidthDelta_pix > superWide_pix)) {
-            m_detectionsUsed -= D_B;
+            m_detectionsUsed &= 0x101;  // Remove B
         }
         if (((m_detectionsUsed & D_C) == D_C) && (m_rowCWidthDelta_pix > superWide_pix)) {
-            m_detectionsUsed -= D_C;
+            m_detectionsUsed &= 0x110;  // Remove C
         }
     }
 
@@ -250,13 +252,13 @@ public class Vision implements CONSTANTS {
         int cOutlier = (ac + bc) / 2;
         if ((aOutlier > outlier_pix) && (aOutlier > bOutlier) && (aOutlier > cOutlier)) {
             // If A is an outlier, and worse than B and C, eliminate it.
-            m_detectionsUsed -= D_A;
+            m_detectionsUsed &= 0x011;  // Remove A
         } else if ((bOutlier > outlier_pix) && (bOutlier > aOutlier) && (bOutlier > cOutlier)) {
             // If B is an outlier, and worse than A and C, eliminate it.
-            m_detectionsUsed -= D_B;
+            m_detectionsUsed &= 0x101;  // Remove B
         } else if ((cOutlier > outlier_pix) && (cOutlier > aOutlier) && (cOutlier > bOutlier)) {
             // If C is an outlier, and worse than A and B, eliminate it.
-            m_detectionsUsed -= D_C;
+            m_detectionsUsed &= 0x110;  // Remove C
         }
     }
 
@@ -266,9 +268,9 @@ public class Vision implements CONSTANTS {
                 int ab = Math.abs(m_rowADelta_pix - m_rowBDelta_pix);
                 if (ab > outlier_pix) {
                     if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowBDelta_pix)) {
-                        m_detectionsUsed -= D_A;
+                        m_detectionsUsed &= 0x011;  // Remove A
                     } else {
-                        m_detectionsUsed -= D_B;
+                        m_detectionsUsed &= 0x101;  // Remove B
                     }
                 }
                 break;
@@ -276,9 +278,9 @@ public class Vision implements CONSTANTS {
                 int ac = Math.abs(m_rowADelta_pix - m_rowCDelta_pix);
                 if (ac > outlier_pix) {
                     if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowCDelta_pix)) {
-                        m_detectionsUsed -= D_A;
+                        m_detectionsUsed &= 0x011;  // Remove A
                     } else {
-                        m_detectionsUsed -= D_C;
+                        m_detectionsUsed &= 0x110;  // Remove C
                     }
                 }
                 break;
@@ -286,9 +288,9 @@ public class Vision implements CONSTANTS {
                 int bc = Math.abs(m_rowBDelta_pix - m_rowCDelta_pix);
                 if (bc > outlier_pix) {
                     if (Math.abs(m_rowBDelta_pix) > Math.abs(m_rowCDelta_pix)) {
-                        m_detectionsUsed -= D_B;
+                        m_detectionsUsed &= 0x101;  // Remove B
                     } else {
-                        m_detectionsUsed -= D_C;
+                        m_detectionsUsed &= 0x110;  // Remove C
                     }
                 }
                 break;
@@ -495,23 +497,24 @@ public class Vision implements CONSTANTS {
             }
         }
 
-        if (false && (m_findPoleFrameCount % 50 == 0)) {
+        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 10) == 0)) {
+            m_findPoleLogFlag = false;
             logCsvString("FindPole" +
                     ", frame, " + m_findPoleFrameCount +
                     ", det, " + m_detectionsUsed +
                     ", delta, " + m_deltaToPole_deg +
                     ", dToScore, " + m_distToScore_in +
                     ", ACol, " + m_rowACol_pix +
-                    ", AWidth, " + m_rowAPoleWidth_pix +
-                    ", ADelta, " + m_rowADelta_pix +
-                    ", ADeltaW, " + m_rowAWidthDelta_pix +
                     ", BCol, " + m_rowBCol_pix +
-                    ", BWidth, " + m_rowBPoleWidth_pix +
-                    ", BDelta, " + m_rowBDelta_pix +
-                    ", BDeltaW, " + m_rowBWidthDelta_pix +
                     ", CCol, " + m_rowCCol_pix +
+                    ", AWidth, " + m_rowAPoleWidth_pix +
+                    ", BWidth, " + m_rowBPoleWidth_pix +
                     ", CWidth, " + m_rowCPoleWidth_pix +
+                    ", ADelta, " + m_rowADelta_pix +
+                    ", BDelta, " + m_rowBDelta_pix +
                     ", CDelta, " + m_rowCDelta_pix +
+                    ", ADeltaW, " + m_rowAWidthDelta_pix +
+                    ", BDeltaW, " + m_rowBWidthDelta_pix +
                     ", CDeltaW, " + m_rowCWidthDelta_pix +
                     "");
         }

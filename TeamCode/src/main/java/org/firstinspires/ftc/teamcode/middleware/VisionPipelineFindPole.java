@@ -19,7 +19,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     // In the Cb plane of a YCrCb image, the yellow poles should be very dark. Define a percentage
     // of the range between the minimum pixel value and the average pixel value.
-    public final double POLE_LIGHT_THRESH_PERCENT = 0.80;   // Original: 0.60
+    public final double POLE_LIGHT_THRESH_PERCENT = 0.6;   // Original: 0.60
     // Poles further away can be darker. May need a low threshold to try and eliminate those from
     // consideration.
     public final double POLE_DARK_THRESH_PERCENT = 0.0;     // Original: 0.0
@@ -34,7 +34,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // enough delta between the top and bottom of the box to detect how much the pole is leaning
     // left or right.
     private final int BOX_CENTER_ADJ = 0;
-    public static final int BOX_WIDTH = 300;
+    public static final int BOX_WIDTH = 400;
     private final int BOX_HEIGHT = 150;
     private final int BOX_TOP = 0;
     private final int BOX_LEFT = (WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + BOX_CENTER_ADJ;
@@ -199,12 +199,14 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             minPix = (short) Math.min(minPix, pixVal);
             sumPix += pixVal;
         }
-        int pixAvg = sumPix / (BOX_WIDTH * 2);
+        int pixAvg = sumPix / (BOX_WIDTH * 3);
         m_poleLightThresh = (short) (((pixAvg - minPix) * POLE_LIGHT_THRESH_PERCENT) + minPix);
         m_poleDarkThresh = (short) (((pixAvg - minPix) * POLE_DARK_THRESH_PERCENT) + minPix);
-//        logCsvString("dkThresh, " + m_poleDarkThresh +
-//                ", ltThresh, " + m_poleLightThresh +
-//                ", minPoleW, " + m_minPoleWidth_pix.get());
+        logCsvString("dkThresh, " + m_poleDarkThresh +
+                ", ltThresh, " + m_poleLightThresh +
+                ", min, " + minPix +
+                ", avg, " + pixAvg +
+                ", minPoleW, " + m_minPoleWidth_pix.get());
 
         // Now identify where the pole is in rows A, B, and C.
         int rowAStart = 0;
@@ -254,15 +256,14 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             }
         }
 
-//        if (m_frameCount.get() % 100 == 0) {
-//            for (int i = 0; i < BOX_WIDTH; i++) {
-//                m_csvLogString.append(", " + m_rowB[i]);
-//            }
-//            m_csvLogString.append("\n");
-//        }
-//        logCsvString("FINAL, u, " + m_poleRowBCol_pix.get() +
-//                ", l, " + m_poleRowBCol_pix.get() +
-//                ", w, " + rowBWidth);
+        if (m_frameCount.get() % 100 == 0) {
+            for (int i = 0; i < BOX_WIDTH; i++) {
+                m_csvLogString.append(", " + m_rowB[i]);
+            }
+            m_csvLogString.append("\n");
+        }
+        logCsvString("FINAL, " + m_poleRowBCol_pix.get() +
+                ", w, " + rowBWidth);
 
         if (Vera.isVisionTestMode) {
             // To display the output image: Use phone to select opmode, press Init, wait until
