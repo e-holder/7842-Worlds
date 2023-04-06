@@ -10,7 +10,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -64,7 +63,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // threshold percentage) will be considered the pole.
     private final AtomicInteger m_minPoleWidth_pix = new AtomicInteger(9999);
 
-    private volatile boolean m_isFrameNull = false;
+    private volatile boolean m_isFrameBlack = false;
 
     private volatile short[] m_rowC = new short[BOX_WIDTH];
     private volatile short[] m_rowB = new short[BOX_WIDTH];
@@ -87,8 +86,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         return m_frameCount.get();
     }
 
-    public boolean isFrameNull() {
-        return m_isFrameNull;
+    public boolean isFrameBlack() {
+        return m_isFrameBlack;
     }
 
     public void setMinPoleWidth(int minPoleWidth_pix) {
@@ -152,10 +151,10 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 //        matInput = Imgcodecs.imread("/sdcard/FIRST/data/image.jpg");
 
         // Check an arbitrary pixel to ensure we aren't getting black images.
-        m_isFrameNull = false;
+        m_isFrameBlack = false;
         double[] pixel = matInput.get(10, 10);
         if (pixel[0] == 0.0 && pixel[1] == 0.0 && pixel[2] == 0.0) {
-            m_isFrameNull = true;
+            m_isFrameBlack = true;
             return matInput;   // Just bail if we don't have an image.
         }
 

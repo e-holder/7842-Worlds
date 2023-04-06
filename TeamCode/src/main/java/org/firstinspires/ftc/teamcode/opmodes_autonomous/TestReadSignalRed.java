@@ -34,6 +34,8 @@ public class TestReadSignalRed extends LinOpAutonomousBase implements CONSTANTS 
             reportData();
         } while ((status != TaskStatus.DONE) && !isStopRequested());
 
+        m_taskReadSignal.getParkingZone();  // Causes signal/parking data to be logged.
+
         waitForStart();
 
         while(!isStopRequested()) {

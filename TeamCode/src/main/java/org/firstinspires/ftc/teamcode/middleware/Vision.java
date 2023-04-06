@@ -38,7 +38,9 @@ public class Vision implements CONSTANTS {
         // TBD: May need to notify pipelines. E.g., m_barcodePipeline.setAlliance(alliance);
     }
 
-    public void logCsvString(String record) { m_csvLogStr.append(record).append("\n"); }
+    public void logCsvString(String record) {
+        m_csvLogStr.append(record).append("\n");
+    }
 
     public StringBuilder getLogString() {
         m_csvLogStr.append(m_findPolePipeline.getLogString());
@@ -51,7 +53,6 @@ public class Vision implements CONSTANTS {
         switch (veraPipelineType) {
             case FIND_POLE:
                 pipeline = m_findPolePipeline;
-                setMinPoleWidth();
                 m_findPoleUpdateCount = -1;
                 m_findPoleFrameCount = -1;
                 m_isFindPoleStreaming = true;
@@ -83,10 +84,10 @@ public class Vision implements CONSTANTS {
         m_hwVision.stopWebcamStreaming();
         m_isFindPoleStreaming = false;
         m_isSignalStreaming = false;
-        double signalLoopPerFrame = (double)m_signalUpdateCount / (double)m_signalFrameCount;
+        double signalLoopPerFrame = (double) m_signalUpdateCount / (double) m_signalFrameCount;
         logCsvString("SignalVision" +
                 ", loopPerFrame, " + df3.format(signalLoopPerFrame));
-        double findPoleLoopPerFrame = (double)m_findPoleUpdateCount / (double)m_findPoleFrameCount;
+        double findPoleLoopPerFrame = (double) m_findPoleUpdateCount / (double) m_findPoleFrameCount;
         logCsvString("FindPoleVision" +
                 ", loopPerFrame, " + df3.format(findPoleLoopPerFrame));
     }
@@ -117,90 +118,265 @@ public class Vision implements CONSTANTS {
     // Camera will be about 19 inches (18-20) from High poles
     // Camera will be about 4 inches above the floor and about 45 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
-    public static final int NOMINAL_HIGH_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 48;
+    public static final int NOMINAL_HIGH_POLE_CENTER_PIX =
+            (VisionPipelineFindPole.BOX_WIDTH / 2) + 48;
     public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
     private final int MIN_HIGH_POLE_WIDTH_PIX = 26;
 
     // Camera will be about 10 inches (9-11) from Mid poles
     // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
-    public static final int NOMINAL_MID_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 + 51;
+    public static final int NOMINAL_MID_POLE_CENTER_PIX =
+            (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
     private final int MIN_MID_POLE_WIDTH_PIX = 46;
+
+    private final double DEFAULT_SCORE_HIGH_DIST_IN = 3.0;
+    private final double DEFAULT_SCORE_MID_DIST_IN = 2.0;
+
+    // Ignore pole detections +/- this delta from nominal position.
+    private final int MAX_DELTA_HIGH_PIX = 70;
+    private final int MAX_DELTA_MID_PIX = 60;
+
+    private final int OUTLIER_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
+    private final int OUTLIER_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
+
+    private final int SUPER_WIDE_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
+    private final int SUPER_WIDE_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
+
+    // Pole Detection flag values for rows A, B, and C.
+    private final int D_ABC = 7;  // 111
+    private final int D_AB = 6;   // 110
+    private final int D_AC = 5;   // 101
+    private final int D_BC = 3;   // 011
+    private final int D_A = 4;    // 100
+    private final int D_B = 2;    // 010
+    private final int D_C = 1;    // 001
+    private final int D_NONE = 0;
 
     private PoleType m_poleType = PoleType.MID;
     private final VisionPipelineFindPole m_findPolePipeline;
     private boolean m_isFindPoleStreaming = false;
     private int m_findPoleUpdateCount = 0;
     private int m_findPoleFrameCount = -1;
-    private boolean m_areFindPoleFramesValid = false;
-    private int m_rowAPoleWidth;
-    private int m_rowBPoleWidth;
-    private int m_rowCPoleWidth;
+    private boolean m_isFindPolePipelineFrameBlack = true;
+    private int m_rowAPoleWidth_pix;
+    private int m_rowBPoleWidth_pix;
+    private int m_rowCPoleWidth_pix;
+    private int m_rowAWidthDelta_pix;
+    private int m_rowBWidthDelta_pix;
+    private int m_rowCWidthDelta_pix;
     private int m_rowACol_pix;
     private int m_rowBCol_pix;
     private int m_rowCCol_pix;
-    private int m_rowDetections;
+    private int m_rowADelta_pix;
+    private int m_rowBDelta_pix;
+    private int m_rowCDelta_pix;
+    private int m_detectionsUsed;
     private double m_deltaToPole_deg;
     private double m_distToScore_in;
 
+    private void setMinPoleWidth() {
+        m_findPolePipeline.setMinPoleWidth((m_poleType == PoleType.HIGH ?
+                MIN_HIGH_POLE_WIDTH_PIX :
+                MIN_MID_POLE_WIDTH_PIX));
+    }
+
     private void getFindPolePipelineInputs() {
-        m_areFindPoleFramesValid = !m_findPolePipeline.isFrameNull();
-        m_rowAPoleWidth = m_findPolePipeline.getRowAPoleWidth_pix();
-        m_rowBPoleWidth = m_findPolePipeline.getRowBPoleWidth_pix();
-        m_rowCPoleWidth = m_findPolePipeline.getRowCPoleWidth_pix();
+        m_isFindPolePipelineFrameBlack = m_findPolePipeline.isFrameBlack();
+        m_rowAPoleWidth_pix = m_findPolePipeline.getRowAPoleWidth_pix();
+        m_rowBPoleWidth_pix = m_findPolePipeline.getRowBPoleWidth_pix();
+        m_rowCPoleWidth_pix = m_findPolePipeline.getRowCPoleWidth_pix();
         m_rowACol_pix = m_findPolePipeline.getPoleRowACol_pix();
         m_rowBCol_pix = m_findPolePipeline.getPoleRowBCol_pix();
         m_rowCCol_pix = m_findPolePipeline.getPoleRowCCol_pix();
     }
 
-    public int getFindPoleFrameCount() { return m_findPoleFrameCount; }
-    public boolean areFindPoleFramesValid() {
-        return m_areFindPoleFramesValid;
-    }
-    public int getRowAPoleWidth_pix() { return m_rowAPoleWidth; }
-    public int getRowBPoleWidth_pix() { return m_rowBPoleWidth; }
-    public int getRowCPoleWidth_pix() { return m_rowCPoleWidth; }
-    public double getDeltaToPole_deg() { return m_deltaToPole_deg; }
-    public double getDistToScore_in() {
-        return m_distToScore_in;
-    }
-
-    public int getPoleAOffset_pix() {
-        return m_rowACol_pix - (m_poleType == PoleType.HIGH ?
+    private void computeAllDeltaLateralPix() {
+        int nominalCenter_pix = (m_poleType == PoleType.HIGH ?
                 NOMINAL_HIGH_POLE_CENTER_PIX :
                 NOMINAL_MID_POLE_CENTER_PIX);
+        m_rowADelta_pix = m_rowACol_pix - nominalCenter_pix;
+        m_rowBDelta_pix = m_rowBCol_pix - nominalCenter_pix;
+        m_rowCDelta_pix = m_rowCCol_pix - nominalCenter_pix;
     }
 
-    public int getPoleBOffset_pix() {
-        return m_rowBCol_pix - (m_poleType == PoleType.HIGH ?
-                NOMINAL_HIGH_POLE_CENTER_PIX :
-                NOMINAL_MID_POLE_CENTER_PIX);
-    }
-
-    public int getPoleCOffset_pix() {
-        return m_rowCCol_pix - (m_poleType == PoleType.HIGH ?
-                NOMINAL_HIGH_POLE_CENTER_PIX :
-                NOMINAL_MID_POLE_CENTER_PIX);
-    }
-
-    public int getNominalPoleWidth() {
-        return (m_poleType == PoleType.HIGH ?
+    private void computeAllDeltaWidthPix() {
+        int nominalWidth_pix = (m_poleType == PoleType.HIGH ?
                 NOMINAL_HIGH_POLE_WIDTH_PIX :
                 NOMINAL_MID_POLE_WIDTH_PIX);
+        m_rowAWidthDelta_pix = m_rowAPoleWidth_pix - nominalWidth_pix;
+        m_rowBWidthDelta_pix = m_rowBPoleWidth_pix - nominalWidth_pix;
+        m_rowCWidthDelta_pix = m_rowCPoleWidth_pix - nominalWidth_pix;
+    }
+
+    private void eliminateFarLeftOrRightDetections() {
+        int maxDelta_pix = (m_poleType == PoleType.HIGH ?
+                MAX_DELTA_HIGH_PIX :
+                MAX_DELTA_MID_PIX);
+        m_detectionsUsed = D_NONE;
+        if (Math.abs(m_rowADelta_pix) > maxDelta_pix) {
+            m_detectionsUsed -= D_A;
+        }
+        if (Math.abs(m_rowBDelta_pix) > maxDelta_pix) {
+            m_detectionsUsed -= D_B;
+        }
+        if (Math.abs(m_rowCDelta_pix) > maxDelta_pix) {
+            m_detectionsUsed -= D_C;
+        }
+    }
+
+    private void eliminateSuperWideDetections() {
+        int superWide_pix = (m_poleType == PoleType.HIGH ?
+                SUPER_WIDE_HIGH_PIX :
+                SUPER_WIDE_MID_PIX);
+        if (((m_detectionsUsed & D_A) == D_A) && (m_rowAWidthDelta_pix > superWide_pix)) {
+            m_detectionsUsed -= D_A;
+        }
+        if (((m_detectionsUsed & D_B) == D_B) && (m_rowBWidthDelta_pix > superWide_pix)) {
+            m_detectionsUsed -= D_B;
+        }
+        if (((m_detectionsUsed & D_C) == D_C) && (m_rowCWidthDelta_pix > superWide_pix)) {
+            m_detectionsUsed -= D_C;
+        }
+    }
+
+    private void eliminateOutlierAmongThree(int outlier_pix) {
+        int ab = Math.abs(m_rowADelta_pix - m_rowBDelta_pix);
+        int ac = Math.abs(m_rowADelta_pix - m_rowCDelta_pix);
+        int bc = Math.abs(m_rowBDelta_pix - m_rowCDelta_pix);
+        int aOutlier = (ab + ac) / 2;
+        int bOutlier = (ab + bc) / 2;
+        int cOutlier = (ac + bc) / 2;
+        if ((aOutlier > outlier_pix) && (aOutlier > bOutlier) && (aOutlier > cOutlier)) {
+            // If A is an outlier, and worse than B and C, eliminate it.
+            m_detectionsUsed -= D_A;
+        } else if ((bOutlier > outlier_pix) && (bOutlier > aOutlier) && (bOutlier > cOutlier)) {
+            // If B is an outlier, and worse than A and C, eliminate it.
+            m_detectionsUsed -= D_B;
+        } else if ((cOutlier > outlier_pix) && (cOutlier > aOutlier) && (cOutlier > bOutlier)) {
+            // If C is an outlier, and worse than A and B, eliminate it.
+            m_detectionsUsed -= D_C;
+        }
+    }
+
+    private void eliminateOutlierAmongTwo(int outlier_pix) {
+        switch (m_detectionsUsed) {
+            case D_AB:
+                int ab = Math.abs(m_rowADelta_pix - m_rowBDelta_pix);
+                if (ab > outlier_pix) {
+                    if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowBDelta_pix)) {
+                        m_detectionsUsed -= D_A;
+                    } else {
+                        m_detectionsUsed -= D_B;
+                    }
+                }
+                break;
+            case D_AC:
+                int ac = Math.abs(m_rowADelta_pix - m_rowCDelta_pix);
+                if (ac > outlier_pix) {
+                    if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowCDelta_pix)) {
+                        m_detectionsUsed -= D_A;
+                    } else {
+                        m_detectionsUsed -= D_C;
+                    }
+                }
+                break;
+            case D_BC:
+                int bc = Math.abs(m_rowBDelta_pix - m_rowCDelta_pix);
+                if (bc > outlier_pix) {
+                    if (Math.abs(m_rowBDelta_pix) > Math.abs(m_rowCDelta_pix)) {
+                        m_detectionsUsed -= D_B;
+                    } else {
+                        m_detectionsUsed -= D_C;
+                    }
+                }
+                break;
+        }
+    }
+
+    private double computeThreeDetectionDeltaToPole_deg() {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    private double computeThreeDetectionDistToScore_in() {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    private double computeTwoDetectionDeltaToPole_deg(int detectionsUsed) {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    private double computeTwoDetectionDistToScore_in(int detectionsUsed) {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    private double computeOneDetectionDistToScore_in(int deltaWidthPix) {
+        // TODO: Implement
+        return 0.0;
     }
 
     private void computeFindPoleNavigation() {
-        m_rowDetections = 0;
-        if (m_rowACol_pix >= 0) m_rowDetections++;
-        if (m_rowBCol_pix >= 0) m_rowDetections++;
-        if (m_rowCCol_pix >= 0) m_rowDetections++;
+        computeAllDeltaLateralPix();
+        computeAllDeltaWidthPix();
 
-        // Compute delta degrees toward pole.
-        m_deltaToPole_deg = 0.0;
+        m_detectionsUsed = D_ABC; // Initially assume all detections will be used.
+        eliminateFarLeftOrRightDetections();
+        eliminateSuperWideDetections();
 
-        // Compute distance to score pole.
-        m_distToScore_in = 2.0;
+        int outlier_pix = (m_poleType == PoleType.HIGH ?
+                OUTLIER_HIGH_PIX : OUTLIER_MID_PIX);
+        if (m_detectionsUsed == D_ABC) {
+            eliminateOutlierAmongThree(outlier_pix);
+        }
+        if (m_detectionsUsed == D_AB || m_detectionsUsed == D_AC || m_detectionsUsed == D_BC) {
+            eliminateOutlierAmongTwo(outlier_pix);
+        }
+
+        switch (m_detectionsUsed) {
+            case D_ABC:
+                m_deltaToPole_deg = computeThreeDetectionDeltaToPole_deg();
+                m_distToScore_in = computeThreeDetectionDistToScore_in();
+                break;
+            case D_AB:
+                m_deltaToPole_deg = computeTwoDetectionDeltaToPole_deg(D_AB);
+                m_distToScore_in = computeTwoDetectionDistToScore_in(D_AB);
+                break;
+            case D_AC:
+                m_deltaToPole_deg = computeTwoDetectionDeltaToPole_deg(D_AC);
+                m_distToScore_in = computeTwoDetectionDistToScore_in(D_AC);
+                break;
+            case D_BC:
+                m_deltaToPole_deg = computeTwoDetectionDeltaToPole_deg(D_BC);
+                m_distToScore_in = computeTwoDetectionDistToScore_in(D_BC);
+                break;
+            case D_A:
+                m_deltaToPole_deg = computeOneDetectionDeltaAngle_deg(m_rowADelta_pix);
+                m_distToScore_in = computeOneDetectionDistToScore_in(m_rowAWidthDelta_pix);
+                break;
+            case D_B:
+                m_deltaToPole_deg = computeOneDetectionDeltaAngle_deg(m_rowBDelta_pix);
+                m_distToScore_in = computeOneDetectionDistToScore_in(m_rowBWidthDelta_pix);
+                break;
+            case D_C:
+                m_deltaToPole_deg = computeOneDetectionDeltaAngle_deg(m_rowCDelta_pix);
+                m_distToScore_in = computeOneDetectionDistToScore_in(m_rowCWidthDelta_pix);
+                break;
+            default:
+                m_deltaToPole_deg = 0.0;
+                m_distToScore_in = (m_poleType == PoleType.HIGH ?
+                        DEFAULT_SCORE_HIGH_DIST_IN : DEFAULT_SCORE_MID_DIST_IN);
+                break;
+        }
     }
 
     public void setPoleType(PoleType newPoleType) {
@@ -214,10 +390,17 @@ public class Vision implements CONSTANTS {
         logCsvString("Vision, setPoleType, " + m_poleType);
     }
 
-    public void setMinPoleWidth() {
-        m_findPolePipeline.setMinPoleWidth((m_poleType == PoleType.HIGH ?
-                MIN_HIGH_POLE_WIDTH_PIX :
-                MIN_MID_POLE_WIDTH_PIX));
+    public boolean isFindPolePipelineFrameBlack() {
+        return m_isFindPolePipelineFrameBlack;
+    }
+    public int getFindPoleFrameCount() {
+        return m_findPoleFrameCount;
+    }
+    public double getDeltaToPole_deg() {
+        return m_deltaToPole_deg;
+    }
+    public double getDistToScore_in() {
+        return m_distToScore_in;
     }
 
     //============================================================================================
@@ -241,7 +424,7 @@ public class Vision implements CONSTANTS {
         m_parkingZone = (m_signal == Signal.UNKNOWN ? Signal.ZONE3 : m_signal);
     }
 
-    public boolean areSignalImagesValid() {
+    public boolean isSignalPipelineFrameBlack() {
         return m_signalAvgTop > 0.0;
     }
 
@@ -252,7 +435,12 @@ public class Vision implements CONSTANTS {
     public Signal getParkingZone() {
         logCsvString("Vision" +
                 ", Signal, " + m_signal +
-                ", Park, " + m_parkingZone);
+                ", Park, " + m_parkingZone +
+                ", avgBox, " + df3.format(m_signalBoxAvg) +
+                ", avgTop, " + df3.format(m_signalAvgTop) +
+                ", avgBottom, " + df3.format(m_signalAvgBottom) +
+                ", frame, " + m_signalFrameCount);
+
         return m_parkingZone;
     }
 
@@ -274,7 +462,7 @@ public class Vision implements CONSTANTS {
     //============================================================================================
 
     public void reportData(Telemetry telemetry) {
-        if (true && m_isSignalStreaming) {
+        if (Vera.isVisionTestMode && m_isSignalStreaming) {
             telemetry.addData("Park = ", m_parkingZone +
                     ", Signal = " + m_signal);
             telemetry.addData("averages", (int)m_signalBoxAvg +
@@ -289,12 +477,43 @@ public class Vision implements CONSTANTS {
                     ", frame, " + m_signalFrameCount);
         }
 
-        if (true && Vera.isVisionTestMode && m_isFindPoleStreaming) {
-            // TODO: Fix
-//            telemetry.addData("Pole A ",
-//                    "upper " + getPoleUpperCol() +
-//                    " lower " + getPoleLowerCol() +
-//                    " width " + getUpperPoleWidth());
+        if (Vera.isVisionTestMode && m_isFindPoleStreaming) {
+            telemetry.addData("Pole",
+                    "DEG " + df3.format(m_deltaToPole_deg) +
+                            ", IN " + df3.format(m_distToScore_in));
+            if ((m_detectionsUsed & D_A) == D_A) {
+                telemetry.addData("  A deltas:", m_rowADelta_pix +
+                        " width " + m_rowAWidthDelta_pix);
+            }
+            if ((m_detectionsUsed & D_B) == D_B) {
+                telemetry.addData("  B deltas:", m_rowBDelta_pix +
+                        " width " + m_rowBWidthDelta_pix);
+            }
+            if ((m_detectionsUsed & D_C) == D_C) {
+                telemetry.addData("  C deltas:", m_rowCDelta_pix +
+                        " width " + m_rowCWidthDelta_pix);
+            }
+        }
+
+        if (false && (m_findPoleFrameCount % 50 == 0)) {
+            logCsvString("FindPole" +
+                    ", frame, " + m_findPoleFrameCount +
+                    ", det, " + m_detectionsUsed +
+                    ", delta, " + m_deltaToPole_deg +
+                    ", dToScore, " + m_distToScore_in +
+                    ", ACol, " + m_rowACol_pix +
+                    ", AWidth, " + m_rowAPoleWidth_pix +
+                    ", ADelta, " + m_rowADelta_pix +
+                    ", ADeltaW, " + m_rowAWidthDelta_pix +
+                    ", BCol, " + m_rowBCol_pix +
+                    ", BWidth, " + m_rowBPoleWidth_pix +
+                    ", BDelta, " + m_rowBDelta_pix +
+                    ", BDeltaW, " + m_rowBWidthDelta_pix +
+                    ", CCol, " + m_rowCCol_pix +
+                    ", CWidth, " + m_rowCPoleWidth_pix +
+                    ", CDelta, " + m_rowCDelta_pix +
+                    ", CDeltaW, " + m_rowCWidthDelta_pix +
+                    "");
         }
     }
 }

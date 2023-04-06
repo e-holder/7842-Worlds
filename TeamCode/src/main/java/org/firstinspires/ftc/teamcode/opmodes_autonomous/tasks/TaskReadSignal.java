@@ -17,6 +17,7 @@ public class TaskReadSignal extends AutonomousTask {
         m_state = TaskState.WAIT_FOR_NON_BLACK_IMAGES;
     }
 
+    // Do not call this method until the task status is TASK_DONE.
     public Signal getParkingZone() {
         return vera.vision.getParkingZone();
     }
@@ -38,7 +39,7 @@ public class TaskReadSignal extends AutonomousTask {
                 frameNumber = vera.vision.getSignalPipelineFrameCount();
                 // Transition to READ_SIGNAL state after we know the pipeline is processing frames
                 // with non-black images (or until we give up).
-                if (vera.vision.areSignalImagesValid()) {
+                if (!vera.vision.isSignalPipelineFrameBlack()) {
                     vera.logCsvString("ReadSignal non-black at frame: " + frameNumber);
                     m_minFrameNumber = frameNumber + SKIP_FRAMES_PRIOR_TO_USE;
                     m_state = TaskState.READ_SIGNAL;

@@ -42,7 +42,7 @@ public class TaskFindPole extends AutonomousTask {
                 frameNumber = vera.vision.getFindPoleFrameCount();
                 // ONLY transition to FIND_POLE state after we know the pipeline is processing
                 // frames with non-black images.
-                if (vera.vision.areFindPoleFramesValid()) {
+                if (!vera.vision.isFindPolePipelineFrameBlack()) {
                     vera.logCsvString(("FindPole non-black at frame: ") + frameNumber);
                     m_state = TaskState.FIND_POLE;
                 } else if (frameNumber >= WAIT_FOR_NON_BLACK_FRAMES_COUNT) {
