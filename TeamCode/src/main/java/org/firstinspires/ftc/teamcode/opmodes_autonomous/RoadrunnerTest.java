@@ -21,8 +21,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
     private Signal readSignalCone() {
         TaskStatus status;
         do {
+            getInputs();
             status = m_taskReadSignal.update();
-            m_taskReadSignal.addSignalTelemetry();
             reportData();
         } while ((status != TaskStatus.DONE) && !isStopRequested());
         return m_taskReadSignal.getParkingZone();
@@ -31,7 +31,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera(PoleType.HIGH);
+        initializeVera();
         Signal parkingZone = readSignalCone();
 
         Pose2d startPose = new Pose2d(0, 0, 0);

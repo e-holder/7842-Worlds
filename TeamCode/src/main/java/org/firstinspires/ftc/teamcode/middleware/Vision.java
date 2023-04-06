@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.middleware;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.HwVision;
+import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 public class Vision implements CONSTANTS {
@@ -13,14 +14,12 @@ public class Vision implements CONSTANTS {
     private final double CAMERA_TILT_MID_POLE = 0.33;      // About 30 degrees up
 
     // SUBSYSTEM has an instance of its corresponding hardware class here.
-    private HwVision m_hwVision;
+    private final HwVision m_hwVision;
 
-    private StringBuilder m_csvLogStr = new StringBuilder();
-    private final PoleType m_defaultPoleType;
+    private final StringBuilder m_csvLogStr = new StringBuilder();
 
     // SUBSYSTEM has a public constructor here.
-    public Vision(Vera vera, Telemetry telemetry, PoleType defaultPoleType) {
-        m_defaultPoleType = defaultPoleType;
+    public Vision(Vera vera, Telemetry telemetry) {
 
         // SUBSYSTEM constructs its corresponding hardware class instance here.
         m_hwVision = vera.getHwVision();
@@ -51,18 +50,21 @@ public class Vision implements CONSTANTS {
         OpenCvPipeline pipeline;
         switch (veraPipelineType) {
             case FIND_POLE:
-                if (m_defaultPoleType == PoleType.HIGH) {
-                    setCameraTiltForHighPole();
-                } else {
-                    setCameraTiltForMidPole();
-                }
                 pipeline = m_findPolePipeline;
                 setMinPoleWidth();
+                m_findPoleUpdateCount = -1;
+                m_findPoleFrameCount = -1;
+                m_isFindPoleStreaming = true;
+                m_isSignalStreaming = false;
                 break;
             case SIGNAL:   // Intentional fall-through
             default:
                 setCameraTiltForSignal();
                 pipeline = m_signalPipeline;
+                m_signalUpdateCount = -1;
+                m_signalFrameCount = -1;
+                m_isSignalStreaming = true;
+                m_isFindPoleStreaming = false;
                 break;
         }
 
@@ -79,6 +81,34 @@ public class Vision implements CONSTANTS {
 
     public void stopWebcamStreaming() {
         m_hwVision.stopWebcamStreaming();
+        m_isFindPoleStreaming = false;
+        m_isSignalStreaming = false;
+        double signalLoopPerFrame = (double)m_signalUpdateCount / (double)m_signalFrameCount;
+        logCsvString("SignalVision" +
+                ", loopPerFrame, " + df3.format(signalLoopPerFrame));
+        double findPoleLoopPerFrame = (double)m_findPoleUpdateCount / (double)m_findPoleFrameCount;
+        logCsvString("FindPoleVision" +
+                ", loopPerFrame, " + df3.format(findPoleLoopPerFrame));
+    }
+
+    public void getInputs() {
+        int newFrameCount;
+        if (m_isSignalStreaming) {
+            m_signalUpdateCount++;
+            newFrameCount = m_signalPipeline.getFrameCount();
+            if (m_signalFrameCount != newFrameCount) {
+                m_signalFrameCount = newFrameCount;
+                getSignalPipelineInputs();
+            }
+        } else if (m_isFindPoleStreaming) {
+            m_findPoleUpdateCount++;
+            newFrameCount = m_findPolePipeline.getFrameCount();
+            if (m_findPoleFrameCount != newFrameCount) {
+                m_findPoleFrameCount = newFrameCount;
+                getFindPolePipelineInputs();
+                computeFindPoleNavigation();
+            }
+        }
     }
 
     //============================================================================================
@@ -98,126 +128,132 @@ public class Vision implements CONSTANTS {
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
     private final int MIN_MID_POLE_WIDTH_PIX = 46;
 
-    // TODO: Calibrate low pole constants (if we ever need them in autonomous)
-    // Camera will be about 2.5 inches (2-4) from Low poles.
-    public static final int NOMINAL_LOW_POLE_CENTER_PIX = VisionPipelineFindPole.BOX_WIDTH/2 - 4;
-    public static final int NOMINAL_LOW_POLE_WIDTH_PIX = 160;
-    private final int MIN_LOW_POLE_WIDTH_PIX = 100;
+    private PoleType m_poleType = PoleType.MID;
+    private final VisionPipelineFindPole m_findPolePipeline;
+    private boolean m_isFindPoleStreaming = false;
+    private int m_findPoleUpdateCount = 0;
+    private int m_findPoleFrameCount = -1;
+    private boolean m_areFindPoleFramesValid = false;
+    private int m_rowAPoleWidth;
+    private int m_rowBPoleWidth;
+    private int m_rowCPoleWidth;
+    private int m_rowACol_pix;
+    private int m_rowBCol_pix;
+    private int m_rowCCol_pix;
+    private int m_rowDetections;
+    private double m_deltaToPole_deg;
+    private double m_distToScore_in;
 
-    // This is public to allow test autonomous OpModes to set the pole type.
-    public static PoleType poleType = PoleType.MID;
-
-    private VisionPipelineFindPole m_findPolePipeline;
-
-    public void setPoleType(PoleType newPoleType) {
-        poleType = newPoleType;
-        setMinPoleWidth();
-        switch (newPoleType) {
-            case HIGH:
-                setCameraTiltForHighPole();
-                break;
-            case MID:
-            default:
-                setCameraTiltForMidPole();
-                break;
-        }
+    private void getFindPolePipelineInputs() {
+        m_areFindPoleFramesValid = !m_findPolePipeline.isFrameNull();
+        m_rowAPoleWidth = m_findPolePipeline.getRowAPoleWidth_pix();
+        m_rowBPoleWidth = m_findPolePipeline.getRowBPoleWidth_pix();
+        m_rowCPoleWidth = m_findPolePipeline.getRowCPoleWidth_pix();
+        m_rowACol_pix = m_findPolePipeline.getPoleRowACol_pix();
+        m_rowBCol_pix = m_findPolePipeline.getPoleRowBCol_pix();
+        m_rowCCol_pix = m_findPolePipeline.getPoleRowCCol_pix();
     }
 
-    public void setMinPoleWidth() {
-        switch (poleType) {
-            case HIGH:
-                m_findPolePipeline.setMinPoleWidth(MIN_HIGH_POLE_WIDTH_PIX);
-                break;
-            case MID:
-                m_findPolePipeline.setMinPoleWidth(MIN_MID_POLE_WIDTH_PIX);
-                break;
-            default:
-                m_findPolePipeline.setMinPoleWidth(MIN_LOW_POLE_WIDTH_PIX);
-                break;
-        }
+    public int getFindPoleFrameCount() { return m_findPoleFrameCount; }
+    public boolean areFindPoleFramesValid() {
+        return m_areFindPoleFramesValid;
+    }
+    public int getRowAPoleWidth_pix() { return m_rowAPoleWidth; }
+    public int getRowBPoleWidth_pix() { return m_rowBPoleWidth; }
+    public int getRowCPoleWidth_pix() { return m_rowCPoleWidth; }
+    public double getDeltaToPole_deg() { return m_deltaToPole_deg; }
+    public double getDistToScore_in() {
+        return m_distToScore_in;
     }
 
-    public boolean areFindPoleImagesValid() {
-        return !m_findPolePipeline.isFrameNull();
+    public int getPoleAOffset_pix() {
+        return m_rowACol_pix - (m_poleType == PoleType.HIGH ?
+                NOMINAL_HIGH_POLE_CENTER_PIX :
+                NOMINAL_MID_POLE_CENTER_PIX);
     }
 
-    public int getFindPolePipelineFrameCount() { return m_findPolePipeline.getFrameCount(); }
-
-    public int getPoleUpperOffset_pix() {
-        int offset_pix = m_findPolePipeline.getPoleUpperCol_pix();
-        switch (poleType) {
-            case HIGH:
-                offset_pix -= NOMINAL_HIGH_POLE_CENTER_PIX;
-                break;
-            case MID:
-                offset_pix -= NOMINAL_MID_POLE_CENTER_PIX;
-                break;
-            default:
-                offset_pix -= NOMINAL_LOW_POLE_CENTER_PIX;
-                break;
-        }
-        logCsvString("UpperOffset, " + offset_pix);
-        return offset_pix;
+    public int getPoleBOffset_pix() {
+        return m_rowBCol_pix - (m_poleType == PoleType.HIGH ?
+                NOMINAL_HIGH_POLE_CENTER_PIX :
+                NOMINAL_MID_POLE_CENTER_PIX);
     }
 
-    public int getPoleLowerOffset_pix() {
-        int offset_pix = m_findPolePipeline.getPoleLowerCol_pix();
-        switch (poleType) {
-            case HIGH:
-                offset_pix -= NOMINAL_HIGH_POLE_CENTER_PIX;
-                break;
-            case MID:
-                offset_pix -= NOMINAL_MID_POLE_CENTER_PIX;
-                break;
-            default:
-                offset_pix -= NOMINAL_LOW_POLE_CENTER_PIX;
-                break;
-        }
-        logCsvString("LowerOffset, " + offset_pix);
-        return offset_pix;
+    public int getPoleCOffset_pix() {
+        return m_rowCCol_pix - (m_poleType == PoleType.HIGH ?
+                NOMINAL_HIGH_POLE_CENTER_PIX :
+                NOMINAL_MID_POLE_CENTER_PIX);
     }
 
     public int getNominalPoleWidth() {
-        int nominalWidth_pix;
-        switch (poleType) {
-            case HIGH:
-                nominalWidth_pix = NOMINAL_HIGH_POLE_WIDTH_PIX;
-                break;
-            case MID:
-                nominalWidth_pix = NOMINAL_MID_POLE_WIDTH_PIX;
-                break;
-            default:
-                nominalWidth_pix = NOMINAL_LOW_POLE_WIDTH_PIX;
-                break;
-        }
-        return nominalWidth_pix;
+        return (m_poleType == PoleType.HIGH ?
+                NOMINAL_HIGH_POLE_WIDTH_PIX :
+                NOMINAL_MID_POLE_WIDTH_PIX);
     }
 
-    public int getUpperPoleWidth_pix() { return m_findPolePipeline.getUpperPoleWidth_pix(); }
+    private void computeFindPoleNavigation() {
+        m_rowDetections = 0;
+        if (m_rowACol_pix >= 0) m_rowDetections++;
+        if (m_rowBCol_pix >= 0) m_rowDetections++;
+        if (m_rowCCol_pix >= 0) m_rowDetections++;
 
-    public int getLowerPoleWidth_pix() { return m_findPolePipeline.getLowerPoleWidth_pix(); }
+        // Compute delta degrees toward pole.
+        m_deltaToPole_deg = 0.0;
+
+        // Compute distance to score pole.
+        m_distToScore_in = 2.0;
+    }
+
+    public void setPoleType(PoleType newPoleType) {
+        m_poleType = newPoleType;
+        setMinPoleWidth();
+        if (newPoleType == PoleType.HIGH) {
+            setCameraTiltForHighPole();
+        } else {
+            setCameraTiltForMidPole();
+        }
+        logCsvString("Vision, setPoleType, " + m_poleType);
+    }
+
+    public void setMinPoleWidth() {
+        m_findPolePipeline.setMinPoleWidth((m_poleType == PoleType.HIGH ?
+                MIN_HIGH_POLE_WIDTH_PIX :
+                MIN_MID_POLE_WIDTH_PIX));
+    }
 
     //============================================================================================
     // Signal Vision Functionality
 
-    private VisionPipelineSignal m_signalPipeline;
-    private VisionPipelineSignal.Signal m_signal = VisionPipelineSignal.Signal.UNKNOWN;
+    private final VisionPipelineSignal m_signalPipeline;
+    private boolean m_isSignalStreaming = false;
+    private int m_signalUpdateCount = 0;
+    private int m_signalFrameCount = -1;
+    private double m_signalBoxAvg;
+    private double m_signalAvgTop;
+    private double m_signalAvgBottom;
+    private Signal m_signal = Signal.UNKNOWN;
+    private Signal m_parkingZone = Signal.ZONE3;
 
-    public boolean areSignalImagesValid() {
-        return m_signalPipeline.getSignalTopAvg() > 0.0;
+    private void getSignalPipelineInputs() {
+        m_signalBoxAvg = m_signalPipeline.getSignalBoxAvg();
+        m_signalAvgTop = m_signalPipeline.getSignalTopAvg();
+        m_signalAvgBottom = m_signalPipeline.getSignalBottomAvg();
+        m_signal = m_signalPipeline.getSignal();
+        m_parkingZone = (m_signal == Signal.UNKNOWN ? Signal.ZONE3 : m_signal);
     }
 
-    // Accessors for signal results.
-    public VisionPipelineSignal.Signal getSignal() { return m_signalPipeline.getSignal(); }
-    public double getSignalBoxAvg() { return m_signalPipeline.getSignalBoxAvg(); }
-    public double getSignalBoxTopAvg() { return m_signalPipeline.getSignalTopAvg(); }
-    public double getSignalBoxBottomAvg() { return m_signalPipeline.getSignalBottomAvg(); }
-    public int getSignalPipelineFrameCount() { return m_signalPipeline.getFrameCount(); }
+    public boolean areSignalImagesValid() {
+        return m_signalAvgTop > 0.0;
+    }
 
-    // This method should only be called from TaskReadSignal. It sets the local Vision variable
-    // (m_signal) for later use.
-    public void ReadSignal(Alliance alliance, FieldSide fieldSide) {
-        m_signal = m_signalPipeline.getSignal();
+    // Accessors for signal pipeline results.
+    public int getSignalPipelineFrameCount() { return m_signalFrameCount; }
+    public Signal getSignal() { return m_signal; }
+
+    public Signal getParkingZone() {
+        logCsvString("Vision" +
+                ", Signal, " + m_signal +
+                ", Park, " + m_parkingZone);
+        return m_parkingZone;
     }
 
     //============================================================================================
@@ -238,13 +274,27 @@ public class Vision implements CONSTANTS {
     //============================================================================================
 
     public void reportData(Telemetry telemetry) {
-        if (false && m_signalPipeline != null && m_findPolePipeline != null) {
-//            telemetry.addData("Pole",
+        if (true && m_isSignalStreaming) {
+            telemetry.addData("Park = ", m_parkingZone +
+                    ", Signal = " + m_signal);
+            telemetry.addData("averages", (int)m_signalBoxAvg +
+                            " (" + (int)m_signalAvgTop + " / " + (int)m_signalAvgBottom + ")");
+        }
+
+        if (false) {
+            logCsvString("Signal, " + m_signal +
+                    ", avgBox, " + df3.format(m_signalBoxAvg) +
+                    ", avgTop, " + df3.format(m_signalAvgTop) +
+                    ", avgBottom, " + df3.format(m_signalAvgBottom) +
+                    ", frame, " + m_signalFrameCount);
+        }
+
+        if (true && Vera.isVisionTestMode && m_isFindPoleStreaming) {
+            // TODO: Fix
+//            telemetry.addData("Pole A ",
 //                    "upper " + getPoleUpperCol() +
 //                    " lower " + getPoleLowerCol() +
 //                    " width " + getUpperPoleWidth());
-//            logCsvString("Vision: Signal, " + getSignal() +
-//                    " ");
         }
     }
 }

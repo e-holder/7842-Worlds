@@ -50,15 +50,14 @@ public class Vera implements CONSTANTS {
     }
 
     public void init(HardwareMap hwMap, boolean isAutonomous, boolean visionTestMode,
-                     VeraPipelineType initialPipelineType, PoleType defaultPoleType,
-                     Telemetry telemetry) {
+                     VeraPipelineType initialPipelineType, Telemetry telemetry) {
         m_isAutonomous = isAutonomous;
         Vera.isVisionTestMode = visionTestMode;
         m_hwVera.init(hwMap, true);
 
         // Setup CSV file logging variables
         String extStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        if (m_isAutonomous == true) {
+        if (m_isAutonomous) {
             CSV_LOG_PATH = String.format("%s/CsvLogs/robot-data-a.csv", extStoragePath);
         }
         else {
@@ -73,7 +72,7 @@ public class Vera implements CONSTANTS {
             intake = new Intake(this);
             lift = new Lift(this);
         }
-        vision = new Vision(this, telemetry, defaultPoleType);
+        vision = new Vision(this, telemetry);  // Telemetry needed for pipelines.
         // EACH SUBSYSTEM (end)
 
         if (m_isAutonomous) {
@@ -87,8 +86,8 @@ public class Vera implements CONSTANTS {
     }
 
     public void stopVera() {
-        writeCsvLogData();
         vision.stopWebcamStreaming();
+        writeCsvLogData();
     }
 
     public void setAlliance(Alliance matchAlliance) {
@@ -115,10 +114,12 @@ public class Vera implements CONSTANTS {
         m_hwVera.clearBulkCache();
 
         // EACH SUBSYSTEM will get its inputs here.
-        // Note: vision is omitted because pipelines run independently in another thread.
         if (!isVisionTestMode) {
             intake.getInputs();
             lift.getInputs();
+        }
+        if (isAutonomous) {
+            vision.getInputs();
         }
         // EACH SUBSYSTEM (end)
     }
@@ -130,7 +131,9 @@ public class Vera implements CONSTANTS {
             intake.reportData(telemetry);
             lift.reportData(telemetry);
         }
-        vision.reportData(telemetry);
+        if (isAutonomous()) {
+            vision.reportData(telemetry);
+        }
         // EACH SUBSYSTEM (end)
     }
 
@@ -141,6 +144,7 @@ public class Vera implements CONSTANTS {
             intake.update();
             lift.update();
         }
+        // Vision is omitted since its pipelines run in another thread,
         // EACH SUBSYSTEM (end)
     }
 

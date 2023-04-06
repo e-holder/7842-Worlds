@@ -10,7 +10,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -21,7 +21,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // In the Cb plane of a YCrCb image, the yellow poles should be very dark. Define a percentage
     // of the range between the minimum pixel value and the average pixel value.
     public final double POLE_LIGHT_THRESH_PERCENT = 0.80;   // Original: 0.60
-    // Poles further away are darker. May need a low threshold to try and eliminate those from
+    // Poles further away can be darker. May need a low threshold to try and eliminate those from
     // consideration.
     public final double POLE_DARK_THRESH_PERCENT = 0.0;     // Original: 0.0
 
@@ -35,8 +35,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // enough delta between the top and bottom of the box to detect how much the pole is leaning
     // left or right.
     private final int BOX_CENTER_ADJ = 0;
-    public static final int BOX_WIDTH = 500;
-    private final int BOX_HEIGHT = 150;     // This will only see over the top of 2 stacked cones!
+    public static final int BOX_WIDTH = 300;
+    private final int BOX_HEIGHT = 150;
     private final int BOX_TOP = 0;
     private final int BOX_LEFT = (WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + BOX_CENTER_ADJ;
     private final Point BOX_TOP_LEFT = new Point(BOX_LEFT, BOX_TOP);
@@ -44,46 +44,35 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             new Point(BOX_LEFT + BOX_WIDTH, BOX_TOP + BOX_HEIGHT);
     private final Rect BOX = new Rect(BOX_TOP_LEFT, BOX_BOTTOM_RIGHT);
 
-    // We will search a row at the upper edge and the lower edge of the box (these two rows).
-    // Upper row needs to be > (BLUR_SIZE / 2) to sample from "fully blurred" image data.
-    private final int POLE_UPPER_ROW = 3;
-    // Likewise, lower row needs to be < (BOX_HEIGHT - 1 - BLUR_SIZE / 2).
-    private final int POLE_LOWER_ROW = BOX_HEIGHT - 5;
-
     private final Scalar WHITE = new Scalar(255);
 
-    // Gaussian blur parameters. Size must be an odd number.
-    private final int BLUR_SIZE = 9;    // Original: 5
-    private final double SIGMA_X = 0.0;    // Original: 0.0
-    private final double SIGMA_Y = 0.0;    // Original: 0.0
-    private final Size GAUSSIAN_BLUR_SIZE = new Size(BLUR_SIZE, BLUR_SIZE);
+    private final Telemetry m_telemetry;
 
-    private Telemetry m_telemetry;
-
-
-    private Mat m_matYCrCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
-    private Mat m_matOutputCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
-    private Mat m_matBox = new Mat(BOX_HEIGHT, BOX_WIDTH, CvType.CV_8UC1);
+    private final Mat m_matYCrCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
+    private final Mat m_matOutputCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
 
     // Volatile since accessed by OpMode thread w/o synchronization.
-    private AtomicInteger m_frameCount = new AtomicInteger(0);
-    private AtomicInteger m_poleUpperCol_pix = new AtomicInteger(-1);
-    private AtomicInteger m_poleLowerCol_pix = new AtomicInteger(-1);
-    private AtomicInteger m_poleUpperWidth_pix = new AtomicInteger(-1);
-    private AtomicInteger m_poleLowerWidth_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_frameCount = new AtomicInteger(0);
+    private final AtomicInteger m_poleRowACol_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowBCol_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowCCol_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowAWidth_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowBWidth_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowCWidth_pix = new AtomicInteger(-1);
 
     // Any sequence of horizontal pixels "at least this wide" that are dark (falling below the
     // threshold percentage) will be considered the pole.
-    private AtomicInteger m_minPoleWidth_pix = new AtomicInteger(9999);
+    private final AtomicInteger m_minPoleWidth_pix = new AtomicInteger(9999);
 
     private volatile boolean m_isFrameNull = false;
 
-    private volatile short[] m_upperRow = new short[BOX_WIDTH];
-    private volatile short[] m_lowerRow = new short[BOX_WIDTH];
+    private volatile short[] m_rowC = new short[BOX_WIDTH];
+    private volatile short[] m_rowB = new short[BOX_WIDTH];
+    private volatile short[] m_rowA = new short[BOX_WIDTH];
     private volatile short m_poleLightThresh;
     private volatile short m_poleDarkThresh;
 
-    private StringBuilder m_csvLogString = new StringBuilder();
+    private final StringBuilder m_csvLogString = new StringBuilder();
 
     private void logCsvString(String record) {
         m_csvLogString.append(record).append("\n");
@@ -106,20 +95,24 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         m_minPoleWidth_pix.set(minPoleWidth_pix);
     }
 
-    public int getPoleUpperCol_pix() {
-        return m_poleUpperCol_pix.get();
+    public int getPoleRowACol_pix() {
+        return m_poleRowACol_pix.get();
+    }
+    public int getPoleRowBCol_pix() {
+        return m_poleRowBCol_pix.get();
+    }
+    public int getPoleRowCCol_pix() {
+        return m_poleRowCCol_pix.get();
     }
 
-    public int getPoleLowerCol_pix() {
-        return m_poleLowerCol_pix.get();
+    public int getRowAPoleWidth_pix() {
+        return m_poleRowAWidth_pix.get();
     }
-
-    public int getUpperPoleWidth_pix() {
-        return m_poleUpperWidth_pix.get();
+    public int getRowBPoleWidth_pix() {
+        return m_poleRowBWidth_pix.get();
     }
-
-    public int getLowerPoleWidth_pix() {
-        return m_poleLowerWidth_pix.get();
+    public int getRowCPoleWidth_pix() {
+        return m_poleRowCWidth_pix.get();
     }
 
     public VisionPipelineFindPole(Telemetry telemetry) {
@@ -137,16 +130,29 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     @Override
     public Mat processFrame(Mat matInput) {
+
+        // We will search for the pole in three separate rows of the image. ROW_A will be the lower
+        // edge of the image, ROW_B will be the middle of the image, and ROW_C will be the upper edge
+        // of the image.
+        final int BLUR_SIZE = 21;   // Blur window size. Must be an odd number.
+        // Use fully blurred rows (not close to an edge of the sample window).
+        final int ROW_A = BOX_HEIGHT - 1 - BLUR_SIZE / 2;
+        final int ROW_B = BOX_HEIGHT / 2;
+        final int ROW_C = BLUR_SIZE / 2;
+
         m_frameCount.incrementAndGet();  // Ignore return value.
-        m_poleUpperCol_pix.set(-1);
-        m_poleLowerCol_pix.set(-1);
-        m_poleUpperWidth_pix.set(-1);
-        m_poleLowerWidth_pix.set(-1);
+        m_poleRowACol_pix.set(-1);
+        m_poleRowBCol_pix.set(-1);
+        m_poleRowCCol_pix.set(-1);
+        m_poleRowAWidth_pix.set(-1);
+        m_poleRowBWidth_pix.set(-1);
+        m_poleRowCWidth_pix.set(-1);
 
         // Simulate input image from a static file.
-        //matInput = Imgcodecs.imread("/sdcard/FIRST/data/image.jpg");
+//        matInput = Imgcodecs.imread("/sdcard/FIRST/data/image.jpg");
 
         // Check an arbitrary pixel to ensure we aren't getting black images.
+        m_isFrameNull = false;
         double[] pixel = matInput.get(10, 10);
         if (pixel[0] == 0.0 && pixel[1] == 0.0 && pixel[2] == 0.0) {
             m_isFrameNull = true;
@@ -163,28 +169,34 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         Core.extractChannel(m_matYCrCb, m_matOutputCb, 2);
 
         // Extract just the portion of the image we care about.
-        m_matBox = m_matOutputCb.submat(BOX);
+        Mat matBox = m_matOutputCb.submat(BOX);
 
-        // Remove noise from the image data in the sample box using a Gaussian blur filter. This
-        // is so one stray dark pixel will not be seen as the pole. We are looking for a column
-        // of dark pixels.
-//        Imgproc.GaussianBlur(m_matBox, m_matBox, GAUSSIAN_BLUR_SIZE, SIGMA_X, SIGMA_Y);
-        Imgproc.medianBlur(m_matBox, m_matBox, 21);
-
+        // Remove noise from the image data in the sample box using a blur filter. This is so stray
+        // dark pixel will not be seen as the pole and stray lighter pixels within the pole are not
+        // seen as background. We want to produce a solid column of dark pixels.
+        // Note: The old Gaussian blur is preserved in comments at the end of this file.
+        Imgproc.medianBlur(matBox, matBox, BLUR_SIZE);
 
         // First get the row data and find average and minimum of the pixel values in both rows.
         short pixVal;
         short minPix = 999;
         int sumPix = 0;
         for (int col = 0; col < BOX_WIDTH; col++) {
-            pixel = m_matBox.get(POLE_UPPER_ROW, col);
+            pixel = matBox.get(ROW_A, col);
             pixVal = (short) pixel[0];
-            m_upperRow[col] = pixVal;
+            m_rowA[col] = pixVal;
             minPix = (short) Math.min(minPix, pixVal);
             sumPix += pixVal;
-            pixel = m_matBox.get(POLE_LOWER_ROW, col);
+
+            pixel = matBox.get(ROW_B, col);
             pixVal = (short) pixel[0];
-            m_lowerRow[col] = pixVal;
+            m_rowB[col] = pixVal;
+            minPix = (short) Math.min(minPix, pixVal);
+            sumPix += pixVal;
+
+            pixel = matBox.get(ROW_C, col);
+            pixVal = (short) pixel[0];
+            m_rowC[col] = pixVal;
             minPix = (short) Math.min(minPix, pixVal);
             sumPix += pixVal;
         }
@@ -195,60 +207,65 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 //                ", ltThresh, " + m_poleLightThresh +
 //                ", minPoleW, " + m_minPoleWidth_pix.get());
 
-        // Now identify where the pole is in the upper and lower rows.
-        int upperStart = 0;
-        int upperWidth = 0;
-        int lowerStart = 0;
-        int lowerWidth = 0;
+        // Now identify where the pole is in rows A, B, and C.
+        int rowAStart = 0;
+        int rowAWidth = 0;
+        int rowBStart = 0;
+        int rowBWidth = 0;
+        int rowCStart = 0;
+        int rowCWidth = 0;
         for (int col = 0; col < BOX_WIDTH; col++) {
-            // See where the upper part of the pole is.
-            if (m_upperRow[col] <= m_poleLightThresh && m_upperRow[col] >= m_poleDarkThresh) {
-                upperWidth++;
-                if (upperWidth == 1) {
-                    upperStart = col;
+            // See where the pole is in Row A (lower pole).
+            if (m_rowA[col] <= m_poleLightThresh && m_rowA[col] >= m_poleDarkThresh) {
+                rowAWidth++;
+                if (rowAWidth == 1) {
+                    rowAStart = col;
                 }
-            } else if (upperWidth >= m_minPoleWidth_pix.get()) {
-                m_poleUpperCol_pix.set(upperStart + (upperWidth / 2));
-                m_poleUpperWidth_pix.set(upperWidth);
+            } else if (rowAWidth >= m_minPoleWidth_pix.get()) {
+                m_poleRowACol_pix.set(rowAStart + (rowAWidth / 2));
+                m_poleRowAWidth_pix.set(rowAWidth);
             } else {
-                upperWidth = 0;
+                rowAWidth = 0;
             }
 
-            // See where the lower part of the pole is.
-            if (m_lowerRow[col] <= m_poleLightThresh && m_lowerRow[col] >= m_poleDarkThresh) {
-                lowerWidth++;
-                if (lowerWidth == 1) {
-                    lowerStart = col;
+            // See where the pole is in Row B (middle pole).
+            if (m_rowB[col] <= m_poleLightThresh && m_rowB[col] >= m_poleDarkThresh) {
+                rowBWidth++;
+                if (rowBWidth == 1) {
+                    rowBStart = col;
                 }
-            } else if (lowerWidth >= m_minPoleWidth_pix.get()) {
-                m_poleLowerCol_pix.set(lowerStart + (lowerWidth / 2));
-                m_poleLowerWidth_pix.set(lowerWidth);
+            } else if (rowBWidth >= m_minPoleWidth_pix.get()) {
+                m_poleRowBCol_pix.set(rowBStart + (rowBWidth / 2));
+                m_poleRowBWidth_pix.set(rowBWidth);
             } else {
-                lowerWidth = 0;
+                rowBWidth = 0;
+            }
+
+            // See where the pole is in Row C (upper pole).
+            if (m_rowC[col] <= m_poleLightThresh && m_rowC[col] >= m_poleDarkThresh) {
+                rowCWidth++;
+                if (rowCWidth == 1) {
+                    rowCStart = col;
+                }
+            } else if (rowCWidth >= m_minPoleWidth_pix.get()) {
+                m_poleRowCCol_pix.set(rowCStart + (rowCWidth / 2));
+                m_poleRowCWidth_pix.set(rowCWidth);
+            } else {
+                rowCWidth = 0;
             }
         }
 
 //        if (m_frameCount.get() % 100 == 0) {
 //            for (int i = 0; i < BOX_WIDTH; i++) {
-//                m_csvLogString.append(", " + m_lowerRow[i]);
+//                m_csvLogString.append(", " + m_rowB[i]);
 //            }
 //            m_csvLogString.append("\n");
 //        }
-//        logCsvString("FINAL, u, " + m_poleUpperCol_pix.get() +
-//                ", l, " + m_poleLowerCol_pix.get() +
-//                ", uw, " + m_poleWidth_pix.get() +
-//                ", lw, " + lowerWidth);
+//        logCsvString("FINAL, u, " + m_poleRowBCol_pix.get() +
+//                ", l, " + m_poleRowBCol_pix.get() +
+//                ", w, " + rowBWidth);
 
         if (Vera.isVisionTestMode) {
-            // TODO: Disabled this telemetry (which shows up nicely in Init/Camera Stream mode so
-            //  I could see the telemetry produced when running the test opmodes. When running the
-            //  opmode, you can see the deltas from expected instead of absolute pixel columns.
-//            m_telemetry.addData("POLE", m_poleDarkThresh + "/" + m_poleLightThresh +
-//                    " upper " + m_poleUpperCol_pix.get() +
-//                    " lower " + m_poleLowerCol_pix.get() +
-//                    " width " + m_poleWidth_pix.get());
-//            m_telemetry.update();
-
             // To display the output image: Use phone to select opmode, press Init, wait until
             // initialization completes, then  ...->Camera Stream
             //=========================================================================================
@@ -263,32 +280,39 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             // Draw the nominal high pole position and width.
             Point point1 = new Point(BOX_LEFT +
                     Vision.NOMINAL_HIGH_POLE_CENTER_PIX - Vision.NOMINAL_HIGH_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 5);
+                    ROW_C + 5);
             Point point2 = new Point(BOX_LEFT +
                     Vision.NOMINAL_HIGH_POLE_CENTER_PIX + Vision.NOMINAL_HIGH_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 5);
+                    ROW_C + 5);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
             // Draw the nominal mid pole position and width.
             point1 = new Point(BOX_LEFT +
                     Vision.NOMINAL_MID_POLE_CENTER_PIX - Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 15);
+                    ROW_C + 15);
             point2 = new Point(BOX_LEFT +
                     Vision.NOMINAL_MID_POLE_CENTER_PIX + Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,
-                    POLE_UPPER_ROW + 15);
+                    ROW_C + 15);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
-            if (m_poleUpperWidth_pix.get() > 0) {
-                // Draw the pole center "detection line"
-                point1 = new Point(BOX_LEFT + m_poleUpperCol_pix.get(), POLE_UPPER_ROW);
-                point2 = new Point(BOX_LEFT + m_poleUpperCol_pix.get(), POLE_UPPER_ROW + 10);
+            if (m_poleRowAWidth_pix.get() > 0) {
+                // Draw the pole center "detection spot"
+                point1 = new Point(BOX_LEFT + m_poleRowACol_pix.get(), ROW_A - 5);
+                point2 = new Point(BOX_LEFT + m_poleRowACol_pix.get(), ROW_A + 5);
                 Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
 
-            if (m_poleLowerWidth_pix.get() > 0) {
-                // Draw the pole center "detection line"
-                point1 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW - 10);
-                point2 = new Point(BOX_LEFT + m_poleLowerCol_pix.get(), POLE_LOWER_ROW);
+            if (m_poleRowBWidth_pix.get() > 0) {
+                // Draw the pole center "detection spot"
+                point1 = new Point(BOX_LEFT + m_poleRowBCol_pix.get(), ROW_B - 5);
+                point2 = new Point(BOX_LEFT + m_poleRowBCol_pix.get(), ROW_B + 5);
+                Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
+            }
+
+            if (m_poleRowCWidth_pix.get() > 0) {
+                // Draw the pole center "detection spot"
+                point1 = new Point(BOX_LEFT + m_poleRowCCol_pix.get(), ROW_C - 5);
+                point2 = new Point(BOX_LEFT + m_poleRowCCol_pix.get(), ROW_C + 5);
                 Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
         }
@@ -297,3 +321,11 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     }
 
 }
+
+// Gaussian blur used prior to camera lower position and tilt up.
+//        import org.opencv.core.Size;
+//        private final double SIGMA_X = 0.0;
+//        private final double SIGMA_Y = 0.0;
+//        private final Size BLUR_WINDOW = new Size(BLUR_SIZE, BLUR_SIZE);
+//        Imgproc.GaussianBlur(m_matBox, m_matBox, BLUR_WINDOW, 0, 0);
+
