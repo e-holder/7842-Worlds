@@ -132,20 +132,36 @@ public class Vision implements CONSTANTS {
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
     private final int MIN_MID_POLE_WIDTH_PIX = 46;
 
+    // Constants to control how much heading change to score cones based on pole detection.
+    private final double HIGH_PIX_TO_DEG = (double)NOMINAL_HIGH_POLE_WIDTH_PIX / 1.5;
+    private final double MID_PIX_TO_DEG = (double)NOMINAL_MID_POLE_WIDTH_PIX / 4.0;
+
+    // Constants to control how much high pole lean influences heading adjustments.
+    private final double HIGH_LEAN_AB_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
+    private final double HIGH_LEAN_AC_SCALE = 2.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
+    private final double HIGH_LEAN_BC_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
+
+    // Constants to control distance to score cones in autonomous based on pole width detection.
     private final double DEFAULT_SCORE_HIGH_DIST_IN = 3.0;
     private final double DEFAULT_SCORE_MID_DIST_IN = 2.0;
+    private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
+    private final double MAX_SCORE_MID_ADJUST_IN = 3.0;
+    private final double HIGH_WIDTH_PIX_TO_DIST_IN =        // Calc as inches per 1/2 pole width
+        -4.0 / (0.5 * (double)NOMINAL_HIGH_POLE_WIDTH_PIX);
+    private final double MID_WIDTH_PIX_TO_DIST_IN =         // Calc as inches per 1/4 pole width
+        -3.0 / (0.25 * (double)NOMINAL_MID_POLE_WIDTH_PIX);
 
     // Ignore pole detections +/- this delta from nominal position.
     private final int MAX_DELTA_HIGH_PIX = 70;
     private final int MAX_DELTA_MID_PIX = 60;
 
+    // Ignore pole detection if it is very different from other detections.
     private final int OUTLIER_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
     private final int OUTLIER_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
 
+    // Ignore pole detection if it is far wider than expected.
     private final int SUPER_WIDE_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
     private final int SUPER_WIDE_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
-    private final double HIGH_PIX_TO_DEG = 32.0 / 1.5;
-    private final double MID_PIX_TO_DEG = 54.0 / 4.0;
 
     // Pole Detection flag values for rows A, B, and C.
     private final int D_ABC = 7;  // 111
@@ -299,42 +315,76 @@ public class Vision implements CONSTANTS {
         }
     }
 
-    private double computeThreeDetectionDeltaToPole_deg() {
-        // TODO: Implement
-        return 0.0;
-    }
-
-    private double computeThreeDetectionDistToScore_in() {
-        // TODO: Implement
-        return 0.0;
-    }
-
-    private double computeTwoDetectionDeltaToPole_deg(int detectionsUsed) {
-        // TODO: Implement
-        return 0.0;
-    }
-
-    private double computeTwoDetectionDistToScore_in(int detectionsUsed) {
-        // TODO: Implement
-        return 0.0;
-    }
-
     private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
-        // TODO: Implement
-        double rv;
-        // High pole: 1 PW = 1-2 deg
-        // Mid pole: 1 PW = 4 deg
-        if (m_poleType == PoleType.HIGH) {
-            rv = deltaPix * HIGH_PIX_TO_DEG;
-        } else {
-            rv = deltaPix * MID_PIX_TO_DEG;
-        }
-        return rv;
+        // TODO: Test and calibrate.
+        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
     }
 
     private double computeOneDetectionDistToScore_in(int deltaWidthPix) {
-        // TODO: Implement
-        return 0.0;
+        // TODO: Test and calibrate
+        double defaultDist_in = (m_poleType == PoleType.HIGH ?
+                DEFAULT_SCORE_HIGH_DIST_IN : DEFAULT_SCORE_MID_DIST_IN);
+        double distAdjust_in;
+        if (m_poleType == PoleType.HIGH) {
+            distAdjust_in = Math.max(0.0, deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN);
+            distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_HIGH_ADJUST_IN);
+        } else {
+            distAdjust_in = Math.max(0.0, deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN);
+            distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_MID_ADJUST_IN);
+        }
+        return defaultDist_in + distAdjust_in;
+    }
+
+    private double computeTwoDetectionDeltaToPole_deg(int detectionsUsed) {
+        // TODO: Test & Calibrate
+        double baseDelta_pix = 0.0;
+        double leanDelta_pix = 0.0;
+        switch (detectionsUsed) {
+            case D_AB:
+                baseDelta_pix = m_rowBDelta_pix;
+                leanDelta_pix = (m_rowBDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AB_SCALE;
+                break;
+            case D_AC:
+                baseDelta_pix = m_rowCDelta_pix;
+                leanDelta_pix = (m_rowCDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AC_SCALE;
+                break;
+            case D_BC:
+                baseDelta_pix = m_rowCDelta_pix;
+                leanDelta_pix = (m_rowCDelta_pix - m_rowBDelta_pix) * HIGH_LEAN_BC_SCALE;
+                break;
+        }
+        // Do not use leaning to adjust MID poles.
+        leanDelta_pix = (m_poleType == PoleType.HIGH ? leanDelta_pix : 0.0);
+        int delta_pix = (int)(baseDelta_pix + leanDelta_pix);
+        return computeOneDetectionDeltaAngle_deg(delta_pix);
+    }
+
+    private double computeTwoDetectionDistToScore_in(int detectionsUsed) {
+        int deltaWidth_pix = 0;
+        switch (detectionsUsed) {
+            case D_AB:
+            case D_AC:
+                deltaWidth_pix = m_rowAWidthDelta_pix;
+                break;
+            case D_BC:
+                deltaWidth_pix = m_rowBWidthDelta_pix;
+                break;
+        }
+        return computeOneDetectionDistToScore_in(deltaWidth_pix);
+    }
+
+    private double computeThreeDetectionDeltaToPole_deg() {
+        // TODO: Test & Calibrate. Could use B detection to refine detection.
+        double baseDelta_pix = m_rowCDelta_pix;
+        double leanDelta_pix = (m_rowCDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AC_SCALE;
+        // Do not use leaning to adjust MID poles.
+        leanDelta_pix = (m_poleType == PoleType.HIGH ? leanDelta_pix : 0.0);
+        int delta_pix = (int)(baseDelta_pix + leanDelta_pix);
+        return computeOneDetectionDeltaAngle_deg(delta_pix);
+    }
+
+    private double computeThreeDetectionDistToScore_in() {
+        return computeOneDetectionDistToScore_in(m_rowAWidthDelta_pix);
     }
 
     private void computeFindPoleNavigation() {
@@ -392,6 +442,8 @@ public class Vision implements CONSTANTS {
     }
 
     public void setPoleType(PoleType newPoleType) {
+        // TODO: We should also set tilt angle based on how many cones are on the pole we are
+        //  looking at.
         m_poleType = newPoleType;
         setMinPoleWidth();
         if (newPoleType == PoleType.HIGH) {
