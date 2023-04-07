@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
 
-    private final int DELAY_FOR_GRAB = 6;
+    private final int DELAY_FOR_GRAB = 12;             // TODO: Was 3, then 6
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 10;
     private final int MOVE_TO_POLE_COUNT_MAX = 150;
 
@@ -118,6 +118,8 @@ public class Lift implements CONSTANTS {
     }
 
     private void moveLiftToTargetPositionAtTargetSpeed() {
+        // This entire if structure is safety code to keep the motor from pushing the lift
+        // relentlessly against the bottom stops.
         if (m_isLimitPressed) {
             switch (m_state) {
                 case IDLE:
@@ -130,10 +132,16 @@ public class Lift implements CONSTANTS {
             }
         } else if (m_state == LiftState.IDLE_AT_BOTTOM) {
             if (m_liftPos_in <= LIFT_BOTTOM_TOL_IN) {
+                // If we are close enough, stay where we are.
                 m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
                 m_liftTargetSpeed = 0.0;
             } else if (m_liftMotorCurrent_amp > LIFT_MAX_BOTTOM_IDLE_AMP) {
+                // If the motor is stalling, start raising the target position.
                 m_liftTargetPos_in += LIFT_BOTTOM_TOL_IN;
+            } else {
+                // Keep trying to drive to the trigger switch.
+                m_liftTargetPos_in = 0.0;
+                m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
             }
         }
 

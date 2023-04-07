@@ -62,7 +62,7 @@ public class Intake implements CONSTANTS {
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
-    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 5.0;
+    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 10.0;  // TODO: Was 5
 
     private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 15.0;
@@ -601,11 +601,12 @@ public class Intake implements CONSTANTS {
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
                     ", armTicks, " + m_armPos_ticks +
+                    ", armSpeed, " + m_armTargetSpeed +
                     ", armBusy, " + m_isArmBusy +
                     ", cmdDelta, " + df3.format(m_armDelta_deg) +
                     ", coneCmd, " + m_intakeConeCommand +
                     ", armCmd," + df3.format(m_armDriverCmd) +
-                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
+//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
                     ", wristDeg, " + df3.format(m_wristPos_deg) +
 //                    ", wristPos, " + df3.format(m_wristServoPos) +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
