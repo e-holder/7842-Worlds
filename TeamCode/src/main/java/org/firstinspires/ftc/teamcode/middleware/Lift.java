@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
 
-    private final int DELAY_FOR_GRAB_COUNT = 3;
+    private final int DELAY_FOR_GRAB = 6;
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 10;
     private final int MOVE_TO_POLE_COUNT_MAX = 150;
 
@@ -119,8 +119,15 @@ public class Lift implements CONSTANTS {
 
     private void moveLiftToTargetPositionAtTargetSpeed() {
         if (m_isLimitPressed) {
-            m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
-            m_liftTargetSpeed = 0.0;
+            switch (m_state) {
+                case IDLE:
+                case IDLE_AT_BOTTOM:
+                case MOVING_TO_BOTTOM:
+                case DRIVER_PLACE_CONE:
+                    m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
+                    m_liftTargetSpeed = 0.0;
+                    break;
+            }
         } else if (m_state == LiftState.IDLE_AT_BOTTOM) {
             if (m_liftPos_in <= LIFT_BOTTOM_TOL_IN) {
                 m_liftTargetPos_in = LIFT_BOTTOM_TOL_IN;
@@ -289,12 +296,13 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_LOW_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_LOW_POLE_POS;
                 break;
             case MOVE_TO_LOW_POLE_POS:
                 closeClaw();
-                if (m_delayForGrabCounter-- <= 0) {
+                m_delayForGrabCounter--;
+                if (m_delayForGrabCounter <= 0) {
                     m_moveToPoleCounter = 0;
                     m_liftTargetPos_in = LOW_POLE_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
@@ -303,12 +311,13 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_MID_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_MID_POLE_POS;
                 break;
             case MOVE_TO_MID_POLE_POS:
                 closeClaw();
-                if (m_delayForGrabCounter-- <= 0) {
+                m_delayForGrabCounter--;
+                if (m_delayForGrabCounter <= 0) {
                     m_moveToPoleCounter = 0;
                     m_liftTargetPos_in = MID_POLE_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
@@ -317,12 +326,13 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_HIGH_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB_COUNT : 0;
+                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_HIGH_POLE_POS;
                 break;
             case MOVE_TO_HIGH_POLE_POS:
                 closeClaw();
-                if (m_delayForGrabCounter-- <= 0) {
+                m_delayForGrabCounter--;
+                if (m_delayForGrabCounter <= 0) {
                     m_moveToPoleCounter = 0;
                     m_liftTargetPos_in = HIGH_POLE_IN;
                     m_liftTargetSpeed = LIFT_SPEED_FAST_TPS;
@@ -366,7 +376,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (false) {
+        if (true) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
@@ -374,12 +384,12 @@ public class Lift implements CONSTANTS {
                     ", posIn, " + df3.format(m_liftPos_in) +
 //                    ", tgtTick, " + m_liftTarget_tick +
 //                    ", posTick, " + m_liftPos_tick +
-//                    ", tgtSpeed, " + m_liftTargetSpeed +
+                    ", tgtSpeed, " + m_liftTargetSpeed +
 //                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
 //                    ", placeCmd, " + m_placeConeCommand +
 //                    ", isBusy, " + m_isLiftBusy +
                     ", isClawClosed, " + m_isClawClosed +
-//                    ", grabDelay, " + m_delayForGrabCounter +
+                    ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +
                     ", openCount, " + m_clawOpeningCounter +
 //                    ", downDelay, " + m_delayForMoveToBottom +

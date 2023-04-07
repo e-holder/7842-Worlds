@@ -19,6 +19,8 @@ public class Intake {
         MOVING_TO_CONE_POS,
         MOVE_TO_BEACON_POS,
         MOVING_TO_BEACON_POS,
+        MOVE_TO_BEACON_PLACE_POS,
+        MOVING_TO_BEACON_PLACE_POS,
         EJECT_CONE,
         EJECTING_CONE,
         HOLD_AT_LOW_JUNCTION_POS,
@@ -40,6 +42,7 @@ public class Intake {
     private final double ARM_IDLE_DEG = -10.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
+    private final double ARM_BEACON_PLACE_DEG = 52.0;
     private final double ARM_CONE5_DEG = 85.0;
     private final double ARM_CONE4_DEG = 94.0;
     private final double ARM_CONE3_DEG = 102.0;
@@ -57,7 +60,7 @@ public class Intake {
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
-    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 6.0;
+    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 5.0;
 
     private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 15.0;
@@ -194,7 +197,7 @@ public class Intake {
                 armTarget_deg = Math.max(armTarget_deg, ARM_LOW_JUNCTION_DEG);
             }
             m_armTargetPos_deg = armTarget_deg;
-            m_armTargetSpeed = ARM_SPEED_SLOW;
+            m_armTargetSpeed = ARM_SPEED_FAST;
         }
     }
 
@@ -311,6 +314,13 @@ public class Intake {
         m_isConeStackMode = false;
         m_isLowJunctionMode = false;
         m_isBeaconMode = false;
+    }
+
+    public void moveToBeaconPlacePos() {
+        m_state = IntakeState.MOVE_TO_BEACON_PLACE_POS;
+        m_isConeStackMode = false;
+        m_isLowJunctionMode = false;
+        m_isBeaconMode = true;
     }
 
     public void toggleBeaconMode() {
@@ -438,6 +448,12 @@ public class Intake {
                 m_armTargetSpeed = ARM_SPEED_FAST;
                 m_state = IntakeState.MOVING_TO_BEACON_POS;
                 break;
+            case MOVE_TO_BEACON_PLACE_POS:
+                m_armTargetPos_deg = ARM_BEACON_PLACE_DEG;
+                m_armTargetSpeed = ARM_SPEED_FAST;
+                m_state = IntakeState.MOVING_TO_BEACON_PLACE_POS;
+                break;
+            case MOVING_TO_BEACON_PLACE_POS:  // Intentional fall-through
             case MOVING_TO_BEACON_POS:
                 if (!m_isArmBusy) {
                     m_state = IntakeState.DRIVER_CONE_INTAKE;

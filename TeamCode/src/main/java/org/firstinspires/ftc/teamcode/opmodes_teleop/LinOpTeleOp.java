@@ -13,6 +13,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private Vera m_vera = new Vera();
 
     private boolean m_1DpadUp_AlreadyPressed = false;
+    private boolean m_1DpadRight_AlreadyPressed = false;
     private boolean m_1LeftBumper_AlreadyPressed = false;
     private boolean m_1RightBumper_AlreadyPressed = false;
     private boolean m_1A_AlreadyPressed = false;
@@ -90,6 +91,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.lift.moveLiftToMidPole();
         } else if (gamepad1.dpad_up && !m_1DpadUp_AlreadyPressed) {
             m_vera.intake.moveToIdlePos();
+        } else if (gamepad1.dpad_right && !m_1DpadRight_AlreadyPressed) {
+            m_vera.intake.moveToBeaconPlacePos();
         }
 
         if (gamepad1.dpad_left || gamepad2.dpad_left) {
