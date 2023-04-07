@@ -62,7 +62,7 @@ public class Intake implements CONSTANTS {
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
-    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 10.0;  // TODO: Was 5
+    private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
     private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 15.0;
@@ -133,6 +133,7 @@ public class Intake implements CONSTANTS {
 
         m_vera = vera;
         m_isLimitSwitchPressed = false;
+        // This wrist move is required so our robot is shorter than 18" after INIT.
         m_hwIntake.wristMoveToPosition(10.0);
         m_state = IntakeState.INIT_DELAY;
     }
@@ -224,7 +225,6 @@ public class Intake implements CONSTANTS {
                         break;
                 }
             } else if (m_isBeaconMode) {
-                // TODO: When arm goes up past about 50 degrees, the wrist stops following.
                 wristPos_deg = m_armPos_deg - WRIST_POS_BEACON_DELTA_DEG;
             } else if (m_isLowJunctionMode && m_hasCone) {
                 wristPos_deg = WRIST_POS_AT_LOW_JUNCTION_DEG;
@@ -312,6 +312,8 @@ public class Intake implements CONSTANTS {
         m_intakeWheelMotor_amp = m_hwIntake.getIntakeWheelMotorCurrent_amp();
         m_armPos_deg = m_hwIntake.getArmPosition_deg();
         m_armPos_ticks = m_hwIntake.getArmPosition_ticks();
+        // Note: These two inputs really just reflect the most recent command sent to the servo.
+        //       They do not really tell you where the wrist is right now.
         m_wristServoPos = m_hwIntake.getWristServoPos();
         m_wristPos_deg = m_hwIntake.getWristPos_deg(m_wristServoPos);
 
@@ -454,6 +456,11 @@ public class Intake implements CONSTANTS {
     }
 
     public void update() {
+        if (m_state != m_priorState) {
+            m_priorState = m_state;
+            logCsvString("state, " + m_state);
+        }
+
         switch (m_state) {
             case INIT_DELAY:
                 m_initDelayCounter++;
@@ -587,28 +594,24 @@ public class Intake implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (m_state != m_priorState) {
-            m_priorState = m_state;
-            logCsvString("state, " + m_state +
-                    ".");
-        }
 
-        if (true) {
+        if (false) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
 //                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
-                    ", hasCone, " + m_hasCone +
+//                    ", hasCone, " + m_hasCone +
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
-                    ", armTicks, " + m_armPos_ticks +
+//                    ", armTicks, " + m_armPos_ticks +
                     ", armSpeed, " + m_armTargetSpeed +
-                    ", armBusy, " + m_isArmBusy +
-                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
-                    ", coneCmd, " + m_intakeConeCommand +
-                    ", armCmd," + df3.format(m_armDriverCmd) +
-//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
-                    ", wristDeg, " + df3.format(m_wristPos_deg) +
-//                    ", wristPos, " + df3.format(m_wristServoPos) +
+//                    ", armBusy, " + m_isArmBusy +
+//                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
+//                    ", coneCmd, " + m_intakeConeCommand +
+//                    ", armCmd," + df3.format(m_armDriverCmd) +
+                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
+//                    ", wristDeg, " + df3.format(m_wristPos_deg) +
+//                    ", wristPosV, " + df3.format(m_wristServoPos) +
+//                    ", bcnMode, " + m_isBeaconMode +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
 //                    ", ejectDelay, " + m_ejectDelayCounter +

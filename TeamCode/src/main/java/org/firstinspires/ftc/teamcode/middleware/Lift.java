@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
 
-    private final int DELAY_FOR_GRAB = 12;             // TODO: Was 3, then 6
+    private final int DELAY_FOR_GRAB = 12;
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 10;
     private final int MOVE_TO_POLE_COUNT_MAX = 150;
 
@@ -384,7 +384,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (true) {
+        if (false) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
@@ -405,7 +405,7 @@ public class Lift implements CONSTANTS {
                     ".");
         }
 
-        if (true) {
+        if (false) {
             telemetry.addData("Lift",
 //                    "hasCone = " + isConeInMiddleman() +
 //                    "coneDist_in = " + df3.format(m_middlemanSensorDist_in) +
