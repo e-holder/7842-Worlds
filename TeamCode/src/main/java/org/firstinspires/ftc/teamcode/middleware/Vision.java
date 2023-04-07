@@ -144,6 +144,8 @@ public class Vision implements CONSTANTS {
 
     private final int SUPER_WIDE_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
     private final int SUPER_WIDE_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
+    private final double HIGH_PIX_TO_DEG = 32.0 / 1.5;
+    private final double MID_PIX_TO_DEG = 54.0 / 4.0;
 
     // Pole Detection flag values for rows A, B, and C.
     private final int D_ABC = 7;  // 111
@@ -319,7 +321,15 @@ public class Vision implements CONSTANTS {
 
     private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
         // TODO: Implement
-        return 0.0;
+        double rv;
+        // High pole: 1 PW = 1-2 deg
+        // Mid pole: 1 PW = 4 deg
+        if (m_poleType == PoleType.HIGH) {
+            rv = deltaPix * HIGH_PIX_TO_DEG;
+        } else {
+            rv = deltaPix * MID_PIX_TO_DEG;
+        }
+        return rv;
     }
 
     private double computeOneDetectionDistToScore_in(int deltaWidthPix) {
