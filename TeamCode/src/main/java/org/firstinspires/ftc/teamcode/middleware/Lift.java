@@ -366,7 +366,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (true) {
+        if (false) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +

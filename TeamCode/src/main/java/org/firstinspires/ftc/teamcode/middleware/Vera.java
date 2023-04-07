@@ -88,7 +88,9 @@ public class Vera implements CONSTANTS {
     }
 
     public void stopVera() {
-        vision.stopWebcamStreaming();
+        if (isAutonomous()) {
+            vision.stopWebcamStreaming();
+        }
         writeCsvLogData();
     }
 

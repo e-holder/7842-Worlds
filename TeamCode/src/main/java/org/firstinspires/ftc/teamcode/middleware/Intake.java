@@ -66,7 +66,7 @@ public class Intake {
 
     private final double WRIST_POS_STACK_DELTA_DEG = 135.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 133.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 137.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 7.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
@@ -214,6 +214,7 @@ public class Intake {
                         break;
                 }
             } else if (m_isBeaconMode) {
+                // TODO: When arm goes up past about 50 degrees, the wrist stops following.
                 wristPos_deg = m_armPos_deg - WRIST_POS_BEACON_DELTA_DEG;
             } else if (m_isLowJunctionMode && m_hasCone) {
                 wristPos_deg = WRIST_POS_AT_LOW_JUNCTION_DEG;
@@ -521,19 +522,19 @@ public class Intake {
                     ".");
         }
 
-        if (false) {
+        if (true) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
-                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
+//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
                     ", hasCone, " + m_hasCone +
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
-//                    ", armTicks, " + m_armPos_ticks +
-//                    ", armBusy, " + m_isArmBusy +
-//                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
-//                    ", coneCmd, " + m_intakeConeCommand +
-//                    ", armCmd," + df3.format(m_armDriverCmd) +
-//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
+                    ", armTicks, " + m_armPos_ticks +
+                    ", armBusy, " + m_isArmBusy +
+                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
+                    ", coneCmd, " + m_intakeConeCommand +
+                    ", armCmd," + df3.format(m_armDriverCmd) +
+                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
                     ", wristDeg, " + df3.format(m_wristPos_deg) +
 //                    ", wristPos, " + df3.format(m_wristServoPos) +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
