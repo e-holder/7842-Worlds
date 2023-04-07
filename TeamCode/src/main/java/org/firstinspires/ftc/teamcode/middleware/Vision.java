@@ -497,7 +497,7 @@ public class Vision implements CONSTANTS {
             }
         }
 
-        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 10) == 0)) {
+        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 100) == 0)) {
             m_findPoleLogFlag = false;
             logCsvString("FindPole" +
                     ", frame, " + m_findPoleFrameCount +
