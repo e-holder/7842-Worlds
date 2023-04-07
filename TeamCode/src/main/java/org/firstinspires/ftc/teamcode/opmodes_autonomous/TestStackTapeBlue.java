@@ -30,7 +30,11 @@ public class TestStackTapeBlue extends LinOpAutonomousBase implements CONSTANTS 
             reportData();
         } while ((status != TaskStatus.DONE) && !isStopRequested());
 
-//        m_taskReadSignal.getParkingZone();  // Causes signal/parking data to be logged.
+        m_taskDetectStackTape.turnOffStackTapeSensing();
+
+        // These calls cause this data to be logged by the intake.
+        double deltaX_in = m_taskDetectStackTape.getStackDeltaX_in();
+        double deltaHeading_deg = m_taskDetectStackTape.getStackDeltaHeading_deg();
 
         stopVera();
     }

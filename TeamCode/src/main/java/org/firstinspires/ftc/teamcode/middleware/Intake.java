@@ -441,12 +441,16 @@ public class Intake implements CONSTANTS {
 
     public double getStackDeltaX_in() {
         // TODO: Implement
-        return 0.0;
+        double stackDeltaX_in = 0.0;
+        logCsvString("Intake Stack deltaX, " + df3.format(stackDeltaX_in));
+        return stackDeltaX_in;
     }
 
     public double getStackDeltaHeading_deg() {
         // TODO: Implement
-        return 0.0;
+        double stackDeltaHeading_deg = 0.0;
+        logCsvString("Intake Stack deltaDeg, " + df3.format(stackDeltaHeading_deg));
+        return stackDeltaHeading_deg;
     }
 
     public void update() {

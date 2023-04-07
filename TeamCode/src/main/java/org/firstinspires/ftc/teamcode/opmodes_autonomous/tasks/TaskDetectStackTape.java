@@ -15,9 +15,19 @@ public class TaskDetectStackTape extends AutonomousTask {
     }
 
     // Do not call this method until the task status is TASK_DONE.
-//    public Signal getParkingZone() {
-//        return vera.vision.getParkingZone();
-//    }
+    public void turnOffStackTapeSensing() {
+        vera.intake.turnOffStackTapeSensing();
+    }
+
+    // Do not call this method until the task status is TASK_DONE.
+    public double getStackDeltaX_in() {
+        return vera.intake.getStackDeltaX_in();
+    }
+
+    // Do not call this method until the task status is TASK_DONE.
+    public double getStackDeltaHeading_deg() {
+        return vera.intake.getStackDeltaHeading_deg();
+    }
 
     @Override
     public TaskStatus update() {
