@@ -25,19 +25,21 @@ public class TestReadSignalBlue extends LinOpAutonomousBase implements CONSTANTS
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera(PoleType.HIGH);
+        initializeVera();
 
         TaskStatus status;
         do {
+            getInputs();
             status = m_taskReadSignal.update();
-            m_taskReadSignal.addSignalTelemetry();
             reportData();
         } while ((status != TaskStatus.DONE) && !isStopRequested());
+
+        m_taskReadSignal.getParkingZone();  // Causes signal/parking data to be logged.
 
         waitForStart();
 
         while(!isStopRequested()) {
-            m_taskReadSignal.addSignalTelemetry();
+            getInputs();
             reportData();
         }
         stopVera();

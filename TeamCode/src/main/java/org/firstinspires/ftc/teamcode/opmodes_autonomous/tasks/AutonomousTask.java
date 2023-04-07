@@ -21,8 +21,6 @@ public abstract class AutonomousTask implements CONSTANTS {
     public static Alliance alliance = Alliance.UNDEFINED;
     public static Telemetry telemetry = null;
     public static FieldSide fieldSide = FieldSide.UNDEFINED;
-    protected static Signal signal = Signal.UNKNOWN;
-    protected static Signal parkingZone = Signal.ZONE3;
 
     // All child classes (tasks which extend AutonomousTask) will have to provide an update method.
     public abstract TaskStatus update();

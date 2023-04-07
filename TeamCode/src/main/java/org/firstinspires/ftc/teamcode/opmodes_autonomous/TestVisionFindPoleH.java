@@ -11,13 +11,12 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 //@Disabled
 public class TestVisionFindPoleH extends LinOpAutonomousBase implements CONSTANTS {
 
-    private TaskFindPole m_taskFindPole = new TaskFindPole(PoleType.HIGH);
+    private TaskFindPole m_taskFindPole = new TaskFindPole();
 
     @Override
     protected void preInitSetup() {
         m_isVisionTestMode = true;
         m_initialPipelineType = VeraPipelineType.FIND_POLE;
-        Vision.poleType = PoleType.HIGH;
     }
 
     @Override
@@ -28,14 +27,15 @@ public class TestVisionFindPoleH extends LinOpAutonomousBase implements CONSTANT
     @Override
     public void runOpMode() throws InterruptedException {
 
-        initializeVera(PoleType.HIGH);
+        initializeVera();
+        m_taskFindPole.setPoleType(PoleType.HIGH);
 
         waitForStart();
 
         TaskStatus status;
         do {
+            getInputs();
             status = m_taskFindPole.update();
-            m_taskFindPole.addFindPoleTelemetry();
             reportData();
         } while ((status != TaskStatus.DONE) && !isStopRequested());
 
