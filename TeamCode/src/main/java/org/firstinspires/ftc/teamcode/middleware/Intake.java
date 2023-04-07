@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.middleware;
 
-import static org.firstinspires.ftc.teamcode.middleware.CONSTANTS.df3;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.HwIntake;
 
-public class Intake {
+import java.util.List;
+
+public class Intake implements CONSTANTS {
 
     private enum IntakeState {
         INIT_DELAY,
@@ -78,6 +80,8 @@ public class Intake {
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_COUNT = 10;
 
+    private final double STACK_TAPE_THRESH = 65.0;  // TODO: Calibrate
+
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
     private HwIntake m_hwIntake;
@@ -88,6 +92,8 @@ public class Intake {
     private IntakeConeCommand m_intakeConeCommand = IntakeConeCommand.STOP;
     private boolean m_isLimitSwitchPressed;
     private boolean m_isArmBusy;
+    private boolean m_stackTapeCalibrationMode = false;
+    private boolean m_isStackTapeSensingOn = false;
     private boolean m_hasResetOccurred = false;
     private boolean m_areIntakeWheelsStalled;
     private boolean m_hasCone;
@@ -96,6 +102,8 @@ public class Intake {
     private boolean m_isBeaconMode = false;
     private boolean m_isLowJunctionMode = false;
     private boolean m_autonomousShutdown = false;
+    private double[][] m_stackTapeData = new double[500][3];  // 0 = left, 1 = right, 2 = Y pos
+    private double m_priorPosY_in = -999.0;
     private double m_wristServoPos;
     private double m_wristPos_deg;  // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
     private double m_wristCmdPos_deg = 0.0;
@@ -115,8 +123,7 @@ public class Intake {
     private int m_ejectCounter;
     private int m_targetConeStackLevel;
     private int m_armPos_ticks;
-    private int m_leftTapeSensor;
-    private int m_rightTapeSensor;
+    private int m_stackDataIdx = -1;
     private StringBuilder m_csvLogStr = new StringBuilder();
 
     // SUBSYSTEM has a public constructor here.
@@ -255,6 +262,40 @@ public class Intake {
         }
     }
 
+    private void getStackTapeSensorInputs() {
+        double leftVal, rightVal, poseY_in;
+        if (m_stackTapeCalibrationMode) {
+            poseY_in = getStackTapeCalibrationPositionY();
+        } else {
+            poseY_in = Math.abs(m_vera.drivetrain.getPoseEstimate().getY());
+        }
+        if (poseY_in > (m_priorPosY_in + 0.5)) {
+            if (m_vera.alliance == Alliance.RED) {
+                leftVal = m_hwIntake.getLeftTapeSensorRed();
+                rightVal = m_hwIntake.getRightTapeSensorRed();
+            } else {
+                leftVal = m_hwIntake.getLeftTapeSensorBlue();
+                rightVal = m_hwIntake.getRightTapeSensorBlue();
+            }
+            if (leftVal >= STACK_TAPE_THRESH || rightVal >= STACK_TAPE_THRESH) {
+                if (m_stackDataIdx < 499) {
+                    m_stackDataIdx++;
+                }
+                m_stackTapeData[m_stackDataIdx][0] = leftVal;
+                m_stackTapeData[m_stackDataIdx][1] = rightVal;
+                m_stackTapeData[m_stackDataIdx][2] = poseY_in;
+                m_priorPosY_in = poseY_in;
+            }
+        }
+    }
+
+    // This is only to be used for Stack Tape Calibration opmode.
+    private double getStackTapeCalibrationPositionY() {
+        List<Double> wheelPositions = m_vera.drivetrain.getWheelPositions();
+        return (0.25 * (wheelPositions.get(0) + wheelPositions.get(1) +
+                wheelPositions.get(2) + wheelPositions.get(3)));
+    }
+
     // ============ PUBLIC METHODS===============
 
     public void logCsvString(String record) {
@@ -279,21 +320,9 @@ public class Intake {
         m_isArmBusy = m_hwIntake.isArmBusy() &&
                 (Math.abs(m_armTargetPos_deg - m_armPos_deg) > ARM_ARRIVAL_TOLERANCE_DEG);
 
-        if (m_vera.alliance == CONSTANTS.Alliance.RED) {
-            m_leftTapeSensor = m_hwIntake.getLeftTapeSensorRed();
-            m_rightTapeSensor = m_hwIntake.getRightTapeSensorRed();
-        } else {
-            m_leftTapeSensor = m_hwIntake.getLeftTapeSensorBlue();
-            m_rightTapeSensor = m_hwIntake.getRightTapeSensorBlue();
+        if (m_vera.isAutonomous() && m_isStackTapeSensingOn) {
+            getStackTapeSensorInputs();
         }
-    }
-
-    public boolean isBusy() {
-        return m_isArmBusy;  // May also need to add: || m_isWristBusy
-    }
-
-    public boolean hasCone() {
-        return m_hasCone;
     }
 
     public void hasConeOverride(double stick) {
@@ -390,12 +419,34 @@ public class Intake {
         m_state = IntakeState.MOVE_TO_EJECT_POS;
     }
 
-    public int getLeftTapeSensor() {
-        return m_leftTapeSensor;
+    public void enableStackTapeCalibrationMode() {
+        m_stackTapeCalibrationMode = true;
     }
 
-    public int getRightTapeSensor() {
-        return m_rightTapeSensor;
+    public void turnOnStackTapeSensing() {
+        m_isStackTapeSensingOn = true;
+        m_stackDataIdx = -1;
+        if (m_stackTapeCalibrationMode) {
+            m_vera.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            List<Double> wheelPositions = m_vera.drivetrain.getWheelPositions();
+            m_priorPosY_in = -0.5 + getStackTapeCalibrationPositionY();
+        } else {
+            m_priorPosY_in = -999.0;
+        }
+    }
+
+    public void turnOffStackTapeSensing() {
+        m_isStackTapeSensingOn = false;
+    }
+
+    public double getStackDeltaX_in() {
+        // TODO: Implement
+        return 0.0;
+    }
+
+    public double getStackDeltaHeading_deg() {
+        // TODO: Implement
+        return 0.0;
     }
 
     public void update() {

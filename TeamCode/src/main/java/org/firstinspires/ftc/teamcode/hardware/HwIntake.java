@@ -29,8 +29,8 @@ public class HwIntake {
     private final double WRIST_DEG_PER_SERVO = 1.0 / WRIST_SERVO_PER_DEG;
 
     private double LEFT_TAPE_SENSOR_RED_SCALE = 1.0;
-    private double LEFT_TAPE_SENSOR_BLUE_SCALE = 0.88;
-    private double RIGHT_TAPE_SENSOR_RED_SCALE = 0.92;
+    private double LEFT_TAPE_SENSOR_BLUE_SCALE = 0.88;    // TODO: Calibrate
+    private double RIGHT_TAPE_SENSOR_RED_SCALE = 0.92;    // TODO: Calibrate
     private double RIGHT_TAPE_SENSOR_BLUE_SCALE = 1.0;
 
     private DcMotorEx m_armMotor;
@@ -137,19 +137,19 @@ public class HwIntake {
 
     // =========  Red/Blue Tape Detection methods ==============
 
-    public int getLeftTapeSensorRed() {
-        return (int)(m_tapeSensorL.red() * LEFT_TAPE_SENSOR_RED_SCALE);
+    public double getLeftTapeSensorRed() {
+        return (m_tapeSensorL.red() * LEFT_TAPE_SENSOR_RED_SCALE);
     }
 
-    public int getLeftTapeSensorBlue() {
-        return (int)(m_tapeSensorL.blue() * LEFT_TAPE_SENSOR_BLUE_SCALE);
+    public double getLeftTapeSensorBlue() {
+        return (m_tapeSensorL.blue() * LEFT_TAPE_SENSOR_BLUE_SCALE);
     }
 
-    public int getRightTapeSensorRed() {
-        return (int)(m_tapeSensorR.red() * RIGHT_TAPE_SENSOR_RED_SCALE);
+    public double getRightTapeSensorRed() {
+        return (m_tapeSensorR.red() * RIGHT_TAPE_SENSOR_RED_SCALE);
     }
 
-    public int getRightTapeSensorBlue() {
-        return (int)(m_tapeSensorR.blue() * RIGHT_TAPE_SENSOR_BLUE_SCALE);
+    public double getRightTapeSensorBlue() {
+        return (m_tapeSensorR.blue() * RIGHT_TAPE_SENSOR_BLUE_SCALE);
     }
 }
