@@ -92,7 +92,7 @@ public class Intake implements CONSTANTS {
     private IntakeConeCommand m_intakeConeCommand = IntakeConeCommand.STOP;
     private boolean m_isLimitSwitchPressed;
     private boolean m_isArmBusy;
-    private boolean m_stackTapeCalibrationMode = false;
+    private boolean m_isStackTapeCalibrationMode = false;
     private boolean m_isStackTapeSensingOn = false;
     private boolean m_hasResetOccurred = false;
     private boolean m_areIntakeWheelsStalled;
@@ -264,7 +264,7 @@ public class Intake implements CONSTANTS {
     }
 
     private void getStackTapeSensorInputs() {
-        if (m_stackTapeCalibrationMode) {
+        if (m_isStackTapeCalibrationMode) {
             m_poseY_in = getStackTapeCalibrationPositionY();
         } else {
             m_poseY_in = Math.abs(m_vera.drivetrain.getPoseEstimate().getY());
@@ -322,7 +322,7 @@ public class Intake implements CONSTANTS {
         m_isArmBusy = m_hwIntake.isArmBusy() &&
                 (Math.abs(m_armTargetPos_deg - m_armPos_deg) > ARM_ARRIVAL_TOLERANCE_DEG);
 
-        if (m_isStackTapeSensingOn && (m_vera.isAutonomous() || Vera.isVisionTestMode)) {
+        if (m_isStackTapeCalibrationMode && m_isStackTapeSensingOn) {
             getStackTapeSensorInputs();
         }
     }
@@ -422,13 +422,13 @@ public class Intake implements CONSTANTS {
     }
 
     public void enableStackTapeCalibrationMode() {
-        m_stackTapeCalibrationMode = true;
+        m_isStackTapeCalibrationMode = true;
     }
 
     public void turnOnStackTapeSensing() {
         m_isStackTapeSensingOn = true;
         m_stackDataIdx = -1;
-        if (m_stackTapeCalibrationMode) {
+        if (m_isStackTapeCalibrationMode) {
             m_vera.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             List<Double> wheelPositions = m_vera.drivetrain.getWheelPositions();
             m_priorPosY_in = -0.5 + getStackTapeCalibrationPositionY();
