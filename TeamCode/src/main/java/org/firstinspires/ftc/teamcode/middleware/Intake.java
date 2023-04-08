@@ -441,9 +441,9 @@ public class Intake implements CONSTANTS {
         m_isStackTapeSensingOn = false;
         logCsvString("Intake: stack tape detections");
         for (int idx = 0; idx <= m_stackDataIdx; idx++) {
-            logCsvString("left, " + m_stackTapeData[idx][0] +
-                    ", right, " + m_stackTapeData[idx][1] +
-                    ", posY, " + m_stackTapeData[idx][2]);
+            logCsvString("left, " + df3.format(m_stackTapeData[idx][0]) +
+                    ", right, " + df3.format(m_stackTapeData[idx][1]) +
+                    ", posY, " + df3.format(m_stackTapeData[idx][2]));
         }
     }
 
