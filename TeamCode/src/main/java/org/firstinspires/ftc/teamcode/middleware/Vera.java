@@ -77,7 +77,7 @@ public class Vera implements CONSTANTS {
         vision = new Vision(this, telemetry);  // Telemetry needed for pipelines.
         // EACH SUBSYSTEM (end)
 
-        if (m_isAutonomous) {
+        if (m_isAutonomous || isVisionTestMode) {
             vision.startStreaming(initialPipelineType);
             logCsvString("Started streaming " + initialPipelineType);
         }
@@ -88,7 +88,7 @@ public class Vera implements CONSTANTS {
     }
 
     public void stopVera() {
-        if (isAutonomous()) {
+        if (isAutonomous() || isVisionTestMode) {
             vision.stopWebcamStreaming();
         }
         writeCsvLogData();
@@ -147,7 +147,7 @@ public class Vera implements CONSTANTS {
             intake.getInputs();
             lift.getInputs();
         }
-        if (isAutonomous) {
+        if (isAutonomous || isVisionTestMode) {
             vision.getInputs();
         }
         // EACH SUBSYSTEM (end)
@@ -160,7 +160,7 @@ public class Vera implements CONSTANTS {
             intake.reportData(telemetry);
             lift.reportData(telemetry);
         }
-        if (isAutonomous()) {
+        if (isAutonomous() || isVisionTestMode) {
             vision.reportData(telemetry);
         }
         // EACH SUBSYSTEM (end)

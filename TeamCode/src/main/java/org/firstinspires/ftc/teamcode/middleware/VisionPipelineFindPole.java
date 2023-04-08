@@ -127,6 +127,13 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // Nothing to do here.
     }
 
+    private int poleRowACol_pix;
+    private int poleRowBCol_pix;
+    private int poleRowCCol_pix;
+    private int poleRowAWidth_pix;
+    private int poleRowBWidth_pix;
+    private int poleRowCWidth_pix;
+
     @Override
     public Mat processFrame(Mat matInput) {
 
@@ -138,14 +145,6 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         final int ROW_A = BOX_HEIGHT - 1 - BLUR_SIZE / 2;
         final int ROW_B = BOX_HEIGHT / 2;
         final int ROW_C = BLUR_SIZE / 2;
-
-        m_frameCount.incrementAndGet();  // Ignore return value.
-        m_poleRowACol_pix.set(-1);
-        m_poleRowBCol_pix.set(-1);
-        m_poleRowCCol_pix.set(-1);
-        m_poleRowAWidth_pix.set(-1);
-        m_poleRowBWidth_pix.set(-1);
-        m_poleRowCWidth_pix.set(-1);
 
         // Simulate input image from a static file.
 //        matInput = Imgcodecs.imread("/sdcard/FIRST/data/image.jpg");
@@ -209,6 +208,13 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 //                ", minPoleW, " + m_minPoleWidth_pix.get());
 
         // Now identify where the pole is in rows A, B, and C.
+        poleRowACol_pix = -1;
+        poleRowBCol_pix = -1;
+        poleRowCCol_pix = -1;
+        poleRowAWidth_pix = -1;
+        poleRowBWidth_pix = -1;
+        poleRowCWidth_pix = -1;
+
         int rowAStart = 0;
         int rowAWidth = 0;
         int rowBStart = 0;
@@ -223,8 +229,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     rowAStart = col;
                 }
             } else if (rowAWidth >= m_minPoleWidth_pix.get()) {
-                m_poleRowACol_pix.set(rowAStart + (rowAWidth / 2));
-                m_poleRowAWidth_pix.set(rowAWidth);
+                poleRowACol_pix = rowAStart + (rowAWidth / 2);
+                poleRowAWidth_pix = rowAWidth;
             } else {
                 rowAWidth = 0;
             }
@@ -236,8 +242,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     rowBStart = col;
                 }
             } else if (rowBWidth >= m_minPoleWidth_pix.get()) {
-                m_poleRowBCol_pix.set(rowBStart + (rowBWidth / 2));
-                m_poleRowBWidth_pix.set(rowBWidth);
+                poleRowBCol_pix = rowBStart + (rowBWidth / 2);
+                poleRowBWidth_pix = rowBWidth;
             } else {
                 rowBWidth = 0;
             }
@@ -249,8 +255,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     rowCStart = col;
                 }
             } else if (rowCWidth >= m_minPoleWidth_pix.get()) {
-                m_poleRowCCol_pix.set(rowCStart + (rowCWidth / 2));
-                m_poleRowCWidth_pix.set(rowCWidth);
+                poleRowCCol_pix = rowCStart + (rowCWidth / 2);
+                poleRowCWidth_pix = rowCWidth;
             } else {
                 rowCWidth = 0;
             }
@@ -295,27 +301,35 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                     ROW_C + 15);
             Imgproc.line(m_matOutputCb, point1, point2, WHITE, 2);
 
-            if (m_poleRowAWidth_pix.get() > 0) {
+            if (poleRowAWidth_pix > 0) {
                 // Draw the pole center "detection spot"
-                point1 = new Point(BOX_LEFT + m_poleRowACol_pix.get(), ROW_A - 5);
-                point2 = new Point(BOX_LEFT + m_poleRowACol_pix.get(), ROW_A + 5);
+                point1 = new Point(BOX_LEFT + poleRowACol_pix, ROW_A - 5);
+                point2 = new Point(BOX_LEFT + poleRowACol_pix, ROW_A + 5);
                 Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
 
-            if (m_poleRowBWidth_pix.get() > 0) {
+            if (poleRowBWidth_pix > 0) {
                 // Draw the pole center "detection spot"
-                point1 = new Point(BOX_LEFT + m_poleRowBCol_pix.get(), ROW_B - 5);
-                point2 = new Point(BOX_LEFT + m_poleRowBCol_pix.get(), ROW_B + 5);
+                point1 = new Point(BOX_LEFT + poleRowBCol_pix, ROW_B - 5);
+                point2 = new Point(BOX_LEFT + poleRowBCol_pix, ROW_B + 5);
                 Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
 
-            if (m_poleRowCWidth_pix.get() > 0) {
+            if (poleRowCWidth_pix > 0) {
                 // Draw the pole center "detection spot"
-                point1 = new Point(BOX_LEFT + m_poleRowCCol_pix.get(), ROW_C - 5);
-                point2 = new Point(BOX_LEFT + m_poleRowCCol_pix.get(), ROW_C + 5);
+                point1 = new Point(BOX_LEFT + poleRowCCol_pix, ROW_C - 5);
+                point2 = new Point(BOX_LEFT + poleRowCCol_pix, ROW_C + 5);
                 Imgproc.line(m_matOutputCb, point1, point2, WHITE, 5);
             }
         }
+
+        m_frameCount.incrementAndGet();  // Ignore return value.
+        m_poleRowACol_pix.set(poleRowACol_pix);
+        m_poleRowBCol_pix.set(poleRowBCol_pix);
+        m_poleRowCCol_pix.set(poleRowCCol_pix);
+        m_poleRowAWidth_pix.set(poleRowAWidth_pix);
+        m_poleRowBWidth_pix.set(poleRowBWidth_pix);
+        m_poleRowCWidth_pix.set(poleRowCWidth_pix);
 
         return m_matOutputCb;
     }

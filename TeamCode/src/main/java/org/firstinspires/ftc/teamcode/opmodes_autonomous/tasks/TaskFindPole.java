@@ -1,36 +1,40 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks;
 
-public class TaskFindPole extends AutonomousTask {
+import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
+import org.firstinspires.ftc.teamcode.middleware.Vera;
+
+public class TaskFindPole implements CONSTANTS {
 
     private enum TaskState {
         INIT,
         FIND_POLE,
     }
 
+    private Vera m_vera;
     private TaskState m_state;
     private TaskState m_priorState = TaskState.FIND_POLE; // Anything but INIT
 
-    public TaskFindPole() {
+    public TaskFindPole(Vera vera) {
+        m_vera = vera;
         m_state = TaskState.INIT;
     }
 
     public void setPoleType(PoleType poleType) {
-        vera.vision.setPoleType(poleType);
+        m_vera.vision.setPoleType(poleType);
     }
 
     public double getOffsetToPole_deg() {
-        return (m_state == TaskState.FIND_POLE ? vera.vision.getDeltaToPole_deg() : 0.0);
+        return (m_state == TaskState.FIND_POLE ? m_vera.vision.getDeltaToPole_deg() : 0.0);
     }
 
     public double getDistToScore_in() {
-        return (m_state == TaskState.FIND_POLE ? vera.vision.getDistToScore_in() : 2.0);
+        return (m_state == TaskState.FIND_POLE ? m_vera.vision.getDistToScore_in() : 2.0);
     }
 
-    @Override
     public TaskStatus update() {
         if (m_state != m_priorState) {
             m_priorState = m_state;
-            vera.logCsvString("TaskFindPole state, " + m_state);
+            m_vera.logCsvString("TaskFindPole state, " + m_state);
         }
 
         final int WAIT_FOR_NON_BLACK_FRAMES_COUNT = 500;
@@ -39,14 +43,14 @@ public class TaskFindPole extends AutonomousTask {
 
         switch (m_state) {
             case INIT:
-                frameNumber = vera.vision.getFindPoleFrameCount();
+                frameNumber = m_vera.vision.getFindPoleFrameCount();
                 // ONLY transition to FIND_POLE state after we know the pipeline is processing
                 // frames with non-black images.
-                if (!vera.vision.isFindPolePipelineFrameBlack()) {
-                    vera.logCsvString(("FindPole non-black at frame: ") + frameNumber);
+                if (!m_vera.vision.isFindPolePipelineFrameBlack()) {
+                    m_vera.logCsvString("FindPole non-black at frame: " + frameNumber);
                     m_state = TaskState.FIND_POLE;
                 } else if (frameNumber >= WAIT_FOR_NON_BLACK_FRAMES_COUNT) {
-                    vera.logCsvString("FindPole frames BLACK! frame = " + frameNumber);
+                    m_vera.logCsvString("FindPole frames BLACK! frame = " + frameNumber);
                     m_state = TaskState.FIND_POLE;
                 }
                 break;

@@ -133,8 +133,8 @@ public class Vision implements CONSTANTS {
     private final int MIN_MID_POLE_WIDTH_PIX = 46;
 
     // Constants to control how much heading change to score cones based on pole detection.
-    private final double HIGH_PIX_TO_DEG = (double)NOMINAL_HIGH_POLE_WIDTH_PIX / 1.5;
-    private final double MID_PIX_TO_DEG = (double)NOMINAL_MID_POLE_WIDTH_PIX / 4.0;
+    private final double HIGH_PIX_TO_DEG = 0.1;  // TODO: Calibrate
+    private final double MID_PIX_TO_DEG = 0.076;
 
     // Constants to control how much high pole lean influences heading adjustments.
     private final double HIGH_LEAN_AB_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
@@ -142,8 +142,8 @@ public class Vision implements CONSTANTS {
     private final double HIGH_LEAN_BC_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
 
     // Constants to control distance to score cones in autonomous based on pole width detection.
-    private final double DEFAULT_SCORE_HIGH_DIST_IN = 3.0;
-    private final double DEFAULT_SCORE_MID_DIST_IN = 2.0;
+    private final double DEFAULT_SCORE_HIGH_DIST_IN = 4.0;
+    private final double DEFAULT_SCORE_MID_DIST_IN = 3.0;
     private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
     private final double MAX_SCORE_MID_ADJUST_IN = 3.0;
     private final double HIGH_WIDTH_PIX_TO_DIST_IN =        // Calc as inches per 1/2 pole width
@@ -196,6 +196,14 @@ public class Vision implements CONSTANTS {
     private double m_deltaToPole_deg;
     private double m_distToScore_in;
 
+    private double m_calibrationFactor = 0.076;
+    private double m_calibrationSmallStep = 0.001;
+    private double m_calibrationBigStep = 0.01;
+    public void calSmallStepUp() { m_calibrationFactor += m_calibrationSmallStep; }
+    public void calSmallStepDown() { m_calibrationFactor -= m_calibrationSmallStep; }
+    public void calBigStepUp() { m_calibrationFactor += m_calibrationBigStep; }
+    public void calBigStepDown() { m_calibrationFactor -= m_calibrationBigStep; }
+
     private void setMinPoleWidth() {
         m_findPolePipeline.setMinPoleWidth((m_poleType == PoleType.HIGH ?
                 MIN_HIGH_POLE_WIDTH_PIX :
@@ -231,9 +239,7 @@ public class Vision implements CONSTANTS {
     }
 
     private void eliminateFarLeftOrRightDetections() {
-        int maxDelta_pix = (m_poleType == PoleType.HIGH ?
-                MAX_DELTA_HIGH_PIX :
-                MAX_DELTA_MID_PIX);
+        int maxDelta_pix = (m_poleType == PoleType.HIGH ? MAX_DELTA_HIGH_PIX : MAX_DELTA_MID_PIX);
         m_detectionsUsed = D_NONE;
         if (Math.abs(m_rowADelta_pix) > maxDelta_pix) {
             m_detectionsUsed &= 0x011;  // Remove A
@@ -248,8 +254,7 @@ public class Vision implements CONSTANTS {
 
     private void eliminateSuperWideDetections() {
         int superWide_pix = (m_poleType == PoleType.HIGH ?
-                SUPER_WIDE_HIGH_PIX :
-                SUPER_WIDE_MID_PIX);
+                SUPER_WIDE_HIGH_PIX : SUPER_WIDE_MID_PIX);
         if (((m_detectionsUsed & D_A) == D_A) && (m_rowAWidthDelta_pix > superWide_pix)) {
             m_detectionsUsed &= 0x011;  // Remove A
         }
@@ -317,7 +322,8 @@ public class Vision implements CONSTANTS {
 
     private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
         // TODO: Test and calibrate.
-        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
+//        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
+        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : m_calibrationFactor);
     }
 
     private double computeOneDetectionDistToScore_in(int deltaWidthPix) {
@@ -391,12 +397,13 @@ public class Vision implements CONSTANTS {
         computeAllDeltaLateralPix();
         computeAllDeltaWidthPix();
 
-        m_detectionsUsed = D_ABC; // Initially assume all detections will be used.
-        eliminateFarLeftOrRightDetections();
-        eliminateSuperWideDetections();
+        // TODO: Starting with just test/calibrate of MID pole "A detection" only.
+        m_detectionsUsed = D_A;
+//        m_detectionsUsed = D_ABC; // Initially assume all detections will be used.
+//        eliminateFarLeftOrRightDetections();
+//        eliminateSuperWideDetections();
 
-        int outlier_pix = (m_poleType == PoleType.HIGH ?
-                OUTLIER_HIGH_PIX : OUTLIER_MID_PIX);
+        int outlier_pix = (m_poleType == PoleType.HIGH ? OUTLIER_HIGH_PIX : OUTLIER_MID_PIX);
         if (m_detectionsUsed == D_ABC) {
             eliminateOutlierAmongThree(outlier_pix);
         }
@@ -557,27 +564,29 @@ public class Vision implements CONSTANTS {
                 telemetry.addData("  C deltas:", m_rowCDelta_pix +
                         " width " + m_rowCWidthDelta_pix);
             }
+            telemetry.addData("calF", df3.format(m_calibrationFactor));
         }
 
-        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 100) == 0)) {
+        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 50) == 0)) {
             m_findPoleLogFlag = false;
             logCsvString("FindPole" +
                     ", frame, " + m_findPoleFrameCount +
                     ", det, " + m_detectionsUsed +
-                    ", delta, " + m_deltaToPole_deg +
-                    ", dToScore, " + m_distToScore_in +
                     ", ACol, " + m_rowACol_pix +
-                    ", BCol, " + m_rowBCol_pix +
-                    ", CCol, " + m_rowCCol_pix +
+//                    ", BCol, " + m_rowBCol_pix +
+//                    ", CCol, " + m_rowCCol_pix +
                     ", AWidth, " + m_rowAPoleWidth_pix +
-                    ", BWidth, " + m_rowBPoleWidth_pix +
-                    ", CWidth, " + m_rowCPoleWidth_pix +
+//                    ", BWidth, " + m_rowBPoleWidth_pix +
+//                    ", CWidth, " + m_rowCPoleWidth_pix +
                     ", ADelta, " + m_rowADelta_pix +
-                    ", BDelta, " + m_rowBDelta_pix +
-                    ", CDelta, " + m_rowCDelta_pix +
+//                    ", BDelta, " + m_rowBDelta_pix +
+//                    ", CDelta, " + m_rowCDelta_pix +
                     ", ADeltaW, " + m_rowAWidthDelta_pix +
-                    ", BDeltaW, " + m_rowBWidthDelta_pix +
-                    ", CDeltaW, " + m_rowCWidthDelta_pix +
+//                    ", BDeltaW, " + m_rowBWidthDelta_pix +
+//                    ", CDeltaW, " + m_rowCWidthDelta_pix +
+                    ", calF, " + df3.format(m_calibrationFactor) +
+                    ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
+                    ", toScoreIn, " + df3.format(m_distToScore_in) +
                     "");
         }
     }

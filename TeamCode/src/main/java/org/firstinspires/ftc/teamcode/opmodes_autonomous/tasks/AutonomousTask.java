@@ -8,11 +8,6 @@ import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 // Game-specific field locations, constants, and information
 public abstract class AutonomousTask implements CONSTANTS {
 
-    public enum TaskStatus {
-        RUNNING,
-        DONE
-    }
-
     // Provide access to commonly used objects in AutonomousTask child classes.
     // NOTE: These public and protected static variables are not a very "correct" way to do things.
     //       It violates some basic software design principles, but was quick to put in place and

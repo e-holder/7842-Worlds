@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
-import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.AutonomousTask.TaskStatus;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 
 @Autonomous(name = "Test Vision Read Signal Red")

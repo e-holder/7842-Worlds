@@ -16,6 +16,11 @@ public interface CONSTANTS {
         RIGHT
     }
 
+    public enum TaskStatus {
+        RUNNING,
+        DONE
+    }
+
     public enum VeraPipelineType {
         SIGNAL,
         FIND_POLE
