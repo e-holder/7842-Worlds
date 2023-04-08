@@ -322,7 +322,7 @@ public class Intake implements CONSTANTS {
         m_isArmBusy = m_hwIntake.isArmBusy() &&
                 (Math.abs(m_armTargetPos_deg - m_armPos_deg) > ARM_ARRIVAL_TOLERANCE_DEG);
 
-        if (m_vera.isAutonomous() && m_isStackTapeSensingOn) {
+        if (m_isStackTapeSensingOn && (m_vera.isAutonomous() || Vera.isVisionTestMode)) {
             getStackTapeSensorInputs();
         }
     }

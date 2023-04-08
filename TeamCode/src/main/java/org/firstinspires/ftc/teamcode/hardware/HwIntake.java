@@ -29,8 +29,8 @@ public class HwIntake {
     private final double WRIST_DEG_PER_SERVO = 1.0 / WRIST_SERVO_PER_DEG;
 
     private double LEFT_TAPE_SENSOR_RED_SCALE = 1.0;
-    private double LEFT_TAPE_SENSOR_BLUE_SCALE = 0.88;    // TODO: Calibrate
     private double RIGHT_TAPE_SENSOR_RED_SCALE = 0.92;    // TODO: Calibrate
+    private double LEFT_TAPE_SENSOR_BLUE_SCALE = 0.88;    // TODO: Calibrate
     private double RIGHT_TAPE_SENSOR_BLUE_SCALE = 1.0;
 
     private DcMotorEx m_armMotor;
