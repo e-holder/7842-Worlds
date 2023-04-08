@@ -145,11 +145,9 @@ public class Vision implements CONSTANTS {
     private final double DEFAULT_SCORE_HIGH_DIST_IN = 4.0;
     private final double DEFAULT_SCORE_MID_DIST_IN = 3.0;
     private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
-    private final double MAX_SCORE_MID_ADJUST_IN = 3.0;
-    private final double HIGH_WIDTH_PIX_TO_DIST_IN =        // Calc as inches per 1/2 pole width
-        -4.0 / (0.5 * (double)NOMINAL_HIGH_POLE_WIDTH_PIX);
-    private final double MID_WIDTH_PIX_TO_DIST_IN =         // Calc as inches per 1/4 pole width
-        -3.0 / (0.25 * (double)NOMINAL_MID_POLE_WIDTH_PIX);
+    private final double MAX_SCORE_MID_ADJUST_IN = 4.0;
+    private final double HIGH_WIDTH_PIX_TO_DIST_IN = -0.1; //TODO:Calbrate
+    private final double MID_WIDTH_PIX_TO_DIST_IN = -0.25;
 
     // Ignore pole detections +/- this delta from nominal position.
     private final int MAX_DELTA_HIGH_PIX = 70;
@@ -196,9 +194,9 @@ public class Vision implements CONSTANTS {
     private double m_deltaToPole_deg;
     private double m_distToScore_in;
 
-    private double m_calibrationFactor = 0.076;
-    private double m_calibrationSmallStep = 0.001;
-    private double m_calibrationBigStep = 0.01;
+    private double m_calibrationFactor = -40.3;
+    private double m_calibrationSmallStep = 0.01;
+    private double m_calibrationBigStep = 1.0;
     public void calSmallStepUp() { m_calibrationFactor += m_calibrationSmallStep; }
     public void calSmallStepDown() { m_calibrationFactor -= m_calibrationSmallStep; }
     public void calBigStepUp() { m_calibrationFactor += m_calibrationBigStep; }
@@ -321,9 +319,7 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
-        // TODO: Test and calibrate.
-//        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
-        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : m_calibrationFactor);
+        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
     }
 
     private double computeOneDetectionDistToScore_in(int deltaWidthPix) {
@@ -332,10 +328,10 @@ public class Vision implements CONSTANTS {
                 DEFAULT_SCORE_HIGH_DIST_IN : DEFAULT_SCORE_MID_DIST_IN);
         double distAdjust_in;
         if (m_poleType == PoleType.HIGH) {
-            distAdjust_in = Math.max(0.0, deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN);
+            distAdjust_in = Math.max(-2.0, deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN);
             distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_HIGH_ADJUST_IN);
         } else {
-            distAdjust_in = Math.max(0.0, deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN);
+            distAdjust_in = Math.max(-2.0, deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN);
             distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_MID_ADJUST_IN);
         }
         return defaultDist_in + distAdjust_in;
