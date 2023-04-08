@@ -260,8 +260,7 @@ public class Lift implements CONSTANTS {
                 break;
             case IDLE_AT_BOTTOM:
                 if (isConeInMiddleman()) {
-                    m_state = m_vera.isAutonomous() ? LiftState.REQUEST_MOVE_TO_MID_POLE :
-                            LiftState.REQUEST_MOVE_TO_LOW_POLE;
+                    m_state = LiftState.REQUEST_MOVE_TO_LOW_POLE;
                 }
                 break;
             case IDLE:
