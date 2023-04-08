@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 public class RoadrunnerTest extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
+    private final TaskFindPole m_taskFindPole = new TaskFindPole(m_vera);
 
     protected void initializeRoute() {
         setupAlliance(Alliance.BLUE, FieldSide.LEFT);
@@ -38,11 +40,22 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         waitForStart();
 
+        m_vera.vision.startStreaming(VeraPipelineType.FIND_POLE);
+        m_taskFindPole.setPoleType(PoleType.MID);
+
+
+        m_taskFindPole.getOffsetToPole_deg();
+        m_taskFindPole.getDistToScore_in();
+
         if (isStopRequested()) return;
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-24,2, Math.toRadians(-80)))
                 .lineToSplineHeading(new Pose2d(-38.75,-5.5, Math.toRadians(-90)))
                 .addTemporalMarker(2.2, () -> {m_vera.lift.moveLiftToMidPole();})
+                .lineToSplineHeading(new Pose2d(-38.75,
+                        m_taskFindPole.getDistToScore_in() - 5.5,
+                        Math.toRadians(m_taskFindPole.getOffsetToPole_deg() - 90)))
+                .addTemporalMarker(8, () -> m_vera.lift.dropCone())
                 .build();
 
 //        TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
@@ -95,6 +108,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         while(!isStopRequested()) {
             getInputs();
+            m_taskFindPole.update();
             commandVera();
             reportData();
         }
