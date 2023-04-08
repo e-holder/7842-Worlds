@@ -394,7 +394,10 @@ public class Vision implements CONSTANTS {
         computeAllDeltaWidthPix();
 
         // TODO: Starting with just test/calibrate of MID pole "A detection" only.
-        m_detectionsUsed = D_A;
+        m_detectionsUsed = D_NONE;
+        if (m_rowACol_pix >= 0) {
+            m_detectionsUsed = D_A;
+        }
 //        m_detectionsUsed = D_ABC; // Initially assume all detections will be used.
 //        eliminateFarLeftOrRightDetections();
 //        eliminateSuperWideDetections();
@@ -451,8 +454,12 @@ public class Vision implements CONSTANTS {
         setMinPoleWidth();
         if (newPoleType == PoleType.HIGH) {
             setCameraTiltForHighPole();
+            m_deltaToPole_deg = 0.0;
+            m_distToScore_in = DEFAULT_SCORE_HIGH_DIST_IN;
         } else {
             setCameraTiltForMidPole();
+            m_deltaToPole_deg = 0.0;
+            m_distToScore_in = DEFAULT_SCORE_MID_DIST_IN;
         }
         logCsvString("Vision, setPoleType, " + m_poleType);
     }
@@ -464,9 +471,13 @@ public class Vision implements CONSTANTS {
         return m_findPoleFrameCount;
     }
     public double getDeltaToPole_deg() {
+        logCsvString("getDeltaToPole");
+        logFindPoleFrameData();
         return m_deltaToPole_deg;
     }
     public double getDistToScore_in() {
+        logCsvString("getDistToScore");
+        logFindPoleFrameData();
         return m_distToScore_in;
     }
 
@@ -528,6 +539,28 @@ public class Vision implements CONSTANTS {
 
     //============================================================================================
 
+    private void logFindPoleFrameData() {
+        logCsvString("FindPole" +
+                ", frame, " + m_findPoleFrameCount +
+                ", det, " + m_detectionsUsed +
+                ", ACol, " + m_rowACol_pix +
+//                    ", BCol, " + m_rowBCol_pix +
+//                    ", CCol, " + m_rowCCol_pix +
+                ", AWidth, " + m_rowAPoleWidth_pix +
+//                    ", BWidth, " + m_rowBPoleWidth_pix +
+//                    ", CWidth, " + m_rowCPoleWidth_pix +
+                ", ADelta, " + m_rowADelta_pix +
+//                    ", BDelta, " + m_rowBDelta_pix +
+//                    ", CDelta, " + m_rowCDelta_pix +
+                ", ADeltaW, " + m_rowAWidthDelta_pix +
+//                    ", BDeltaW, " + m_rowBWidthDelta_pix +
+//                    ", CDeltaW, " + m_rowCWidthDelta_pix +
+                ", calF, " + df3.format(m_calibrationFactor) +
+                ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
+                ", toScoreIn, " + df3.format(m_distToScore_in) +
+                "");
+    }
+
     public void reportData(Telemetry telemetry) {
         if (Vera.isVisionTestMode && m_isSignalStreaming) {
             telemetry.addData("Park = ", m_parkingZone +
@@ -563,7 +596,7 @@ public class Vision implements CONSTANTS {
             telemetry.addData("calF", df3.format(m_calibrationFactor));
         }
 
-        if (true && m_findPoleLogFlag && ((m_findPoleFrameCount % 50) == 0)) {
+        if (false && m_findPoleLogFlag /* && ((m_findPoleFrameCount % 1) == 0) */) {
             m_findPoleLogFlag = false;
             logCsvString("FindPole" +
                     ", frame, " + m_findPoleFrameCount +

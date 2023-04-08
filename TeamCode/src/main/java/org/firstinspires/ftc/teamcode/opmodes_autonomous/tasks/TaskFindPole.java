@@ -5,14 +5,15 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 
 public class TaskFindPole implements CONSTANTS {
 
-    private enum TaskState {
+    public enum TaskState {
         INIT,
+        STARTING,
         FIND_POLE,
     }
 
     private Vera m_vera;
     private TaskState m_state;
-    private TaskState m_priorState = TaskState.FIND_POLE; // Anything but INIT
+    private TaskState m_priorState = TaskState.STARTING; // Anything but INIT
 
     public TaskFindPole(Vera vera) {
         m_vera = vera;
@@ -29,6 +30,10 @@ public class TaskFindPole implements CONSTANTS {
 
     public double getDistToScore_in() {
         return (m_state == TaskState.FIND_POLE ? m_vera.vision.getDistToScore_in() : 2.0);
+    }
+
+    public TaskState getTaskState() {
+        return m_state;
     }
 
     public TaskStatus update() {
@@ -48,9 +53,15 @@ public class TaskFindPole implements CONSTANTS {
                 // frames with non-black images.
                 if (!m_vera.vision.isFindPolePipelineFrameBlack()) {
                     m_vera.logCsvString("FindPole non-black at frame: " + frameNumber);
-                    m_state = TaskState.FIND_POLE;
+                    m_state = TaskState.STARTING;
                 } else if (frameNumber >= WAIT_FOR_NON_BLACK_FRAMES_COUNT) {
                     m_vera.logCsvString("FindPole frames BLACK! frame = " + frameNumber);
+                    m_state = TaskState.STARTING;
+                }
+                break;
+            case STARTING:
+                frameNumber = m_vera.vision.getFindPoleFrameCount();
+                if (frameNumber > 20) {
                     m_state = TaskState.FIND_POLE;
                 }
                 break;
