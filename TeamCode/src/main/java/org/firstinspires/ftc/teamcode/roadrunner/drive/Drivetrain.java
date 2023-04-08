@@ -152,13 +152,6 @@ public class Drivetrain extends MecanumDrive {
         );
     }
 
-    public void initMotorsToBrake() {
-        motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
     public void logCsvString(String record) { m_csvLogStr.append(record).append("\n"); }
 
     public StringBuilder getLogString() {

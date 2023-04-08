@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
@@ -40,7 +41,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
                 VeraPipelineType.SIGNAL, telemetry);
         m_vera.setAllianceFromPriorAutonomousRun();
 
-        m_vera.drivetrain.initMotorsToBrake();
+        m_vera.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         m_doubleRumble = new Gamepad.RumbleEffect.Builder()
                 .addStep(1.0, 1.0, 300)
