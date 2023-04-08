@@ -50,12 +50,13 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         if (isStopRequested()) return;
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-24,2, Math.toRadians(-80)))
-                .lineToSplineHeading(new Pose2d(-38.75,-5.5, Math.toRadians(-90)))
+                .lineToSplineHeading(new Pose2d(-43.5,-4.5, Math.toRadians(-114)))
                 .addTemporalMarker(2.2, () -> {m_vera.lift.moveLiftToMidPole();})
-                .lineToSplineHeading(new Pose2d(-38.75,
-                        m_taskFindPole.getDistToScore_in() - 5.5,
-                        Math.toRadians(m_taskFindPole.getOffsetToPole_deg() - 90)))
-                .addTemporalMarker(8, () -> m_vera.lift.dropCone())
+                .lineToSplineHeading(new Pose2d(-43.5,
+                        m_taskFindPole.getDistToScore_in() - 4.5,
+                        Math.toRadians(m_taskFindPole.getOffsetToPole_deg() - 114)))
+                .waitSeconds(2)
+                .addTemporalMarker(3, () -> m_vera.lift.dropCone())
                 .build();
 
 //        TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
