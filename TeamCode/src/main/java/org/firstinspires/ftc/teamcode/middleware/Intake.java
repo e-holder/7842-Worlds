@@ -80,7 +80,12 @@ public class Intake implements CONSTANTS {
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_COUNT = 10;
 
-    private final double STACK_TAPE_THRESH = 65.0;  // TODO: Calibrate
+    //                             LEFT     RIGHT
+    // BLUE:         full tape:  360-445   372-480
+    // BLUE:       center tape:  233-289   223-354
+    // BLUE: 2-inch off center:  193-167   164-232
+    // BLUE:           no tape:  139-147   144-158
+    private final double STACK_TAPE_THRESH = 160;  // TODO: Calibrate for RED too (this is BLUE)
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
