@@ -164,7 +164,7 @@ public class Vision implements CONSTANTS {
     private final int SUPER_WIDE_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
     private final int SUPER_WIDE_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
 
-    private PoleType m_poleType = PoleType.MID;
+    private PoleType m_poleType = PoleType.UNINITIALIZED;
     private final VisionPipelineFindPole m_findPolePipeline;
     private boolean m_isFindPoleStreaming = false;
     private boolean m_isFindPoleEnabled = false;
@@ -387,8 +387,8 @@ public class Vision implements CONSTANTS {
         computeAllDeltaWidthPix();
 
         // TODO: Starting with just test/calibrate of MID pole "A detection" only.
-        m_detections = D_A;
-//        m_detectionsUsed = D_ABC; // Initially assume all detections will be used.
+//        m_detections = D_A;
+        m_detections = D_ABC; // Initially assume all detections will be used.
         eliminateFarLeftOrRightDetections();
         eliminateSuperWideDetections();
 
@@ -456,14 +456,16 @@ public class Vision implements CONSTANTS {
     public void setPoleType(PoleType newPoleType) {
         // TODO: If we have time, we should also set tilt angle based on how many cones are on the
         //  pole we are looking at.
-        m_poleType = newPoleType;
-        setMinPoleWidth();
-        if (newPoleType == PoleType.HIGH) {
-            setCameraTiltForHighPole();
-        } else {
-            setCameraTiltForMidPole();
+        if (m_poleType != newPoleType) {
+            m_poleType = newPoleType;
+            setMinPoleWidth();
+            if (newPoleType == PoleType.HIGH) {
+                setCameraTiltForHighPole();
+            } else {
+                setCameraTiltForMidPole();
+            }
+            logCsvString("Vision, setPoleType, " + m_poleType);
         }
-        logCsvString("Vision, setPoleType, " + m_poleType);
     }
 
     public void findPoleEnable(boolean isEnabled) {

@@ -27,6 +27,7 @@ public interface CONSTANTS {
     }
 
     public enum PoleType {
+        UNINITIALIZED,
         LOW,
         MID,
         HIGH
