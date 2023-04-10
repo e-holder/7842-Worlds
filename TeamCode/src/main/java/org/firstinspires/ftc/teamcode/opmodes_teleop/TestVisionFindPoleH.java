@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes_autonomous;
+package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
