@@ -9,7 +9,7 @@ public class Vision implements CONSTANTS {
 
     private final double CAMERA_TILT_SIGNAL = 0.0;
     // For the pole vision camera tilt, the following settings need to allow us to see just the pole
-    // in our detection box without seeing any of a 4-stack on cones on that pole.
+    // in our detection box without seeing any of a 4-stack of cones on that pole.
     private final double CAMERA_TILT_HIGH_POLE = 0.285;    // About 12 degrees up
     private final double CAMERA_TILT_MID_POLE = 0.33;      // About 30 degrees up
 
