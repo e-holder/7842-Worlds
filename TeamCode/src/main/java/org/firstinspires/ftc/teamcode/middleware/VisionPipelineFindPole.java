@@ -201,11 +201,11 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         int pixAvg = sumPix / (BOX_WIDTH * 3);
         m_poleLightThresh = (short) (((pixAvg - minPix) * POLE_LIGHT_THRESH_PERCENT) + minPix);
         m_poleDarkThresh = (short) (((pixAvg - minPix) * POLE_DARK_THRESH_PERCENT) + minPix);
-//        logCsvString("dkThresh, " + m_poleDarkThresh +
-//                ", ltThresh, " + m_poleLightThresh +
-//                ", min, " + minPix +
-//                ", avg, " + pixAvg +
-//                ", minPoleW, " + m_minPoleWidth_pix.get());
+        logCsvString("dkThresh, " + m_poleDarkThresh +
+                ", ltThresh, " + m_poleLightThresh +
+                ", min, " + minPix +
+                ", avg, " + pixAvg +
+                ", minPoleW, " + m_minPoleWidth_pix.get());
 
         // Now identify where the pole is in rows A, B, and C.
         poleRowACol_pix = -1;

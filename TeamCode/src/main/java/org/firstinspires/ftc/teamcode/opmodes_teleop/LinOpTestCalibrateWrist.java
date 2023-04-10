@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.middleware.CONSTANTS.df3;
 
 import android.os.Environment;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @TeleOp(name="Test Calibrate Wrist")
-//@Disabled
+@Disabled
 public class LinOpTestCalibrateWrist extends LinearOpMode {
 
     private final double WRIST_MIN_DEG = 0.0;

@@ -61,7 +61,8 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
         m_vera.stopVera();
     }
 
-    private void initializeFindPoleTask() {
+    private void initializeFindPoleTask(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();
@@ -86,7 +87,7 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
-        initializeFindPoleTask();
+        initializeFindPoleTask(PoleType.MID);
 
         waitForStart();
 

@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.middleware.CONSTANTS.df3;
 
 import android.os.Environment;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,7 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @TeleOp(name="Test Calibrate Arm")
-//@Disabled
+@Disabled
 public class LinOpTestCalibrateArm extends LinearOpMode {
     private enum ArmMode {
         INIT,
