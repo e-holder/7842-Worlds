@@ -61,7 +61,7 @@ public class Lift implements CONSTANTS {
 
     private final double LIFT_MAX_BOTTOM_IDLE_AMP = 0.5;
 
-    private final double MIDDLEMAN_HAS_CONE_THRESH_IN = 1.0;
+    private final double MIDDLEMAN_HAS_CONE_THRESH_IN = 2.0;
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
@@ -72,6 +72,7 @@ public class Lift implements CONSTANTS {
     private boolean m_isLimitPressed;
     private boolean m_isLiftBusy;
     private boolean m_isClawClosed;
+    private boolean m_hasDriverBeenNotifiedOfCone = false;
     private int m_clawGrabbingCounter = CLAW_GRABBING_COUNT_MAX;
     private int m_clawOpeningCounter = CLAW_OPENING_COUNT_MAX;
     private int m_delayForGrabCounter;
@@ -195,8 +196,16 @@ public class Lift implements CONSTANTS {
         m_isClawClosed = (m_hwLift.getLiftClawPos() <= (CLAW_CLOSED + 0.1));
     }
 
-    public boolean isConeInMiddleman() {
-        return (m_middlemanSensorDist_in <= MIDDLEMAN_HAS_CONE_THRESH_IN);
+    public boolean hasMiddlemanReceivedCone() {
+        boolean rv = false;
+        boolean hasCone = m_middlemanSensorDist_in < MIDDLEMAN_HAS_CONE_THRESH_IN;
+        if (hasCone && !m_hasDriverBeenNotifiedOfCone) {
+            rv = true;
+            m_hasDriverBeenNotifiedOfCone = true;
+        } else if (m_state == LiftState.DRIVER_PLACE_CONE) {
+            m_hasDriverBeenNotifiedOfCone = false;
+        }
+        return rv;
     }
 
     public void driverPlaceConeCommand(double cmd) {
@@ -258,12 +267,9 @@ public class Lift implements CONSTANTS {
                 m_delayForMoveToBottom = 0;
                 m_state = LiftState.MOVE_TO_BOTTOM;
                 break;
-            case IDLE_AT_BOTTOM:
-                if (isConeInMiddleman()) {
-                    m_state = LiftState.REQUEST_MOVE_TO_LOW_POLE;
-                }
-                break;
+            case IDLE_AT_BOTTOM:  // Intentional fall-through
             case IDLE:
+                // Nothing to do
                 break;
             case REQUEST_MOVE_TO_BOTTOM:
                 openClaw();

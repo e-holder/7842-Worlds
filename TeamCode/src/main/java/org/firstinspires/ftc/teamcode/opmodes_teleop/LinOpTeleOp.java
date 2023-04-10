@@ -161,6 +161,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     }
 
     private void reportData() {
+        if (m_vera.lift.hasMiddlemanReceivedCone()) {
+            gamepad2.runRumbleEffect(m_doubleRumble);
+        }
         m_vera.reportData(telemetry);
         telemetry.update();
     }
