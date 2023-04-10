@@ -123,7 +123,7 @@ public class Vision implements CONSTANTS {
     // Camera will be about 4 inches above the floor and about 45 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     public static final int NOMINAL_HIGH_POLE_CENTER_PIX =
-            (VisionPipelineFindPole.BOX_WIDTH / 2) + 48;
+            (VisionPipelineFindPole.BOX_WIDTH / 2) + 62;
     public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
     private final int MIN_HIGH_POLE_WIDTH_PIX = 26;
 
@@ -136,20 +136,20 @@ public class Vision implements CONSTANTS {
     private final int MIN_MID_POLE_WIDTH_PIX = 46;
 
     // Constants to control how much heading change to score cones based on pole detection.
-    private final double HIGH_PIX_TO_DEG = 0.1;  // TODO: Calibrate
+    private final double HIGH_PIX_TO_DEG = 0.088;
     private final double MID_PIX_TO_DEG = 0.076;
 
     // Constants to control how much high pole lean influences heading adjustments.
-    private final double HIGH_LEAN_AB_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
-    private final double HIGH_LEAN_AC_SCALE = 2.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
-    private final double HIGH_LEAN_BC_SCALE = 3.0 / (double)NOMINAL_HIGH_POLE_WIDTH_PIX;
+    private final double HIGH_LEAN_AC_SCALE = 3.5;
+    private final double HIGH_LEAN_AB_SCALE = HIGH_LEAN_AC_SCALE * 0.5;
+    private final double HIGH_LEAN_BC_SCALE = HIGH_LEAN_AC_SCALE * 0.5;
 
     // Constants to control distance to score cones in autonomous based on pole width detection.
     private final double DEFAULT_SCORE_HIGH_DIST_IN = 4.0;
     private final double DEFAULT_SCORE_MID_DIST_IN = 3.0;
     private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
     private final double MAX_SCORE_MID_ADJUST_IN = 4.0;
-    private final double HIGH_WIDTH_PIX_TO_DIST_IN = -0.1; //TODO:Calibrate
+    private final double HIGH_WIDTH_PIX_TO_DIST_IN = -1.001;
     private final double MID_WIDTH_PIX_TO_DIST_IN = -0.25;
 
     // Ignore pole detections +/- this delta from nominal position.
@@ -188,9 +188,9 @@ public class Vision implements CONSTANTS {
     // These variables and methods  are to allow a specific constant to be tuned live during a
     // test OpMode.  They have no effect unless "m_calibrationFactor" is substituted in for the
     // constant being tuned.
-    private double m_calibrationFactor = -40.3;
+    private double m_calibrationFactor = 3.5;
     private double m_calibrationSmallStep = 0.01;
-    private double m_calibrationBigStep = 1.0;
+    private double m_calibrationBigStep = 0.1;
     public void calSmallStepUp() { m_calibrationFactor += m_calibrationSmallStep; }
     public void calSmallStepDown() { m_calibrationFactor -= m_calibrationSmallStep; }
     public void calBigStepUp() { m_calibrationFactor += m_calibrationBigStep; }
@@ -311,7 +311,6 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeOneDetectionDeltaAngle_deg(int deltaPix) {
-        // TODO: Test and calibrate for HIGH poles.
         return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
     }
 
@@ -320,7 +319,10 @@ public class Vision implements CONSTANTS {
                 DEFAULT_SCORE_HIGH_DIST_IN : DEFAULT_SCORE_MID_DIST_IN);
         double distAdjust_in;
         if (m_poleType == PoleType.HIGH) {
-            // TODO: Test and calibrate for HIGH poles
+            switch (detection) {  // If using a higher detection, account for width delta.
+                case D_B: deltaWidthPix += 1; break;
+                case D_C: deltaWidthPix += 2; break;
+            }
             distAdjust_in = Math.max(-2.0, deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN);
             distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_HIGH_ADJUST_IN);
         } else {
@@ -335,20 +337,22 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeTwoDetectionDeltaToPole_deg(int detectionsUsed) {
-        // TODO: Test & Calibrate
         double baseDelta_pix = 0.0;
         double leanDelta_pix = 0.0;
         switch (detectionsUsed) {
             case D_AB:
                 baseDelta_pix = m_rowBDelta_pix;
+                // Note: lean is only used for HIGH poles
                 leanDelta_pix = (m_rowBDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AB_SCALE;
                 break;
             case D_AC:
                 baseDelta_pix = m_rowCDelta_pix;
+                // Note: lean is only used for HIGH poles
                 leanDelta_pix = (m_rowCDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AC_SCALE;
                 break;
             case D_BC:
                 baseDelta_pix = m_rowCDelta_pix;
+                // Note: lean is only used for HIGH poles
                 leanDelta_pix = (m_rowCDelta_pix - m_rowBDelta_pix) * HIGH_LEAN_BC_SCALE;
                 break;
         }
@@ -377,7 +381,6 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeThreeDetectionDeltaToPole_deg() {
-        // TODO: Test & Calibrate. Could use B detection to refine detection.
         double baseDelta_pix = m_rowCDelta_pix;
         double leanDelta_pix = (m_rowCDelta_pix - m_rowADelta_pix) * HIGH_LEAN_AC_SCALE;
         // Do not use leaning to adjust MID poles.

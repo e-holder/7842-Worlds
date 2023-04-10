@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
 @TeleOp(name = "Test Vision Find Pole-H")
-@Disabled
+//@Disabled
 public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
 
     private Vera m_vera = new Vera();
@@ -62,7 +62,8 @@ public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
         m_vera.stopVera();
     }
 
-    private void initializeFindPoleTask() {
+    private void initializeFindPoleTask(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();
@@ -87,7 +88,7 @@ public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
-        initializeFindPoleTask();
+        initializeFindPoleTask(PoleType.HIGH);
 
         waitForStart();
 
