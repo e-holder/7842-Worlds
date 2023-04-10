@@ -29,23 +29,40 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         return m_taskReadSignal.getParkingZone();
     }
 
+    private void initializeFindPoleTask() {
+        TaskFindPole.TaskState taskState;
+        do {
+            getInputs();
+            taskState = m_taskFindPole.update();
+            commandVera();
+            reportData();
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
+    }
+
+    private void blockingFindPole(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
+        TaskFindPole.TaskState taskState;
+        do {
+            getInputs();
+            taskState = m_taskFindPole.update();
+            commandVera();
+            reportData();
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
         Signal parkingZone = readSignalCone();
+        initializeFindPoleTask();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         waitForStart();
 
-        m_vera.vision.startStreaming(VeraPipelineType.FIND_POLE);
-        m_taskFindPole.setPoleType(PoleType.MID);
-
-
-        m_taskFindPole.getOffsetToPole_deg();
-        m_taskFindPole.getDistToScore_in();
+        // TODO: Figure out how to call and wait on: blockingFindPole(PoleType.MID);
 
         if (isStopRequested()) return;
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
@@ -108,7 +125,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         while(!isStopRequested()) {
             getInputs();
-            m_taskFindPole.update();
+            m_taskFindPole.update();   // TODO: Not sure we want this.
             commandVera();
             reportData();
         }

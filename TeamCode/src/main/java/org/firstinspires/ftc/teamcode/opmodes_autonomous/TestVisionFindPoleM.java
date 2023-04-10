@@ -26,11 +26,7 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
         m_vera.init(hardwareMap, false, true,
                 VeraPipelineType.FIND_POLE, telemetry);
 
-        if (Vera.isVisionTestMode) {
-            telemetry.addData("WARNING:", "vision test mode!");
-        } else {
-            telemetry.addData("Status", "Initialized - " + m_vera.alliance);
-        }
+        telemetry.addData("WARNING:", "vision test mode!");
         telemetry.update();
     }
 
@@ -65,21 +61,38 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
         m_vera.stopVera();
     }
 
+    private void initializeFindPoleTask() {
+        TaskFindPole.TaskState taskState;
+        do {
+            getInputs();
+            taskState = m_taskFindPole.update();
+            commandVera();
+            reportData();
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
+    }
+
+    private void blockingFindPole(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
+        TaskFindPole.TaskState taskState;
+        do {
+            getInputs();
+            taskState = m_taskFindPole.update();
+            commandVera();
+            reportData();
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
-        m_taskFindPole.setPoleType(PoleType.MID);
+        initializeFindPoleTask();
 
         waitForStart();
 
-        TaskStatus status;
         do {
-            getInputs();
-            status = m_taskFindPole.update();
-            commandVera();
-            reportData();
-        } while ((status != TaskStatus.DONE) && !isStopRequested());
+            blockingFindPole(PoleType.MID);
+        } while (!isStopRequested());
 
         stopVera();
     }

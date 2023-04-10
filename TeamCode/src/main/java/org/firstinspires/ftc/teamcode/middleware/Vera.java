@@ -28,7 +28,8 @@ public class Vera implements CONSTANTS {
     private HwVera m_hwVera = new HwVera();
     private StringBuilder m_csvLogString = new StringBuilder();
     private boolean m_isAutonomous = false;
-    public Alliance alliance;
+    private int m_loopCount = 0;
+    private Alliance m_alliance;
 
     // Note: This is not ideal practice. The subsystem and alliance member data really should not
     // be public and should follow the "m_***" naming convention.
@@ -50,6 +51,9 @@ public class Vera implements CONSTANTS {
         String extStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
         ALLIANCE_PATH = String.format("%s/FIRST/data/alliance.txt", extStoragePath);
     }
+
+    public Alliance getAlliance() { return m_alliance; }
+    public int getLoopCount() { return m_loopCount; }
 
     public void init(HardwareMap hwMap, boolean isAutonomous, boolean visionTestMode,
                      VeraPipelineType initialPipelineType, Telemetry telemetry) {
@@ -96,15 +100,15 @@ public class Vera implements CONSTANTS {
 
     public void setAlliance(Alliance matchAlliance) {
         logCsvString("Alliance: " + matchAlliance);
-        alliance = matchAlliance;
-        vision.setAlliance(alliance);
+        m_alliance = matchAlliance;
+        vision.setAlliance(m_alliance);
 
         // Write the current alliance to a file on the robot's SD Card so that TeleOp can determine
         // the alliance last used in Autonomous.
         if (m_isAutonomous) {
             try {
                 FileWriter writer = new FileWriter(ALLIANCE_PATH, false);
-                writer.write(alliance + "\r\n");
+                writer.write(m_alliance + "\r\n");
                 writer.close();
             } catch (Exception e) {
                 logCsvString("setAlliance - file write failed.");
@@ -137,6 +141,7 @@ public class Vera implements CONSTANTS {
     }
 
     public void getInputs(boolean isAutonomous) {
+        m_loopCount++;
         // The getInputs function must be the first function called in the main loop of TeleOp
         // or Autonomous OpModes. And clearBulkCache must be the first thing called in this
         // function.

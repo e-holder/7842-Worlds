@@ -275,7 +275,7 @@ public class Intake implements CONSTANTS {
             m_poseY_in = Math.abs(m_vera.drivetrain.getPoseEstimate().getY());
         }
         if (m_poseY_in > (m_priorPosY_in + 0.5)) {
-            if (m_vera.alliance == Alliance.RED) {
+            if (m_vera.getAlliance() == Alliance.RED) {
                 m_leftVal = m_hwIntake.getLeftTapeSensorRed();
                 m_rightVal = m_hwIntake.getRightTapeSensorRed();
             } else {

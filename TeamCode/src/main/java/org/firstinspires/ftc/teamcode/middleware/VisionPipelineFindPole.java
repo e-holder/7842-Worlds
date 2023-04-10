@@ -52,12 +52,12 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     // Volatile since accessed by OpMode thread w/o synchronization.
     private final AtomicInteger m_frameCount = new AtomicInteger(0);
-    private final AtomicInteger m_poleRowACol_pix = new AtomicInteger(-1);
-    private final AtomicInteger m_poleRowBCol_pix = new AtomicInteger(-1);
-    private final AtomicInteger m_poleRowCCol_pix = new AtomicInteger(-1);
-    private final AtomicInteger m_poleRowAWidth_pix = new AtomicInteger(-1);
-    private final AtomicInteger m_poleRowBWidth_pix = new AtomicInteger(-1);
-    private final AtomicInteger m_poleRowCWidth_pix = new AtomicInteger(-1);
+    private final AtomicInteger m_poleRowACol_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_poleRowBCol_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_poleRowCCol_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_poleRowAWidth_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_poleRowBWidth_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_poleRowCWidth_pix = new AtomicInteger(-999);
 
     // Any sequence of horizontal pixels "at least this wide" that are dark (falling below the
     // threshold percentage) will be considered the pole.
@@ -323,13 +323,13 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             }
         }
 
-        m_frameCount.incrementAndGet();  // Ignore return value.
         m_poleRowACol_pix.set(poleRowACol_pix);
         m_poleRowBCol_pix.set(poleRowBCol_pix);
         m_poleRowCCol_pix.set(poleRowCCol_pix);
         m_poleRowAWidth_pix.set(poleRowAWidth_pix);
         m_poleRowBWidth_pix.set(poleRowBWidth_pix);
         m_poleRowCWidth_pix.set(poleRowCWidth_pix);
+        m_frameCount.incrementAndGet();  // Ignore return value.
 
         return m_matOutputCb;
     }
