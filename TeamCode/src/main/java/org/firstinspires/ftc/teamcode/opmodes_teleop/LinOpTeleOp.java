@@ -52,7 +52,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         if (Vera.isVisionTestMode) {
             telemetry.addData("WARNING:", "vision test mode!");
         } else {
-            telemetry.addData("Status", "Initialized - " + m_vera.alliance);
+            telemetry.addData("Status", "Initialized - " + m_vera.getAlliance());
         }
         telemetry.update();
     }

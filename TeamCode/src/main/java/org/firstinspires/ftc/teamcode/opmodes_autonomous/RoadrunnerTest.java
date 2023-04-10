@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
-import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole.TaskState;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
-import org.opencv.core.Mat;
 
 @Autonomous(name = "RoadRunner Test")
 public class RoadrunnerTest extends LinOpAutonomousBase {
@@ -32,13 +29,25 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         return m_taskReadSignal.getParkingZone();
     }
 
-    private void startupFindPolePipeline(PoleType poleType) {
-        m_vera.vision.startStreaming(VeraPipelineType.FIND_POLE);
+    private void initializeFindPoleTask() {
+        TaskFindPole.TaskState taskState;
         do {
             getInputs();
-            m_taskFindPole.update();
+            taskState = m_taskFindPole.update();
+            commandVera();
             reportData();
-        } while ((m_taskFindPole.getTaskState() != TaskState.FIND_POLE) && !isStopRequested());
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
+    }
+
+    private void blockingFindPole(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
+        TaskFindPole.TaskState taskState;
+        do {
+            getInputs();
+            taskState = m_taskFindPole.update();
+            commandVera();
+            reportData();
+        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
     }
 
     @Override
@@ -46,33 +55,35 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         initializeVera();
         Signal parkingZone = readSignalCone();
-        startupFindPolePipeline(PoleType.MID);
+        initializeFindPoleTask();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         waitForStart();
 
-//        double x = m_vera.drivetrain.getPoseEstimate().getX();
-//        double y = m_vera.drivetrain.getPoseEstimate().getY();
-//        double heading = m_vera.drivetrain.getPoseEstimate().getHeading();
-//        double distToPole = m_vera.vision.getDistToScore_in();
-//        double headingToPole = m_vera.vision.getDeltaToPole_deg();
+        // TODO: Figure out how to call and wait on: blockingFindPole(PoleType.MID);
 
         if (isStopRequested()) return;
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-24.0,2.0, Math.toRadians(-80.0)))
                 .lineToSplineHeading(new Pose2d(-43.5,-4.5, Math.toRadians(-114.0)))
                 .addTemporalMarker(2.2, () -> {m_vera.lift.moveLiftToMidPole();})
+                .lineToSplineHeading(new Pose2d(-38.75,
+                        m_taskFindPole.getDistToScore_in() - 5.5,
+                        Math.toRadians(m_taskFindPole.getOffsetToPole_deg() - 90)))
+                .addTemporalMarker(8, () -> m_vera.lift.dropCone())
+                .build();
+
 
 //                .lineToSplineHeading(new Pose2d(-42.5, 0.5, Math.toRadians(-114.0)))
 
-                .lineToSplineHeading(new Pose2d(
-                        -42.5 + (m_vera.vision.getDistToScore_in() *
-                                Math.sin(-114.0 - m_vera.vision.getDeltaToPole_deg())),
-                        -4.5 + (m_vera.vision.getDistToScore_in() *
-                                Math.cos(-114.0 - m_vera.vision.getDeltaToPole_deg())),
-                        Math.toRadians(-114.0 - m_vera.vision.getDeltaToPole_deg())))
+//                .lineToSplineHeading(new Pose2d(
+//                        -42.5 + (m_vera.vision.getDistToScore_in() *
+//                                Math.sin(-114.0 - m_vera.vision.getDeltaToPole_deg())),
+//                        -4.5 + (m_vera.vision.getDistToScore_in() *
+//                                Math.cos(-114.0 - m_vera.vision.getDeltaToPole_deg())),
+//                        Math.toRadians(-114.0 - m_vera.vision.getDeltaToPole_deg())))
 
 //                .lineToSplineHeading(new Pose2d(
 //                        (m_vera.drivetrain.getPoseEstimate().getX() +
@@ -86,15 +97,14 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 //                        m_vera.drivetrain.getPoseEstimate().getHeading() -
 //                                m_vera.vision.getDeltaToPole_deg()))
 
-                .waitSeconds(0.5)
-                .addTemporalMarker(3, () -> m_vera.lift.dropCone())
-                .addTemporalMarker( 3.2,() -> m_vera.lift.moveLiftToBottom())
-                .lineToSplineHeading(new Pose2d(-49, -12, Math.toRadians(-90)))
+//                .waitSeconds(0.5)
+//                .addTemporalMarker(3, () -> m_vera.lift.dropCone())
+//                .addTemporalMarker( 3.2,() -> m_vera.lift.moveLiftToBottom())
+//                .lineToSplineHeading(new Pose2d(-49, -12, Math.toRadians(-90)))
 //                .waitSeconds(2)
 //                .addTemporalMarker(6.5, () -> {m_vera.intake.moveToIntakeConePos(5);})
 
 
-                .build();
 
 //        TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
 //                .waitSeconds(1.0)
@@ -146,7 +156,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         while(!isStopRequested()) {
             getInputs();
-            m_taskFindPole.update();
+            m_taskFindPole.update();   // TODO: Not sure we want this.
             commandVera();
             reportData();
         }
