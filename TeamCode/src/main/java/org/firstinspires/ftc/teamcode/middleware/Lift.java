@@ -204,7 +204,7 @@ public class Lift implements CONSTANTS {
         if (hasCone && !m_hasDriverBeenNotifiedOfCone) {
             rv = true;
             m_hasDriverBeenNotifiedOfCone = true;
-        } else if (m_state == LiftState.DRIVER_PLACE_CONE) {
+        } else if (m_isClawClosed && m_liftPos_in > 5.0) {
             m_hasDriverBeenNotifiedOfCone = false;
         }
         return rv;
@@ -404,6 +404,7 @@ public class Lift implements CONSTANTS {
 //                    ", placeCmd, " + m_placeConeCommand +
 //                    ", isBusy, " + m_isLiftBusy +
                     ", isClawClosed, " + m_isClawClosed +
+                    ", distSens, " + m_middlemanSensorDist_in +
                     ", grabDelay, " + m_delayForGrabCounter +
 //                    ", grabCount, " + m_clawGrabbingCounter +
                     ", openCount, " + m_clawOpeningCounter +

@@ -187,6 +187,8 @@ public class Vera implements CONSTANTS {
     }
 
     public void writeCsvLogData() {
+        logCsvString("Loop Count: " + m_loopCount);
+
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.
         if (drivetrain != null && drivetrain.getLogString().length() > 0) {

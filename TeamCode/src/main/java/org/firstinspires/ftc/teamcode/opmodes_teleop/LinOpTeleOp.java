@@ -19,13 +19,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_1RightBumper_AlreadyPressed = false;
     private boolean m_1A_AlreadyPressed = false;
     private boolean m_1B_AlreadyPressed = false;
-    private boolean m_1X_AlreadyPressed = false;
-    private boolean m_1Y_AlreadyPressed = false;
 
     private boolean m_2DpadUp_AlreadyPressed = false;
     private boolean m_2DpadRight_AlreadyPressed = false;
-    private boolean m_2LeftBumper_AlreadyPressed = false;
-    private boolean m_2RightBumper_AlreadyPressed = false;
     private boolean m_2A_AlreadyPressed = false;
     private boolean m_2B_AlreadyPressed = false;
     private boolean m_2X_AlreadyPressed = false;
@@ -86,10 +82,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             }
         } else if (gamepad1.a && !m_1A_AlreadyPressed) {
             m_vera.intake.moveToIntakeConePos(5);
-        } else if (gamepad1.x && !m_1X_AlreadyPressed) {
-            m_vera.lift.moveLiftToHighPole();
-        } else if (gamepad1.y && !m_1Y_AlreadyPressed) {
-            m_vera.lift.moveLiftToMidPole();
         } else if (gamepad1.dpad_up && !m_1DpadUp_AlreadyPressed) {
             m_vera.intake.moveToIdlePos();
         } else if (gamepad1.dpad_right && !m_1DpadRight_AlreadyPressed) {
@@ -105,20 +97,15 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         }
 
         m_1DpadUp_AlreadyPressed = gamepad1.dpad_up;
+        m_1DpadRight_AlreadyPressed = gamepad1.dpad_right;
         m_1LeftBumper_AlreadyPressed = gamepad1.left_bumper;
         m_1RightBumper_AlreadyPressed = gamepad1.right_bumper;
         m_1A_AlreadyPressed = gamepad1.a;
         m_1B_AlreadyPressed = gamepad1.b;
-        m_1X_AlreadyPressed = gamepad1.x;
-        m_1Y_AlreadyPressed = gamepad1.y;
     }
 
     private void getCommandsFromG2Buttons() {
-        if (gamepad2.left_bumper && !m_2LeftBumper_AlreadyPressed) {
-            m_vera.lift.dropCone();
-        } else if (gamepad2.right_bumper && !m_2RightBumper_AlreadyPressed) {
-            m_vera.intake.moveToIntakeConePos(1);
-        } else if (gamepad2.a && !m_2A_AlreadyPressed) {
+       if (gamepad2.a && !m_2A_AlreadyPressed) {
             m_vera.lift.moveLiftToBottom();
         } else if (gamepad2.b && !m_2B_AlreadyPressed) {
             m_vera.lift.moveLiftToLowPole();
@@ -134,8 +121,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         // NOTE: dpad_left and dpad_right are used in getCommandsFromG1Buttons to prevent
         // duplicated buttons from overwriting one another.
 
-        m_2LeftBumper_AlreadyPressed = gamepad2.left_bumper;
-        m_2RightBumper_AlreadyPressed = gamepad2.right_bumper;
         m_2A_AlreadyPressed = gamepad2.a;
         m_2B_AlreadyPressed = gamepad2.b;
         m_2X_AlreadyPressed = gamepad2.x;

@@ -45,13 +45,13 @@ public class Intake implements CONSTANTS {
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 85.0;
-    private final double ARM_CONE4_DEG = 94.0;
-    private final double ARM_CONE3_DEG = 102.0;
-    private final double ARM_CONE2_DEG = 110.0;
-    private final double ARM_BEACON_DEG = 104.0;
-    private final double ARM_CONE1_DEG = 112.0;
-    private final double ARM_MAX_DEG = 112.0;    // Note: Max physical position is about 112.
+    private final double ARM_CONE5_DEG = 71.0;
+    private final double ARM_CONE4_DEG = 80.0;
+    private final double ARM_CONE3_DEG = 89.0;
+    private final double ARM_CONE2_DEG = 97.0;
+    private final double ARM_BEACON_DEG = 100.0;
+    private final double ARM_CONE1_DEG = 116.0;
+    private final double ARM_MAX_DEG = 125.0;    // Note: Max physical position is about 112.
 
     private final double ARM_ARRIVAL_TOLERANCE_DEG = 2.0;
     private final double ARM_TARGET_DELTA_DEG = 1.0;
@@ -69,9 +69,9 @@ public class Intake implements CONSTANTS {
     private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 160.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
 
-    private final double WRIST_POS_STACK_DELTA_DEG = 135.0;
+    private final double WRIST_POS_STACK_DELTA_DEG = 163.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 137.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 165.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 7.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
@@ -540,6 +540,9 @@ public class Intake implements CONSTANTS {
                 m_state = IntakeState.MOVING_TO_CONE_POS;
                 break;
             case MOVING_TO_CONE_POS:
+                if (m_hasCone) {
+                    m_state = IntakeState.DRIVER_CONE_INTAKE;
+                }
                 if (m_armPos_deg > ARM_FAST_RESET_POINT_DEG) {
                     m_intakeWheelSpeed = DEFAULT_INTAKE_WHEEL_SPEED;
                 }
@@ -612,8 +615,9 @@ public class Intake implements CONSTANTS {
         if (true) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
-//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
-//                    ", hasCone, " + m_hasCone +
+                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
+                    ", hasCone, " + m_hasCone +
+                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
                     ", armTicks, " + m_armPos_ticks +
@@ -622,11 +626,10 @@ public class Intake implements CONSTANTS {
                     ", cmdDelta, " + df3.format(m_armDelta_deg) +
                     ", coneCmd, " + m_intakeConeCommand +
                     ", armCmd," + df3.format(m_armDriverCmd) +
-                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
+//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
 //                    ", wristDeg, " + df3.format(m_wristPos_deg) +
-                    ", wristPosV, " + df3.format(m_wristServoPos) +
+//                    ", wristPosV, " + df3.format(m_wristServoPos) +
 //                    ", bcnMode, " + m_isBeaconMode +
-//                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
 //                    ", ejectDelay, " + m_ejectDelayCounter +
 //                    ", initDelay, " + m_initDelayCounter +

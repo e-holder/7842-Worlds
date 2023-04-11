@@ -57,10 +57,9 @@ public class HwLift {
     }
 
     public void resetLiftMotor(int currentPos_tick) {
-        m_liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        m_liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m_liftMotor.setPower(0.0);
         m_liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        m_liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m_liftMotor.setTargetPosition(currentPos_tick + 1);
     }
 

@@ -71,12 +71,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-24.0,2.0, Math.toRadians(-80.0)))
                 .lineToSplineHeading(new Pose2d(-43.5,-4.5, Math.toRadians(-114.0)))
-                .addDisplacementMarker(() -> {
-                    m_taskFindPole.startFindingPole(PoleType.MID);
-                    do {
-                        // Nothing
-                    } while (m_taskState != TaskFindPole.TaskState.IDLE);
-                })
+                .addDisplacementMarker(() -> { m_taskFindPole.startFindingPole(PoleType.MID); })
                 .build();
 
 

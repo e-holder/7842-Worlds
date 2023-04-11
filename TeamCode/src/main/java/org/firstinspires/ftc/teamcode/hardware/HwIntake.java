@@ -20,9 +20,15 @@ public class HwIntake {
     private final double ARM_DEG_PER_TICK = 1.0 / ARM_TICKS_PER_DEG;
     public final double MIN_ARM_DEG = -33.0;
 
+    // 0.0   -              (-28.681)
+    // 0.19  -   0 deg       (31.868)
+    // 0.776 - 180 deg      (218.474)
+    // 1.0                   (290.0)
+    // Range of servo
     private final double WRIST_MIN_DEG = 0.0;
     private final double WRIST_MAX_DEG = 290.0;
-    private final double WRIST_MIN_DEG_SERVO = 0.09;  // We can command the servo below this.
+    // Servo when wrist is at 0 deg. We can command the servo below this.
+    private final double WRIST_MIN_DEG_SERVO = 0.19;
     private final double WRIST_MAX_DEG_SERVO = 1.0;
     private final double WRIST_SERVO_PER_DEG = (WRIST_MAX_DEG_SERVO - WRIST_MIN_DEG_SERVO) /
             (WRIST_MAX_DEG - WRIST_MIN_DEG);
@@ -46,7 +52,7 @@ public class HwIntake {
         m_armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         m_armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         m_pidf = m_armMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
-        m_pidf.p = 11 * 0.5; // Ziegler–Nichols method for PD tuning
+        m_pidf.p = 11 * 0.8; // Ziegler–Nichols method for PD tuning
         m_pidf.i = 0;
         m_pidf.d = 11 * 0.1;
         m_pidf.f = 0;
@@ -84,10 +90,9 @@ public class HwIntake {
     }
 
     public void resetArmMotor(int currentPos_tick) {
-        m_armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        m_armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m_armMotor.setPower(0.0);
         m_armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        m_armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m_armMotor.setTargetPosition(currentPos_tick + 1);
     }
 
