@@ -73,7 +73,7 @@ public class Intake implements CONSTANTS {
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
     private final double WRIST_POS_CONE_DELTA_DEG = 165.0;
 
-    private final double INTAKE_WHEELS_STALL_AMP = 7.0;
+    private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
@@ -312,25 +312,20 @@ public class Intake implements CONSTANTS {
 
     public void getInputs() {
         m_isLimitSwitchPressed = m_hwIntake.isLimitSwitchPressed();
-        m_vera.logTime(3, "limit");
         if (Math.abs(m_intakeWheelSpeed) > 0.0) {
             m_intakeWheelMotor_amp = m_hwIntake.getIntakeWheelMotorCurrent_amp();
-            m_vera.logTime(3, "wheelAmps");
         } else {
             m_intakeWheelMotor_amp = 0.0;
         }
         m_armPos_deg = m_hwIntake.getArmPosition_deg();
-        m_vera.logTime(3, "armPosD");
 
         m_areIntakeWheelsStalled = (m_intakeWheelMotor_amp > INTAKE_WHEELS_STALL_AMP);
         m_hasCone |= (m_areIntakeWheelsStalled || m_hasConeOverride);
         m_isArmBusy = m_hwIntake.isArmBusy() &&
                 (Math.abs(m_armTargetPos_deg - m_armPos_deg) > ARM_ARRIVAL_TOLERANCE_DEG);
-        m_vera.logTime(3, "armBusy");
 
         if (m_isStackTapeCalibrationMode && m_isStackTapeSensingOn) {
             getStackTapeSensorInputs();
-            m_vera.logTime(3, "tapeSensors");
         }
 
 //        m_intakeArmMotor_amp = m_hwIntake.getIntakeArmMotorCurrent_amp();
@@ -616,13 +611,9 @@ public class Intake implements CONSTANTS {
                 break;
         }
 
-        m_vera.logTime(3, "state machine");
         setWristPosition();
-        m_vera.logTime(3, "wrist");
         moveArmToTargetPositionAtTargetSpeed();
-        m_vera.logTime(3, "arm");
         setIntakeWheelSpeed();
-        m_vera.logTime(3, "wheels");
     }
 
     public void reportData(Telemetry telemetry) {

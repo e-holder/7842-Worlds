@@ -178,13 +178,9 @@ public class Drivetrain extends MecanumDrive {
 
     public void veraUpdateTeleOp() {
         motorFL.setPower(frontLeftPower);
-        m_vera.logTime(3, "FL");
         motorFR.setPower(frontRightPower);
-        m_vera.logTime(3, "FR");
         motorBL.setPower(backLeftPower);
-        m_vera.logTime(3, "BL");
         motorBR.setPower(backRightPower);
-        m_vera.logTime(3, "BR");
 
     }
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.middleware;
 
 import android.os.Environment;
 
+import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -62,6 +63,8 @@ public class Vera implements CONSTANTS {
                      VeraPipelineType initialPipelineType, Telemetry telemetry) {
         m_isAutonomous = isAutonomous;
         Vera.isVisionTestMode = visionTestMode;
+
+        PhotonCore.enable();
         m_hwVera.init(hwMap, true);
 
         // Setup CSV file logging variables
@@ -157,13 +160,10 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM will get its inputs here.
         if (!isVisionTestMode) {
             intake.getInputs();
-            logTime(2, "intake");
             lift.getInputs();
-            logTime(2, "lift");
         }
         if (isAutonomous || isVisionTestMode) {
             vision.getInputs();
-            logTime(2, "vision");
         }
         // EACH SUBSYSTEM (end)
     }
@@ -172,11 +172,8 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM will process robot commands here.
         if (!isVisionTestMode) {
             drivetrain.veraUpdateTeleOp();
-            logTime(2, "drivetrain");
             intake.update();
-            logTime(2, "intake");
             lift.update();
-            logTime(2, "lift");
         }
         // Vision is omitted since its pipelines run in another thread,
         // EACH SUBSYSTEM (end)
@@ -195,24 +192,24 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    private double m_priorLoop_ms = 0;
-    private double m_priorLog_ms = 0;
-    public void logMainLoopTime() {
-        double ms = m_timer.milliseconds();
-        m_timerLog.append((int)(ms - m_priorLoop_ms))
-                .append(" Loop ")
-                .append(m_loopCount).append("\n");
-        m_priorLoop_ms = ms;
-        m_priorLog_ms = ms;
-    }
-
-    public void logTime(int level, String label) {
-        double ms = m_timer.milliseconds();
-        m_timerLog.append(new String(new char[level*2]).replace('\0', ' '))
-                .append((int)(m_timer.milliseconds() - m_priorLog_ms)).append("  ")
-                .append(label).append("\n");
-        m_priorLog_ms = ms;
-    }
+//    private double m_priorLoop_ms = 0;
+//    private double m_priorLog_ms = 0;
+//    public void logMainLoopTime() {
+//        double ms = m_timer.milliseconds();
+//        m_timerLog.append((int)(ms - m_priorLoop_ms))
+//                .append(" Loop ")
+//                .append(m_loopCount).append("\n");
+//        m_priorLoop_ms = ms;
+//        m_priorLog_ms = ms;
+//    }
+//
+//    public void logTime(int level, String label) {
+//        double ms = m_timer.milliseconds();
+//        m_timerLog.append(new String(new char[level*2]).replace('\0', ' '))
+//                .append((int)(m_timer.milliseconds() - m_priorLog_ms)).append("  ")
+//                .append(label).append("\n");
+//        m_priorLog_ms = ms;
+//    }
 
     public void logCsvString(String record) {
         m_csvLogString.append(record)

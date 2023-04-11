@@ -55,7 +55,7 @@ public class Lift implements CONSTANTS {
     private final double HIGH_POLE_IN = 38.5;
 
     private final double LIFT_DRIVER_PLACE_DELTA_IN = 0.5;
-    private final double LIFT_BOTTOM_TOL_IN = 0.3;
+    private final double LIFT_BOTTOM_TOL_IN = 0.5;
     private final double LIFT_STALL_REDUCE_IN = 0.15;
 
     private final double LIFT_SPEED_FAST_TPS = 4500;
@@ -393,9 +393,7 @@ public class Lift implements CONSTANTS {
                 break;
         }
 
-        m_vera.logTime(3, "state machine");
         moveLiftToTargetPositionAtTargetSpeed();
-        m_vera.logTime(3, "move lift");
     }
 
     public void reportData(Telemetry telemetry) {

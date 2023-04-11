@@ -33,8 +33,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_runGamepad1DoubleRumble = false;
 
     private void initializeVera() {
-        PhotonCore.enable();
-
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
@@ -141,16 +139,16 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
     private void getInputs() {
         // getInputs MUST be the first thing called in this function.
-        m_vera.logMainLoopTime();
+//        m_vera.logMainLoopTime();
         m_vera.getInputs(false);
         getInputsFromSticksAndTriggers();
         getCommandsFromButtons();
-        m_vera.logTime(1, "getInputs (gamepads)");
+//        m_vera.logTime(1, "getInputs (gamepads)");
     }
 
     private void commandVera() {
         m_vera.commandVera();
-        m_vera.logTime(1, "commandVera");
+//        m_vera.logTime(1, "commandVera");
     }
 
     private void reportData() {
@@ -167,7 +165,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         }
         m_vera.reportData(telemetry);
         telemetry.update();
-        m_vera.logTime(1, "reportData");
+//        m_vera.logTime(1, "reportData");
     }
 
     private void stopVera() {
