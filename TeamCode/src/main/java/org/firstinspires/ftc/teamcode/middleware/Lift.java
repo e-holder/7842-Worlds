@@ -199,7 +199,7 @@ public class Lift implements CONSTANTS {
         if (m_isMiddlemanSensorEnabled) {
             m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
         } else {
-            m_middlemanSensorDist_in = 99.0;
+            m_middlemanSensorDist_in = 999.0;
         }
     }
 

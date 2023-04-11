@@ -89,11 +89,11 @@ public class HwIntake {
         return m_armMotor.isBusy();
     }
 
-    public void resetArmMotor(int currentPos_tick) {
+    public void resetArmMotor(double currentPos_deg) {
         m_armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         m_armMotor.setPower(0.0);
         m_armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        m_armMotor.setTargetPosition(currentPos_tick + 1);
+        m_armMotor.setTargetPosition((int)(currentPos_deg * ARM_TICKS_PER_DEG) + 1);
     }
 
     // Note: The position is in degrees from the vertical position (negative is toward the lift).

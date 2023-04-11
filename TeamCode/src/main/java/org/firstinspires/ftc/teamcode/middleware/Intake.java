@@ -110,8 +110,7 @@ public class Intake implements CONSTANTS {
     private double[][] m_stackTapeData = new double[500][3];  // 0 = left, 1 = right, 2 = Y pos
     private double m_leftVal, m_rightVal, m_poseY_in;
     private double m_priorPosY_in = -999.0;
-    private double m_wristServoPos;
-    private double m_wristPos_deg;  // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
+    // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
     private double m_wristCmdPos_deg = 0.0;
     private double m_armPos_deg;    // 0 is vertical, 90 is extended/front parallel to floor.
     private double m_armTargetPos_deg;
@@ -152,7 +151,7 @@ public class Intake implements CONSTANTS {
     // ============ PRIVATE METHODS===============
 
     private void resetArmMotor() {
-        m_hwIntake.resetArmMotor(m_armPos_ticks);
+        m_hwIntake.resetArmMotor(m_armPos_deg);
         m_hasResetOccurred = true;
     }
 
@@ -314,20 +313,14 @@ public class Intake implements CONSTANTS {
     public void getInputs() {
         m_isLimitSwitchPressed = m_hwIntake.isLimitSwitchPressed();
         m_vera.logTime(3, "limit");
-        m_intakeArmMotor_amp = m_hwIntake.getIntakeArmMotorCurrent_amp();
-        m_vera.logTime(3, "armAmps");
-        m_intakeWheelMotor_amp = m_hwIntake.getIntakeWheelMotorCurrent_amp();
-        m_vera.logTime(3, "wheelAmps");
+        if (Math.abs(m_intakeWheelSpeed) > 0.0) {
+            m_intakeWheelMotor_amp = m_hwIntake.getIntakeWheelMotorCurrent_amp();
+            m_vera.logTime(3, "wheelAmps");
+        } else {
+            m_intakeWheelMotor_amp = 0.0;
+        }
         m_armPos_deg = m_hwIntake.getArmPosition_deg();
         m_vera.logTime(3, "armPosD");
-        m_armPos_ticks = m_hwIntake.getArmPosition_ticks();
-        m_vera.logTime(3, "armPosT");
-        // Note: These two inputs really just reflect the most recent command sent to the servo.
-        //       They do not really tell you where the wrist is right now.
-        m_wristServoPos = m_hwIntake.getWristServoPos();
-        m_vera.logTime(3, "wristPos");
-        m_wristPos_deg = m_hwIntake.getWristPos_deg(m_wristServoPos);
-        m_vera.logTime(3, "wristPosDeg");
 
         m_areIntakeWheelsStalled = (m_intakeWheelMotor_amp > INTAKE_WHEELS_STALL_AMP);
         m_hasCone |= (m_areIntakeWheelsStalled || m_hasConeOverride);
@@ -339,6 +332,11 @@ public class Intake implements CONSTANTS {
             getStackTapeSensorInputs();
             m_vera.logTime(3, "tapeSensors");
         }
+
+//        m_intakeArmMotor_amp = m_hwIntake.getIntakeArmMotorCurrent_amp();
+//        m_vera.logTime(3, "armAmps");
+//        m_armPos_ticks = m_hwIntake.getArmPosition_ticks();
+//        m_vera.logTime(3, "armPosT");
     }
 
     public boolean isIntakeEjecting() {
