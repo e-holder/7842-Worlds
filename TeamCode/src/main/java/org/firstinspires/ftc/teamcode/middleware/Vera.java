@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Timer;
 
 // Search for "EACH SUBSYSTEM" to see how to add a subsystem.
 
@@ -78,7 +77,7 @@ public class Vera implements CONSTANTS {
 
         // EACH SUBSYSTEM will construct its middleware class instance here.
         if (!Vera.isVisionTestMode) {
-            drivetrain = new Drivetrain(hwMap);
+            drivetrain = new Drivetrain(hwMap, this);
             intake = new Intake(this);
             lift = new Lift(this);
         }
@@ -196,19 +195,23 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    private double m_priorMilliseconds = 0;
+    private double m_priorLoop_ms = 0;
+    private double m_priorLog_ms = 0;
     public void logMainLoopTime() {
         double ms = m_timer.milliseconds();
-        m_timerLog.append((int)(ms - m_priorMilliseconds))
+        m_timerLog.append((int)(ms - m_priorLoop_ms))
                 .append(" Loop ")
                 .append(m_loopCount).append("\n");
-        m_priorMilliseconds = ms;
+        m_priorLoop_ms = ms;
+        m_priorLog_ms = ms;
     }
 
     public void logTime(int level, String label) {
+        double ms = m_timer.milliseconds();
         m_timerLog.append(new String(new char[level*2]).replace('\0', ' '))
-                .append((int)(m_timer.milliseconds() - m_priorMilliseconds)).append("  ")
+                .append((int)(m_timer.milliseconds() - m_priorLog_ms)).append("  ")
                 .append(label).append("\n");
+        m_priorLog_ms = ms;
     }
 
     public void logCsvString(String record) {

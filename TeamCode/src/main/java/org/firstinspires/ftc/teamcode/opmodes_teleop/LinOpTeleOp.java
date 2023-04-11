@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
+import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -32,6 +33,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_runGamepad1DoubleRumble = false;
 
     private void initializeVera() {
+        PhotonCore.enable();
+
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
@@ -142,7 +145,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         m_vera.getInputs(false);
         getInputsFromSticksAndTriggers();
         getCommandsFromButtons();
-        m_vera.logTime(1, "getInputs");
+        m_vera.logTime(1, "getInputs (gamepads)");
     }
 
     private void commandVera() {
@@ -175,6 +178,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

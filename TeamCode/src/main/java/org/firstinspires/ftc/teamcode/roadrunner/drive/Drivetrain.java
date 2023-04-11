@@ -94,8 +94,12 @@ public class Drivetrain extends MecanumDrive {
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
 
-    public Drivetrain(HardwareMap hardwareMap) {
+    private final Vera m_vera;
+
+    public Drivetrain(HardwareMap hardwareMap, Vera vera) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+
+        m_vera = vera;
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
@@ -174,9 +178,13 @@ public class Drivetrain extends MecanumDrive {
 
     public void veraUpdateTeleOp() {
         motorFL.setPower(frontLeftPower);
+        m_vera.logTime(3, "FL");
         motorFR.setPower(frontRightPower);
+        m_vera.logTime(3, "FR");
         motorBL.setPower(backLeftPower);
+        m_vera.logTime(3, "BL");
         motorBR.setPower(backRightPower);
+        m_vera.logTime(3, "BR");
 
     }
 

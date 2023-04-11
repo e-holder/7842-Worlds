@@ -35,7 +35,7 @@ public class Lift implements CONSTANTS {
         DOWN_SLOW
     }
 
-    private final int LIFT_AT_JUNCTION_TOL_TICK = 15;
+    private final double LIFT_AT_JUNCTION_TOL_IN = 0.6;
 
     private final int CLAW_GRABBING_COUNT_MAX = 30;
     private final int CLAW_OPENING_COUNT_MAX = 30;
@@ -74,6 +74,7 @@ public class Lift implements CONSTANTS {
     private boolean m_isLimitPressed;
     private boolean m_isLiftBusy;
     private boolean m_isClawClosed;
+    private boolean m_isMiddlemanSensorEnabled;
     private boolean m_hasDriverBeenNotifiedOfCone = false;
     private int m_clawGrabbingCounter = CLAW_GRABBING_COUNT_MAX;
     private int m_clawOpeningCounter = CLAW_OPENING_COUNT_MAX;
@@ -169,11 +170,13 @@ public class Lift implements CONSTANTS {
 
     private void closeClaw() {
         m_hwLift.setLiftClawPos(CLAW_CLOSED);
+        m_isClawClosed = false;
     }
 
     private void openClaw() {
         if (!m_vera.isAutonomous() || m_hasLiftBeenReset) {
             m_hwLift.setLiftClawPos(CLAW_OPEN);
+            m_isClawClosed = false;
         }
     }
 
@@ -187,15 +190,17 @@ public class Lift implements CONSTANTS {
 
     public void getInputs() {
         m_isLiftBusy = m_hwLift.isLiftBusy();
-        m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
+//        m_liftPos_tick = m_hwLift.getLiftPosition_ticks();
         m_liftPos_in = m_hwLift.getLiftPosition_in();
         m_liftMotorCurrent_amp = m_hwLift.getLiftMotorCurrent_amp();
         m_isLimitPressed = m_hwLift.isLimitSwitchPressed();
-        m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
 
-        // NOTE: getLiftClawPos only reflects what the servo has been commanded. It does not
-        //  necessarily reflect where the claw servo actually is.
-        m_isClawClosed = (m_hwLift.getLiftClawPos() <= (CLAW_CLOSED + 0.1));
+        m_isMiddlemanSensorEnabled |= m_vera.intake.isIntakeEjecting();
+        if (m_isMiddlemanSensorEnabled) {
+            m_middlemanSensorDist_in = m_hwLift.getMiddlemanSensorDistance_in();
+        } else {
+            m_middlemanSensorDist_in = 99.0;
+        }
     }
 
     public boolean hasMiddlemanReceivedCone() {
@@ -204,6 +209,7 @@ public class Lift implements CONSTANTS {
         if (hasCone && !m_hasDriverBeenNotifiedOfCone) {
             rv = true;
             m_hasDriverBeenNotifiedOfCone = true;
+            m_isMiddlemanSensorEnabled = false;
         } else if (m_isClawClosed && m_liftPos_in > 5.0) {
             m_hasDriverBeenNotifiedOfCone = false;
         }
@@ -303,8 +309,8 @@ public class Lift implements CONSTANTS {
             case MOVING_TO_MID_POLE_POS:   // Intentional fall-through
             case MOVING_TO_HIGH_POLE_POS:
                 m_moveToPoleCounter++;
-                double delta = Math.abs(m_liftTarget_tick - m_liftPos_tick);
-                if (!m_isLiftBusy || delta <= LIFT_AT_JUNCTION_TOL_TICK ||
+                double delta_in = Math.abs(m_liftTargetPos_in - m_liftPos_in);
+                if (!m_isLiftBusy || delta_in <= LIFT_AT_JUNCTION_TOL_IN ||
                         m_moveToPoleCounter > MOVE_TO_POLE_COUNT_MAX) {
                     m_state = LiftState.DRIVER_PLACE_CONE;
                 }
@@ -387,7 +393,9 @@ public class Lift implements CONSTANTS {
                 break;
         }
 
+        m_vera.logTime(3, "state machine");
         moveLiftToTargetPositionAtTargetSpeed();
+        m_vera.logTime(3, "move lift");
     }
 
     public void reportData(Telemetry telemetry) {
