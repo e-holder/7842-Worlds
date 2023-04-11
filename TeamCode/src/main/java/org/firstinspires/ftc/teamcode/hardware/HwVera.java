@@ -44,9 +44,9 @@ public class HwVera {
         if (enableManualBulkCaching) {
             // Get access to a list of Expansion Hub Modules to enable changing caching methods.
             m_allHubs = hwMap.getAll(LynxModule.class);
-            //  Set all Expansion hubs to use the AUTO Bulk Caching mode.
+            //  Set all Expansion hubs to use the MANUAL Bulk Caching mode.
             for (LynxModule module : m_allHubs) {
-                module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+                module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
             }
         }
 
