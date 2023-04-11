@@ -54,12 +54,14 @@ public class Lift implements CONSTANTS {
     private final double MID_POLE_IN = 24.0;
     private final double HIGH_POLE_IN = 38.5;
 
+    private final double LIFT_DRIVER_PLACE_DELTA_IN = 0.5;
+    private final double LIFT_BOTTOM_TOL_IN = 0.3;
+    private final double LIFT_STALL_REDUCE_IN = 0.15;
+
     private final double LIFT_SPEED_FAST_TPS = 4500;
     private final double LIFT_SPEED_SLOW_TPS = 800.0;
-    private final double LIFT_BOTTOM_TOL_IN = 0.3;
-    private final double LIFT_DRIVER_PLACE_DELTA_IN = 0.5;
 
-    private final double LIFT_MAX_BOTTOM_IDLE_AMP = 0.5;
+    private final double LIFT_MAX_BOTTOM_IDLE_AMP = 0.6;
 
     private final double MIDDLEMAN_HAS_CONE_THRESH_IN = 2.0;
 
@@ -138,7 +140,7 @@ public class Lift implements CONSTANTS {
                 m_liftTargetSpeed = 0.0;
             } else if (m_liftMotorCurrent_amp > LIFT_MAX_BOTTOM_IDLE_AMP) {
                 // If the motor is stalling, start raising the target position.
-                m_liftTargetPos_in += LIFT_BOTTOM_TOL_IN;
+                m_liftTargetPos_in += LIFT_STALL_REDUCE_IN;
             } else {
                 // Keep trying to drive to the trigger switch.
                 m_liftTargetPos_in = 0.0;

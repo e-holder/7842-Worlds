@@ -46,7 +46,7 @@ public class HwIntake {
         m_armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         m_armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         m_pidf = m_armMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION);
-        m_pidf.p = 11 * 0.8; // Ziegler–Nichols method for PD tuning
+        m_pidf.p = 11 * 0.5; // Ziegler–Nichols method for PD tuning
         m_pidf.i = 0;
         m_pidf.d = 11 * 0.1;
         m_pidf.f = 0;

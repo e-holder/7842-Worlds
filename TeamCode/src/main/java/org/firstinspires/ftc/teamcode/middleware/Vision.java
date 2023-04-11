@@ -232,13 +232,13 @@ public class Vision implements CONSTANTS {
     private void eliminateFarLeftOrRightDetections() {
         int maxDelta_pix = (m_poleType == PoleType.HIGH ? MAX_DELTA_HIGH_PIX : MAX_DELTA_MID_PIX);
         if (Math.abs(m_rowADelta_pix) > maxDelta_pix) {
-            m_detections &= 0x011;  // Remove A
+            m_detections &= 0x3;  // Remove A
         }
         if (Math.abs(m_rowBDelta_pix) > maxDelta_pix) {
-            m_detections &= 0x101;  // Remove B
+            m_detections &= 0x5;  // Remove B
         }
         if (Math.abs(m_rowCDelta_pix) > maxDelta_pix) {
-            m_detections &= 0x110;  // Remove C
+            m_detections &= 0x6;  // Remove C
         }
     }
 
@@ -246,13 +246,13 @@ public class Vision implements CONSTANTS {
         int superWide_pix = (m_poleType == PoleType.HIGH ?
                 SUPER_WIDE_HIGH_PIX : SUPER_WIDE_MID_PIX);
         if (((m_detections & D_A) == D_A) && (m_rowAWidthDelta_pix > superWide_pix)) {
-            m_detections &= 0x011;  // Remove A
+            m_detections &= 0x3;  // Remove A
         }
         if (((m_detections & D_B) == D_B) && (m_rowBWidthDelta_pix > superWide_pix)) {
-            m_detections &= 0x101;  // Remove B
+            m_detections &= 0x5;  // Remove B
         }
         if (((m_detections & D_C) == D_C) && (m_rowCWidthDelta_pix > superWide_pix)) {
-            m_detections &= 0x110;  // Remove C
+            m_detections &= 0x6;  // Remove C
         }
     }
 
@@ -265,13 +265,13 @@ public class Vision implements CONSTANTS {
         int cOutlier = (ac + bc) / 2;
         if ((aOutlier > outlier_pix) && (aOutlier > bOutlier) && (aOutlier > cOutlier)) {
             // If A is an outlier, and worse than B and C, eliminate it.
-            m_detections &= 0x011;  // Remove A
+            m_detections &= 0x3;  // Remove A
         } else if ((bOutlier > outlier_pix) && (bOutlier > aOutlier) && (bOutlier > cOutlier)) {
             // If B is an outlier, and worse than A and C, eliminate it.
-            m_detections &= 0x101;  // Remove B
+            m_detections &= 0x5;  // Remove B
         } else if ((cOutlier > outlier_pix) && (cOutlier > aOutlier) && (cOutlier > bOutlier)) {
             // If C is an outlier, and worse than A and B, eliminate it.
-            m_detections &= 0x110;  // Remove C
+            m_detections &= 0x6;  // Remove C
         }
     }
 
@@ -281,9 +281,9 @@ public class Vision implements CONSTANTS {
                 int ab = Math.abs(m_rowADelta_pix - m_rowBDelta_pix);
                 if (ab > outlier_pix) {
                     if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowBDelta_pix)) {
-                        m_detections &= 0x011;  // Remove A
+                        m_detections &= 0x3;  // Remove A
                     } else {
-                        m_detections &= 0x101;  // Remove B
+                        m_detections &= 0x5;  // Remove B
                     }
                 }
                 break;
@@ -291,9 +291,9 @@ public class Vision implements CONSTANTS {
                 int ac = Math.abs(m_rowADelta_pix - m_rowCDelta_pix);
                 if (ac > outlier_pix) {
                     if (Math.abs(m_rowADelta_pix) > Math.abs(m_rowCDelta_pix)) {
-                        m_detections &= 0x011;  // Remove A
+                        m_detections &= 0x3;  // Remove A
                     } else {
-                        m_detections &= 0x110;  // Remove C
+                        m_detections &= 0x6;  // Remove C
                     }
                 }
                 break;
@@ -301,9 +301,9 @@ public class Vision implements CONSTANTS {
                 int bc = Math.abs(m_rowBDelta_pix - m_rowCDelta_pix);
                 if (bc > outlier_pix) {
                     if (Math.abs(m_rowBDelta_pix) > Math.abs(m_rowCDelta_pix)) {
-                        m_detections &= 0x101;  // Remove B
+                        m_detections &= 0x5;  // Remove B
                     } else {
-                        m_detections &= 0x110;  // Remove C
+                        m_detections &= 0x6;  // Remove C
                     }
                 }
                 break;
@@ -588,11 +588,11 @@ public class Vision implements CONSTANTS {
                 ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
                 ", toScoreIn, " + df3.format(m_distToScore_in) +
                 ", ACol, " + m_rowACol_pix +
-//                    ", BCol, " + m_rowBCol_pix +
-//                    ", CCol, " + m_rowCCol_pix +
+                ", BCol, " + m_rowBCol_pix +
+                ", CCol, " + m_rowCCol_pix +
                 ", AWidth, " + m_rowAPoleWidth_pix +
-//                    ", BWidth, " + m_rowBPoleWidth_pix +
-//                    ", CWidth, " + m_rowCPoleWidth_pix +
+                ", BWidth, " + m_rowBPoleWidth_pix +
+                ", CWidth, " + m_rowCPoleWidth_pix +
                 ", ADelta, " + m_rowADelta_pix +
 //                    ", BDelta, " + m_rowBDelta_pix +
 //                    ", CDelta, " + m_rowCDelta_pix +

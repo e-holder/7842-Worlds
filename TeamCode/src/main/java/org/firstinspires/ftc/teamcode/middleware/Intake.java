@@ -39,8 +39,8 @@ public class Intake implements CONSTANTS {
 
     private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 10;
 
-    private final double ARM_RESET_DEG = -33.0;
-    private final double ARM_EJECT_DEG = ARM_RESET_DEG;
+    // Note: Arm limit (where trigger switch resets) is about -33.0 degrees
+    private final double ARM_EJECT_DEG = -30.0;
     private final double ARM_IDLE_DEG = -10.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
@@ -511,6 +511,9 @@ public class Intake implements CONSTANTS {
                 m_state = IntakeState.MOVING_TO_EJECT_POS;
                 break;
             case MOVING_TO_EJECT_POS:
+                if (m_isLimitSwitchPressed) {
+                    resetArmMotor();
+                }
                 if (!m_isArmBusy) {
                     m_ejectDelayCounter = (m_isConeStackMode ? EJECT_CONESTACK_DELAY_COUNT : 0);
                     m_state = IntakeState.EJECT_CONE;
@@ -606,22 +609,22 @@ public class Intake implements CONSTANTS {
 
     public void reportData(Telemetry telemetry) {
 
-        if (false) {
+        if (true) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
 //                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
 //                    ", hasCone, " + m_hasCone +
-//                    ", armTgt, " + df3.format(m_armTargetPos_deg) +
-//                    ", armDeg, " + df3.format(m_armPos_deg) +
-//                    ", armTicks, " + m_armPos_ticks +
-//                    ", armSpeed, " + m_armTargetSpeed +
-//                    ", armBusy, " + m_isArmBusy +
-//                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
-//                    ", coneCmd, " + m_intakeConeCommand +
-//                    ", armCmd," + df3.format(m_armDriverCmd) +
-//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
+                    ", armTgt, " + df3.format(m_armTargetPos_deg) +
+                    ", armDeg, " + df3.format(m_armPos_deg) +
+                    ", armTicks, " + m_armPos_ticks +
+                    ", armSpeed, " + m_armTargetSpeed +
+                    ", armBusy, " + m_isArmBusy +
+                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
+                    ", coneCmd, " + m_intakeConeCommand +
+                    ", armCmd," + df3.format(m_armDriverCmd) +
+                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
 //                    ", wristDeg, " + df3.format(m_wristPos_deg) +
-//                    ", wristPosV, " + df3.format(m_wristServoPos) +
+                    ", wristPosV, " + df3.format(m_wristServoPos) +
 //                    ", bcnMode, " + m_isBeaconMode +
 //                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
@@ -630,7 +633,7 @@ public class Intake implements CONSTANTS {
                     ".");
         }
 
-        if (true) {
+        if (false) {
             telemetry.addData("left",
                     df3.format(m_leftVal) +
                             " right " + df3.format(m_rightVal) +
