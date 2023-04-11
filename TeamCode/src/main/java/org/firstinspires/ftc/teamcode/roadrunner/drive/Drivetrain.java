@@ -156,23 +156,28 @@ public class Drivetrain extends MecanumDrive {
         return m_csvLogStr;
     }
 
-    public void translateSticksDroneFlightControls(double pitch, double yaw,
-                                                   double roll, double thrust) {
-        double fl = (pitch + yaw + roll) * TELEOP_POWER_FACTOR;
-        double fr = (pitch - yaw - roll) * TELEOP_POWER_FACTOR;
-        double bl = (pitch + yaw - roll) * TELEOP_POWER_FACTOR;
-        double br = (pitch - yaw + roll) * TELEOP_POWER_FACTOR;
+    private double frontLeftPower, frontRightPower, backLeftPower, backRightPower;
+    public void veraTranslateSticksDroneFlightControls(double pitch, double yaw,
+                                                       double roll, double thrust) {
+        frontLeftPower = (pitch + yaw + roll) * TELEOP_POWER_FACTOR;
+        frontRightPower = (pitch - yaw - roll) * TELEOP_POWER_FACTOR;
+        backLeftPower = (pitch + yaw - roll) * TELEOP_POWER_FACTOR;
+        backRightPower = (pitch - yaw + roll) * TELEOP_POWER_FACTOR;
 
         if (thrust < DRONE_CONTROLS_SLOW_THRESH) { // Incorporate Thrust (slow down)
-            fl *= DRONE_CONTROLS_SLOW_FACTOR;
-            fr *= DRONE_CONTROLS_SLOW_FACTOR;
-            bl *= DRONE_CONTROLS_SLOW_FACTOR;
-            br *= DRONE_CONTROLS_SLOW_FACTOR;
+            frontLeftPower *= DRONE_CONTROLS_SLOW_FACTOR;
+            frontRightPower *= DRONE_CONTROLS_SLOW_FACTOR;
+            backLeftPower *= DRONE_CONTROLS_SLOW_FACTOR;
+            backRightPower *= DRONE_CONTROLS_SLOW_FACTOR;
         }
-        motorFL.setPower(fl);
-        motorFR.setPower(fr);
-        motorBL.setPower(bl);
-        motorBR.setPower(br);
+    }
+
+    public void veraUpdateTeleOp() {
+        motorFL.setPower(frontLeftPower);
+        motorFR.setPower(frontRightPower);
+        motorBL.setPower(backLeftPower);
+        motorBR.setPower(backRightPower);
+
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

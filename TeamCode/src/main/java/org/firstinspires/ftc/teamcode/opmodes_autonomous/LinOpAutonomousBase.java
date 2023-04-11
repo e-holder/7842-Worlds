@@ -85,6 +85,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+//        m_vera.startTimer();  // TODO: May need this on roadrunner auto routes to debug.
 
         // Run until time runs out, the driver presses STOP.
         while (opModeIsActive()) {

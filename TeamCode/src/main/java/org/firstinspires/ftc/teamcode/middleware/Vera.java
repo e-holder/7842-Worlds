@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.middleware;
 import android.os.Environment;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.HwIntake;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Timer;
 
 // Search for "EACH SUBSYSTEM" to see how to add a subsystem.
 
@@ -26,10 +28,12 @@ public class Vera implements CONSTANTS {
     private final String ALLIANCE_PATH;
     private String CSV_LOG_PATH;
     private HwVera m_hwVera = new HwVera();
+    private StringBuilder m_timerLog = new StringBuilder();
     private StringBuilder m_csvLogString = new StringBuilder();
     private boolean m_isAutonomous = false;
     private int m_loopCount = 0;
     private Alliance m_alliance;
+    private ElapsedTime m_timer = new ElapsedTime();
 
     // Note: This is not ideal practice. The subsystem and alliance member data really should not
     // be public and should follow the "m_***" naming convention.
@@ -140,6 +144,10 @@ public class Vera implements CONSTANTS {
         }
     }
 
+    public void startTimer() {
+        m_timer.reset();
+    }
+
     public void getInputs(boolean isAutonomous) {
         m_loopCount++;
         // The getInputs function must be the first function called in the main loop of TeleOp
@@ -150,11 +158,28 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM will get its inputs here.
         if (!isVisionTestMode) {
             intake.getInputs();
+            logTime(2, "intake");
             lift.getInputs();
+            logTime(2, "lift");
         }
         if (isAutonomous || isVisionTestMode) {
             vision.getInputs();
+            logTime(2, "vision");
         }
+        // EACH SUBSYSTEM (end)
+    }
+
+    public void commandVera() {
+        // EACH SUBSYSTEM will process robot commands here.
+        if (!isVisionTestMode) {
+            drivetrain.veraUpdateTeleOp();
+            logTime(2, "drivetrain");
+            intake.update();
+            logTime(2, "intake");
+            lift.update();
+            logTime(2, "lift");
+        }
+        // Vision is omitted since its pipelines run in another thread,
         // EACH SUBSYSTEM (end)
     }
 
@@ -171,23 +196,30 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    public void commandVera() {
-        // EACH SUBSYSTEM will process robot commands here.
-        if (!isVisionTestMode) {
-            drivetrain.update();
-            intake.update();
-            lift.update();
-        }
-        // Vision is omitted since its pipelines run in another thread,
-        // EACH SUBSYSTEM (end)
+    private double m_priorMilliseconds = 0;
+    public void logMainLoopTime() {
+        double ms = m_timer.milliseconds();
+        m_timerLog.append((int)(ms - m_priorMilliseconds))
+                .append(" Loop ")
+                .append(m_loopCount).append("\n");
+        m_priorMilliseconds = ms;
+    }
+
+    public void logTime(int level, String label) {
+        m_timerLog.append(new String(new char[level*2]).replace('\0', ' '))
+                .append((int)(m_timer.milliseconds() - m_priorMilliseconds)).append("  ")
+                .append(label).append("\n");
     }
 
     public void logCsvString(String record) {
-        m_csvLogString.append(record).append("\n");
+        m_csvLogString.append(record)
+                .append("\n");
     }
 
     public void writeCsvLogData() {
-        logCsvString("Loop Count: " + m_loopCount);
+        if (m_timerLog.length() > 0) {
+            logCsvString(m_timerLog.toString());
+        }
 
         // Include subsystem logging.
         // EACH SUBSYSTEM needs to add its log data (if any) here.

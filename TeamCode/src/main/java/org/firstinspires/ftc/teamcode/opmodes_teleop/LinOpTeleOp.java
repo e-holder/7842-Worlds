@@ -28,6 +28,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_2Y_AlreadyPressed = false;
 
     private Gamepad.RumbleEffect m_doubleRumble;
+    private boolean m_runGamepad1Rumble = false;
+    private boolean m_runGamepad1DoubleRumble = false;
 
     private void initializeVera() {
         telemetry.addData("Status", "Initializing...");
@@ -56,7 +58,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private void getInputsFromSticksAndTriggers() {
         // Read gamepad1 sticks and pass commands to the drivetrainOld. Translates (mixes) Pitch,
         // Yaw, Roll, & Thrust commands from gamepad Sticks into Motor inputs.
-        m_vera.drivetrain.translateSticksDroneFlightControls(
+        m_vera.drivetrain.veraTranslateSticksDroneFlightControls(
                 -gamepad1.right_stick_y,
                 gamepad1.left_stick_x,
                 gamepad1.right_stick_x,
@@ -76,9 +78,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.intake.moveToIntakeConePos(1);
         } else if (gamepad1.b && !m_1B_AlreadyPressed) {
             if (m_vera.intake.toggleLowJunctionMode()) {
-                gamepad1.runRumbleEffect(m_doubleRumble);
+                m_runGamepad1DoubleRumble = true;
             } else {
-                gamepad1.rumble(300);
+                m_runGamepad1Rumble = true;
             }
         } else if (gamepad1.a && !m_1A_AlreadyPressed) {
             m_vera.intake.moveToIntakeConePos(5);
@@ -136,21 +138,33 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
     private void getInputs() {
         // getInputs MUST be the first thing called in this function.
+        m_vera.logMainLoopTime();
         m_vera.getInputs(false);
         getInputsFromSticksAndTriggers();
         getCommandsFromButtons();
+        m_vera.logTime(1, "getInputs");
     }
 
     private void commandVera() {
         m_vera.commandVera();
+        m_vera.logTime(1, "commandVera");
     }
 
     private void reportData() {
+        if (m_runGamepad1Rumble) {
+            gamepad1.rumble(300);
+            m_runGamepad1Rumble = false;
+        }
+        if (m_runGamepad1DoubleRumble) {
+            gamepad1.runRumbleEffect(m_doubleRumble);
+            m_runGamepad1DoubleRumble = false;
+        }
         if (m_vera.lift.hasMiddlemanReceivedCone()) {
             gamepad2.runRumbleEffect(m_doubleRumble);
         }
         m_vera.reportData(telemetry);
         telemetry.update();
+        m_vera.logTime(1, "reportData");
     }
 
     private void stopVera() {
@@ -164,6 +178,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        m_vera.startTimer();
 
         // Run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
