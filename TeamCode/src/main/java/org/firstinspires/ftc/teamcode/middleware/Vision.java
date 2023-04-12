@@ -136,7 +136,7 @@ public class Vision implements CONSTANTS {
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
 
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
-    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 64;
     private final int MIN_MID_POLE_WIDTH_PIX = 10;
 
     // Constants to control how much heading change to score cones based on pole detection.
@@ -269,6 +269,7 @@ public class Vision implements CONSTANTS {
 
     public void findPoleEnable(boolean isEnabled) {
         m_isFindPoleEnabled = isEnabled;
+//        logCsvString("Vision, isFindPoleEnabled, " + m_isFindPoleEnabled);
         if (!m_isFindPoleEnabled) {
             m_isPoleDetected = false;
         }

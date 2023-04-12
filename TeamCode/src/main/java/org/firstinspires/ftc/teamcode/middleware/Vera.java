@@ -65,6 +65,7 @@ public class Vera implements CONSTANTS {
         Vera.isVisionTestMode = visionTestMode;
 
         PhotonCore.enable();
+        PhotonCore.experimental.setMaximumParallelCommands(7);
         m_hwVera.init(hwMap, true);
 
         // Setup CSV file logging variables
@@ -165,7 +166,7 @@ public class Vera implements CONSTANTS {
     public void commandVera() {
         // EACH SUBSYSTEM will process robot commands here.
         if (!isVisionTestMode) {
-            drivetrain.veraUpdateTeleOp();
+            if(!isAutonomous()) { drivetrain.veraUpdateTeleOp(); }
             drivetrain.update();
             intake.update();
             lift.update();

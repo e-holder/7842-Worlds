@@ -37,12 +37,12 @@ public class Lift implements CONSTANTS {
 
     private final double LIFT_AT_JUNCTION_TOL_IN = 0.6;
 
-    private final int CLAW_GRABBING_COUNT_MAX = 30;
-    private final int CLAW_OPENING_COUNT_MAX = 30;
+    private final int CLAW_GRABBING_COUNT_MAX = 90;
+    private final int CLAW_OPENING_COUNT_MAX = 90;
 
     private final int DELAY_FOR_GRAB = 12;
-    private final int DELAY_FOR_MOVE_TO_BOTTOM = 10;
-    private final int MOVE_TO_POLE_COUNT_MAX = 150;
+    private final int DELAY_FOR_MOVE_TO_BOTTOM = 30;
+    private final int MOVE_TO_POLE_COUNT_MAX = 450;
 
     private final double CLAW_CLOSED = 0.2;
     private final double CLAW_OPEN = 0.67;
@@ -397,7 +397,7 @@ public class Lift implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-        if (false) {
+        if (true) {
             logCsvString("lift" +
                     ", isLimit, " + m_isLimitPressed +
                     ", amp, " + df3.format(m_liftMotorCurrent_amp) +
@@ -407,12 +407,12 @@ public class Lift implements CONSTANTS {
 //                    ", posTick, " + m_liftPos_tick +
                     ", tgtSpeed, " + m_liftTargetSpeed +
 //                    ", tgtDelta, " + df3.format(m_liftTargetDelta_in) +
-//                    ", placeCmd, " + m_placeConeCommand +
+                    ", placeCmd, " + m_placeConeCommand +
 //                    ", isBusy, " + m_isLiftBusy +
                     ", isClawClosed, " + m_isClawClosed +
                     ", distSens, " + m_middlemanSensorDist_in +
                     ", grabDelay, " + m_delayForGrabCounter +
-//                    ", grabCount, " + m_clawGrabbingCounter +
+                    ", grabCount, " + m_clawGrabbingCounter +
                     ", openCount, " + m_clawOpeningCounter +
 //                    ", downDelay, " + m_delayForMoveToBottom +
 //                    ", poleCount, " + m_moveToPoleCounter +

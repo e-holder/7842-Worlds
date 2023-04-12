@@ -13,8 +13,6 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
-    private TaskFindPole.TaskState m_taskState;
-
     protected void initializeRoute() {
         setupAlliance(Alliance.BLUE, FieldSide.LEFT);
     }
@@ -44,8 +42,17 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         if (isStopRequested()) return;
 
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-24.0,2.0, Math.toRadians(-80.0)))
-                .lineToSplineHeading(new Pose2d(-43.5,-4.5, Math.toRadians(-114.0)))
+                //.lineToLinearHeading(new Pose2d(-24.0,2.0, Math.toRadians(-80.0)))
+                .lineToSplineHeading(new Pose2d(-47.5,-4.5, Math.toRadians(-120.0)))
+                .addTemporalMarker(2.25, () -> {m_vera.drivetrain.findMidPole();})
+                .addTemporalMarker(2.25, () -> {m_vera.lift.moveLiftToMidPole();})
+                .waitSeconds(2.5)
+                .addTemporalMarker(3.75, () -> {m_vera.lift.dropCone();})
+                .addTemporalMarker(3.75, () -> {m_vera.drivetrain.stopFindingPole();})
+                .addTemporalMarker(3.75, () -> {m_vera.intake.moveToIntakeConePos(5);})
+                .lineToSplineHeading(new Pose2d(-49.25, -10, Math.toRadians(-90.0)))
+                .lineToSplineHeading(new Pose2d(-49.25, -17.5, Math.toRadians(-90.0)))
+                .addTemporalMarker(4.5, () -> {m_vera.lift.moveLiftToBottom();})
                 .build();
 
 

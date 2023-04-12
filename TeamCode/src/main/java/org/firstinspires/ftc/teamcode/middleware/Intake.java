@@ -37,7 +37,7 @@ public class Intake implements CONSTANTS {
         UP_SLOW
     }
 
-    private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 10;
+    private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 30;
 
     // Note: Arm limit (where trigger switch resets) is about -33.0 degrees
     private final double ARM_EJECT_DEG = -30.0;
@@ -45,7 +45,7 @@ public class Intake implements CONSTANTS {
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 71.0;
+    private final double ARM_CONE5_DEG = 75.0;
     private final double ARM_CONE4_DEG = 80.0;
     private final double ARM_CONE3_DEG = 89.0;
     private final double ARM_CONE2_DEG = 97.0;
@@ -69,16 +69,16 @@ public class Intake implements CONSTANTS {
     private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 160.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
 
-    private final double WRIST_POS_STACK_DELTA_DEG = 163.0;
+    private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 165.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 175.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
-    private final int EJECT_CONESTACK_DELAY_COUNT = 3;
-    private final int EJECT_COUNT = 10;
+    private final int EJECT_CONESTACK_DELAY_COUNT = 9;
+    private final int EJECT_COUNT = 20;
 
     //                             LEFT     RIGHT
     // BLUE:         full tape:  360-445   372-480
@@ -618,15 +618,15 @@ public class Intake implements CONSTANTS {
 
     public void reportData(Telemetry telemetry) {
 
-        if (false) {
+        if (true) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
-                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
+//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
                     ", hasCone, " + m_hasCone +
-                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
+//                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
-                    ", armTicks, " + m_armPos_ticks +
+//                    ", armTicks, " + m_armPos_ticks +
                     ", armSpeed, " + m_armTargetSpeed +
                     ", armBusy, " + m_isArmBusy +
                     ", cmdDelta, " + df3.format(m_armDelta_deg) +
