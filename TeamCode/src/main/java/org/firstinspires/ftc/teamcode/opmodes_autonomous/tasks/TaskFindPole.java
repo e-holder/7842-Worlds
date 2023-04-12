@@ -79,7 +79,6 @@ public class TaskFindPole implements CONSTANTS {
                 m_startFrameCount = m_frameCount;
                 m_priorFrameCount = m_frameCount - 1;
                 m_startLoopCount = m_vera.getLoopCount();
-                m_detections = D_NONE;
                 m_vera.vision.findPoleEnable(true);
                 m_state = TaskState.FINDING_POLE;
                 break;
@@ -87,37 +86,16 @@ public class TaskFindPole implements CONSTANTS {
                 m_frameCount = m_vera.vision.getFindPoleFrameCount();
                 if (m_frameCount > m_priorFrameCount) {
                     m_priorFrameCount = m_frameCount;
-                    m_detections = m_vera.vision.getDetections();
-                    if (m_detections == D_NONE) {
-                        // Comment this line out if not debugging.
-//                        m_vera.vision.logFindPoleData("Finding", 0.0);
-                    } else {
-                        // TODO: This could be pickier, by trying to get D_ABC for a while, then
-                        //  trying for D_AB, D_AC, or D_BC for a while, then settling for
-                        //  D_A, D_B, or D_C.
-                        m_deltaToPole_deg = m_vera.vision.getDeltaToPole_deg();
-                        m_distToScore_in = m_vera.vision.getDistToScore_in();
-                        m_vera.vision.findPoleEnable(false);
-                        if (m_frameCount != m_lastLoggedFrameCount) {
-                            double loopsPerFrame =
-                                    (double)(m_vera.getLoopCount() - m_startLoopCount) /
-                                    Math.max(1.0, (m_frameCount - m_lastLoggedFrameCount));
-                            m_vera.vision.logFindPoleData("Detected", loopsPerFrame);
-                            m_lastLoggedFrameCount = m_frameCount;
-                        }
-                        m_state = TaskState.IDLE;
-                    }
-                }
-                if ((m_frameCount - m_startFrameCount) > MAX_DETECTION_ATTEMPTS) {
-                    // Attempts failed. The "answers" in vision should contain the default values,
-                    // so grab those, which means we are assuming the pole is exactly where it
-                    // should be.
                     m_deltaToPole_deg = m_vera.vision.getDeltaToPole_deg();
                     m_distToScore_in = m_vera.vision.getDistToScore_in();
-                    m_vera.vision.logFindPoleData("Failed",
-                            (double)(m_vera.getLoopCount() - m_startLoopCount) /
-                                    (double)(m_frameCount - m_startFrameCount));
                     m_vera.vision.findPoleEnable(false);
+//                    if (m_frameCount != m_lastLoggedFrameCount) {
+//                        double loopsPerFrame =
+//                                (double) (m_vera.getLoopCount() - m_startLoopCount) /
+//                                        Math.max(1.0, (m_frameCount - m_lastLoggedFrameCount));
+//                        m_vera.vision.logFindPoleData("Detected", loopsPerFrame);
+//                        m_lastLoggedFrameCount = m_frameCount;
+//                    }
                     m_state = TaskState.IDLE;
                 }
                 break;
