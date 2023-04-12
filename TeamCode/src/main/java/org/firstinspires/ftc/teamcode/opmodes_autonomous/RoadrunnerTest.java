@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes_autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
@@ -44,10 +45,11 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         //Positions
-        Pose2d IntakePos = new Pose2d(-50.5, -18.5, Math.toRadians(-90.0));
+        //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
+        Pose2d IntakePos = new Pose2d(-49, -20.5, Math.toRadians(-90.0));
         Pose2d ScorePos = new Pose2d(-50, -4, Math.toRadians(-135.0));
         TrajectoryVelocityConstraint ScoringVelo = m_vera.drivetrain.getVelocityConstraint(32, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
-        TrajectoryVelocityConstraint IntakeVelo = m_vera.drivetrain.getVelocityConstraint(18, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryVelocityConstraint IntakeVelo = m_vera.drivetrain.getVelocityConstraint(22, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint ConstAccel = m_vera.drivetrain.getAccelerationConstraint(DriveConstants.MAX_ACCEL);
 
         //Scoring Trajectory
@@ -57,10 +59,10 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         //Wait Trajectory
         TrajectorySequence WaitForDrop = m_vera.drivetrain.trajectorySequenceBuilder(ScorePos).waitSeconds(1.5).build();
         TrajectorySequence WaitForDown = m_vera.drivetrain.trajectorySequenceBuilder(ScorePos).waitSeconds(0.5).build();
-        TrajectorySequence WaitForIntake = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).waitSeconds(0.33).build();
+        TrajectorySequence WaitForIntake = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).waitSeconds(1.2).build();
 
         //Intake Trajectories
-        Trajectory IntakeTraj = m_vera.drivetrain.trajectoryBuilder(ScorePos).lineToSplineHeading(IntakePos, IntakeVelo, ConstAccel).build();
+        Trajectory IntakeTraj = m_vera.drivetrain.trajectoryBuilder(ScorePos).lineToLinearHeading(IntakePos).build();
 
         //Parking Trajectories
 
@@ -72,6 +74,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(PreloadTraj);
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
@@ -85,6 +88,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
