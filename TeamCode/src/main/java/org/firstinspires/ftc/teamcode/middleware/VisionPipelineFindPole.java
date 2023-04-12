@@ -47,8 +47,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final Telemetry m_telemetry;
 
     private final Mat m_matYCrCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
-    private final Mat m_matOutputCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
-    private final Mat m_matThreshCb = new Mat(BOX_HEIGHT, BOX_WIDTH, CvType.CV_8UC1);
+    private final Mat m_matCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
+    private final Mat m_matWithinThresh = new Mat(BOX_HEIGHT, BOX_WIDTH, CvType.CV_8UC1);
+    private final Mat m_matOutput = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
 
     // Volatile since accessed by OpMode thread w/o synchronization.
     private final AtomicInteger m_frameCount = new AtomicInteger(0);
@@ -57,6 +58,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final AtomicInteger m_minPoleWidth_pix = new AtomicInteger(9999);
     private final AtomicInteger m_maxPoleWidth_pix = new AtomicInteger(9999);
 
+    private Rect m_detectRectangle;
+    private double m_poleRow_pix;
+    private int m_outputSelect = 0;
     private volatile boolean m_isFrameBlack = false;
 
     private final StringBuilder m_csvLogString = new StringBuilder();
@@ -83,6 +87,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         m_maxPoleWidth_pix.set(maxPoleWidth_pix);
     }
 
+    public void cycleOutputSelect() {
+    }
+
     public int getPoleCol_pix() {
         return m_poleCol_pix.get();
     }
@@ -99,6 +106,16 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     }
 
     @Override
+    public void onViewportTapped() {
+        super.onViewportTapped();
+        // TODO: This doesn't seem to be working.
+        m_outputSelect++;
+        if (m_outputSelect >= 3) {
+            m_outputSelect = 0;
+        }
+    }
+
+    @Override
     public void init(Mat firstFrame) {
         // Nothing to do here.
     }
@@ -106,9 +123,6 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     @Override
     public Mat processFrame(Mat matInput) {
 
-        // We will search for the pole in three separate rows of the image. ROW_A will be the lower
-        // edge of the image, ROW_B will be the middle of the image, and ROW_C will be the upper edge
-        // of the image.
         final int BLUR_SIZE = 21;   // Blur window size. Must be an odd number.
 
         // Simulate input image from a static file.
@@ -129,10 +143,10 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // component); Channel 2 is Cb (blue-difference [blue to yellow] chroma component).
         // In the Cb component, the yellow pole will appear darker than everything else we
         // expect to see in the frame.
-        Core.extractChannel(m_matYCrCb, m_matOutputCb, 2);
+        Core.extractChannel(m_matYCrCb, m_matCb, 2);
 
         // Extract just the portion of the image we care about.
-        Mat matBox = m_matOutputCb.submat(BOX);
+        Mat matBox = m_matCb.submat(BOX);
 
         // Remove noise from the image data in the sample box using a blur filter. This is so stray
         // dark pixel will not be seen as the pole and stray lighter pixels within the pole are not
@@ -142,15 +156,15 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
         Scalar lowerB = new Scalar(POLE_LIGHT_THRESH);
         Scalar upperB = new Scalar(POLE_DARK_THRESH);
-        Core.inRange(matBox, lowerB, upperB, m_matThreshCb);
+        Core.inRange(matBox, lowerB, upperB, m_matWithinThresh);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(m_matThreshCb, contours, hierarchy,
+        Imgproc.findContours(m_matWithinThresh, contours, hierarchy,
                 Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
 
         int rectWidth = 0;
-        Rect rectangle = new Rect();
+        m_detectRectangle = null;
         for (MatOfPoint c : contours) {
             MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
             Rect rect = Imgproc.boundingRect(copy);
@@ -158,22 +172,89 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             int w = rect.width;
             if (w > rectWidth) {
                 rectWidth = w;
-                rectangle = rect;
+                m_detectRectangle = rect;
             }
             c.release();
             copy.release();
         }
 
-        if (rectangle != null &&
-                rectWidth > m_minPoleWidth_pix.get() &&
-                rectWidth < m_maxPoleWidth_pix.get()) {
-            m_poleCol_pix.set(rectangle.x);
+        if (m_detectRectangle != null &&
+                m_detectRectangle.width > m_minPoleWidth_pix.get() &&
+                m_detectRectangle.width < m_maxPoleWidth_pix.get()) {
+            m_poleWidth_pix.set(m_detectRectangle.width);
+            m_poleCol_pix.set(m_detectRectangle.x + (m_detectRectangle.width / 2));
+            m_poleRow_pix = m_detectRectangle.y + (m_detectRectangle.height / 2);
         } else {
+            m_poleWidth_pix.set(-1);
             m_poleCol_pix.set(-1);
+            m_poleRow_pix = -1;
         }
-        m_poleWidth_pix.set(rectWidth);
         m_frameCount.incrementAndGet(); // Ignore return value from "Get".
 
-        return m_matThreshCb;
+        Mat output;
+        if (Vera.isVisionTestMode) {
+            switch (2) {  // TODO: use m_outputSelect if onViewportTap is fixed
+                case 0:
+                    output = drawDetectionAnnotations(matInput, false);
+                    break;
+                case 1:
+                    output = drawDetectionAnnotations(m_matCb, false);
+                    break;
+                case 2:
+                default:
+                    m_matCb.copyTo(m_matOutput);
+                    m_matWithinThresh.copyTo(m_matOutput.submat(BOX));
+                    output = drawDetectionAnnotations(m_matOutput, true);
+                    break;
+            }
+        } else {
+            // TODO: Put in a full size output frame with color annotations.
+            output = m_matWithinThresh;
+        }
+        return output;
+    }
+
+    private final Scalar WHITE = new Scalar(255, 255, 255);
+    private final Scalar RED = new Scalar(255, 0, 0);
+    private final Scalar GRAY = new Scalar(128, 0, 0);
+
+    private Mat drawDetectionAnnotations(Mat srcMat, boolean isGrayScale) {
+        Scalar color = (isGrayScale ? GRAY : WHITE);
+        Imgproc.rectangle(
+                srcMat, // Buffer to draw on
+                BOX_TOP_LEFT, // First point which defines the rectangle
+                BOX_BOTTOM_RIGHT, // Second point which defines the rectangle
+                color, // The color the rectangle is drawn in
+                1);
+
+        // Draw the nominal high pole position and width.
+        Point point1 = new Point(BOX_LEFT +
+                Vision.NOMINAL_HIGH_POLE_CENTER_PIX - Vision.NOMINAL_HIGH_POLE_WIDTH_PIX / 2.0,
+                15);
+        Point point2 = new Point(BOX_LEFT +
+                Vision.NOMINAL_HIGH_POLE_CENTER_PIX + Vision.NOMINAL_HIGH_POLE_WIDTH_PIX / 2.0,
+                15);
+        Imgproc.line(srcMat, point1, point2, color, 2);
+
+        // Draw the nominal mid pole position and width.
+        point1 = new Point(BOX_LEFT +
+                Vision.NOMINAL_MID_POLE_CENTER_PIX - Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,25);
+        point2 = new Point(BOX_LEFT +
+                Vision.NOMINAL_MID_POLE_CENTER_PIX + Vision.NOMINAL_MID_POLE_WIDTH_PIX / 2.0,25);
+        Imgproc.line(srcMat, point1, point2, color, 2);
+
+        // Draw the pole "detection line"
+        color = (isGrayScale ? GRAY : WHITE);
+        if (m_poleRow_pix >= 0) {
+            point1 = new Point(BOX_LEFT + m_poleCol_pix.get() - (m_poleWidth_pix.get() / 2),
+                    m_poleRow_pix);
+            point2 = new Point(BOX_LEFT + m_poleCol_pix.get() + (m_poleWidth_pix.get() / 2),
+                    m_poleRow_pix);
+            Imgproc.line(srcMat, point1, point2, color, 10);
+        }
+
+
+        return srcMat;
     }
 }
+

@@ -39,6 +39,7 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
             m_vera.vision.calSmallStepUp();
         } else if (gamepad1.dpad_left && !m_1DpadLeft_AlreadyPressed) {
             m_vera.vision.calSmallStepDown();
+
         }
         m_1DpadUp_AlreadyPressed = gamepad1.dpad_up;
         m_1DpadDown_AlreadyPressed = gamepad1.dpad_down;
@@ -62,6 +63,7 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
     }
 
     private void initializeFindPoleTask(PoleType poleType) {
+        m_taskFindPole.setInitializationPoleType(poleType);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();

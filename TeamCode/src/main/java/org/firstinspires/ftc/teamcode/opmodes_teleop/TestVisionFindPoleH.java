@@ -63,6 +63,7 @@ public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
     }
 
     private void initializeFindPoleTask(PoleType poleType) {
+        m_taskFindPole.setInitializationPoleType(poleType);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();

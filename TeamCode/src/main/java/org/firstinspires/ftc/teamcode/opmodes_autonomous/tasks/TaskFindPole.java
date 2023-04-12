@@ -27,6 +27,10 @@ public class TaskFindPole implements CONSTANTS {
         m_state = TaskState.INIT;
     }
 
+    public void setInitializationPoleType(PoleType poleType) {
+        m_vera.vision.setPoleType(poleType);
+    }
+
     public void startFindingPole(PoleType poleType) {
         m_vera.vision.setPoleType(poleType);
         if (m_state != TaskState.FIND_POLE && m_state != TaskState.FINDING_POLE) {

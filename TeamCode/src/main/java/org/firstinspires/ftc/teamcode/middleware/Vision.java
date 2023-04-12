@@ -122,21 +122,21 @@ public class Vision implements CONSTANTS {
     // Camera would ideally be about 19 inches from High poles
     // Camera will be about 4 inches above the floor and about 45 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
-    private final int NOMINAL_HIGH_POLE_CENTER_PIX =
+    public static final int NOMINAL_HIGH_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 62;
 
     private final int MAX_HIGH_POLE_WIDTH_PIX = 120;
-    private final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
+    public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
     private final int MIN_HIGH_POLE_WIDTH_PIX = 10;
 
     // Camera would ideally be about 10 inches from Mid poles
     // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
-    private final int NOMINAL_MID_POLE_CENTER_PIX =
+    public static final int NOMINAL_MID_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
 
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
-    private final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
     private final int MIN_MID_POLE_WIDTH_PIX = 10;
 
     // Constants to control how much heading change to score cones based on pole detection.
