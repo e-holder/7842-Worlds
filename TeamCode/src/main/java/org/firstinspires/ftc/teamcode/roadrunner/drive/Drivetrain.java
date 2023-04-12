@@ -30,7 +30,9 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
+import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -56,7 +58,12 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-public class Drivetrain extends MecanumDrive {
+public class Drivetrain extends MecanumDrive implements CONSTANTS {
+    public enum PoleFindingState {
+        HIGH,
+        MID,
+        IDLE
+    }
 
     // Adjustment constants for low-thrust control in drone mode.
     private static final double DRONE_CONTROLS_SLOW_THRESH = -0.5;
@@ -100,6 +107,8 @@ public class Drivetrain extends MecanumDrive {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         m_vera = vera;
+
+        m_taskFindPole = new TaskFindPole(m_vera);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
@@ -177,11 +186,18 @@ public class Drivetrain extends MecanumDrive {
     }
 
     public void veraUpdateTeleOp() {
-        motorFL.setPower(frontLeftPower);
-        motorFR.setPower(frontRightPower);
-        motorBL.setPower(backLeftPower);
-        motorBR.setPower(backRightPower);
-
+        if(!isFindingPole()) {
+            motorFL.setPower(frontLeftPower);
+            motorFR.setPower(frontRightPower);
+            motorBL.setPower(backLeftPower);
+            motorBR.setPower(backRightPower);
+        } else {
+            findVisionPowers();
+            motorFL.setPower(frontLeftPower);
+            motorFR.setPower(frontRightPower);
+            motorBL.setPower(backLeftPower);
+            motorBR.setPower(backRightPower);
+        }
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -245,6 +261,7 @@ public class Drivetrain extends MecanumDrive {
 
     public void update() {
         updatePoseEstimate();
+        m_taskFindPole.update();
         DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
         if (signal != null) setDriveSignal(signal);
     }
@@ -330,10 +347,18 @@ public class Drivetrain extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        motorFL.setPower(v);
-        motorBL.setPower(v1);
-        motorBR.setPower(v2);
-        motorFR.setPower(v3);
+        if(!isFindingPole()) {
+            motorFL.setPower(v);
+            motorBL.setPower(v1);
+            motorBR.setPower(v2);
+            motorFR.setPower(v3);
+        } else {
+            findVisionPowers();
+            motorFL.setPower(frontLeftPower);
+            motorFR.setPower(frontRightPower);
+            motorBL.setPower(backLeftPower);
+            motorBR.setPower(backRightPower);
+        }
     }
 
     @Override
@@ -363,4 +388,37 @@ public class Drivetrain extends MecanumDrive {
 //            logCsvString("remDist, " + df3.format(m_remainingDist_in));
 //        }
     }
+
+
+    // POLEFINDING METHODS
+    private final TaskFindPole m_taskFindPole;
+
+    private void initializeFindPoleTask(PoleType poleType) {
+        m_taskFindPole.startFindingPole(poleType);
+    }
+
+    public void findHighPole() { initializeFindPoleTask(PoleType.HIGH); }
+    public void findMidPole() { initializeFindPoleTask(PoleType.MID); }
+    public void stopFindingPole() { m_taskFindPole.stopFindingPole(); }
+    public boolean isFindingPole() { return m_taskFindPole.isFindingPole(); }
+
+    private final double VISION_DISTANCE_KP = -0.2;
+    private final double VISION_TURN_KP = -0.1;
+    public void findVisionPowers() {
+        m_vera.logCsvString("FindVisionPowers hasDet = " + m_taskFindPole.hasPoleDetection());
+        if(m_taskFindPole.hasPoleDetection()) {
+            double pitch = VISION_DISTANCE_KP * m_taskFindPole.getDistToScore_in();
+            double yaw = VISION_TURN_KP * m_taskFindPole.getOffsetToPole_deg();
+            frontLeftPower = (pitch + yaw) * TELEOP_POWER_FACTOR;
+            frontRightPower = (pitch - yaw) * TELEOP_POWER_FACTOR;
+            backLeftPower = (pitch + yaw) * TELEOP_POWER_FACTOR;
+            backRightPower = (pitch - yaw) * TELEOP_POWER_FACTOR;
+        } else {
+            frontLeftPower = 0;
+            frontRightPower = 0;
+            backLeftPower = 0;
+            backRightPower = 0;
+        }
+    }
+
 }

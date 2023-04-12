@@ -133,7 +133,7 @@ public class Vision implements CONSTANTS {
     public static final int NOMINAL_MID_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
-    private final int MIN_MID_POLE_WIDTH_PIX = 46;
+    private final int MIN_MID_POLE_WIDTH_PIX = 34;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;
@@ -147,8 +147,8 @@ public class Vision implements CONSTANTS {
     // Constants to control distance to score cones in autonomous based on pole width detection.
     private final double DEFAULT_SCORE_HIGH_DIST_IN = 4.0;
     private final double DEFAULT_SCORE_MID_DIST_IN = 3.0;
-    private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
-    private final double MAX_SCORE_MID_ADJUST_IN = 4.0;
+    private final double MAX_SCORE_DIST_HIGH_IN = 8.0;
+    private final double MAX_SCORE_DIST_MID_IN = 5.0;
     private final double HIGH_WIDTH_PIX_TO_DIST_IN = -1.001;
     private final double MID_WIDTH_PIX_TO_DIST_IN = -0.25;
 
@@ -161,8 +161,8 @@ public class Vision implements CONSTANTS {
     private final int OUTLIER_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
 
     // Ignore pole detection if it is far wider than expected.
-    private final int SUPER_WIDE_HIGH_PIX = NOMINAL_HIGH_POLE_WIDTH_PIX * 3;
-    private final int SUPER_WIDE_MID_PIX = NOMINAL_MID_POLE_WIDTH_PIX * 2;
+    private final int SUPER_WIDE_HIGH_PIX = 50;
+    private final int SUPER_WIDE_MID_PIX = 75;
 
     private PoleType m_poleType = PoleType.UNINITIALIZED;
     private final VisionPipelineFindPole m_findPolePipeline;
@@ -315,25 +315,23 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeOneDetectionDistToScore_in(int detection, int deltaWidthPix) {
-        double defaultDist_in = (m_poleType == PoleType.HIGH ?
-                DEFAULT_SCORE_HIGH_DIST_IN : DEFAULT_SCORE_MID_DIST_IN);
-        double distAdjust_in;
+        double distToScore_in;
         if (m_poleType == PoleType.HIGH) {
             switch (detection) {  // If using a higher detection, account for width delta.
                 case D_B: deltaWidthPix += 1; break;
                 case D_C: deltaWidthPix += 2; break;
             }
-            distAdjust_in = Math.max(-2.0, deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN);
-            distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_HIGH_ADJUST_IN);
+            distToScore_in = deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN;
+            distToScore_in = Math.min(distToScore_in, MAX_SCORE_DIST_HIGH_IN);
         } else {
             switch (detection) {  // If using a higher detection, account for width delta.
                 case D_B: deltaWidthPix += 3; break;
                 case D_C: deltaWidthPix += 7; break;
             }
-            distAdjust_in = Math.max(-2.0, deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN);
-            distAdjust_in = Math.min(distAdjust_in, MAX_SCORE_MID_ADJUST_IN);
+            distToScore_in = deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN;
+            distToScore_in = Math.min(distToScore_in, MAX_SCORE_DIST_MID_IN);
         }
-        return defaultDist_in + distAdjust_in;
+        return distToScore_in;
     }
 
     private double computeTwoDetectionDeltaToPole_deg(int detectionsUsed) {
@@ -550,7 +548,7 @@ public class Vision implements CONSTANTS {
                             " (" + (int)m_signalAvgTop + " / " + (int)m_signalAvgBottom + ")");
         }
 
-        if (Vera.isVisionTestMode && m_isFindPoleStreaming) {
+        if (m_isFindPoleStreaming) {
             telemetry.addData("Pole",
                     "DEG " + df3.format(m_deltaToPole_deg) +
                             ", IN " + df3.format(m_distToScore_in));
@@ -577,29 +575,32 @@ public class Vision implements CONSTANTS {
                     ", frame, " + m_signalFrameCount);
         }
 
+        logFindPoleData("n/a", 0.0);
     }
 
     public void logFindPoleData(String status, double loopsPerFrame) {
-        logCsvString("FindPole" +
-                ", frame, " + m_findPoleFrameCount +
-                ", LPFrame, " + df3.format(loopsPerFrame) +
-                ", status, " + status +
-                ", det, " + m_detections +
-                ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
-                ", toScoreIn, " + df3.format(m_distToScore_in) +
-                ", ACol, " + m_rowACol_pix +
-                ", BCol, " + m_rowBCol_pix +
-                ", CCol, " + m_rowCCol_pix +
-                ", AWidth, " + m_rowAPoleWidth_pix +
-                ", BWidth, " + m_rowBPoleWidth_pix +
-                ", CWidth, " + m_rowCPoleWidth_pix +
-                ", ADelta, " + m_rowADelta_pix +
+        if (true) {
+            logCsvString("FindPole" +
+                    ", frame, " + m_findPoleFrameCount +
+//                ", LPFrame, " + df3.format(loopsPerFrame) +
+//                ", status, " + status +
+                    ", det, " + m_detections +
+                    ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
+                    ", toScoreIn, " + df3.format(m_distToScore_in) +
+                    ", ACol, " + m_rowACol_pix +
+                    ", BCol, " + m_rowBCol_pix +
+                    ", CCol, " + m_rowCCol_pix +
+                    ", AWidth, " + m_rowAPoleWidth_pix +
+                    ", BWidth, " + m_rowBPoleWidth_pix +
+                    ", CWidth, " + m_rowCPoleWidth_pix +
+                    ", ADelta, " + m_rowADelta_pix +
 //                    ", BDelta, " + m_rowBDelta_pix +
 //                    ", CDelta, " + m_rowCDelta_pix +
-                ", ADeltaW, " + m_rowAWidthDelta_pix +
+                    ", ADeltaW, " + m_rowAWidthDelta_pix +
 //                    ", BDeltaW, " + m_rowBWidthDelta_pix +
 //                    ", CDeltaW, " + m_rowCWidthDelta_pix +
-                ", calF, " + df3.format(m_calibrationFactor) +
-                "");
+                    ", calF, " + df3.format(m_calibrationFactor) +
+                    "");
+        }
     }
 }

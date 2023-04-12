@@ -618,7 +618,7 @@ public class Intake implements CONSTANTS {
 
     public void reportData(Telemetry telemetry) {
 
-        if (true) {
+        if (false) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
                     ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +

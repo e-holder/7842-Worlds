@@ -71,8 +71,7 @@ public class Vera implements CONSTANTS {
         String extStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
         if (m_isAutonomous) {
             CSV_LOG_PATH = String.format("%s/CsvLogs/robot-data-a.csv", extStoragePath);
-        }
-        else {
+        } else {
             CSV_LOG_PATH = String.format("%s/CsvLogs/robot-data-t.csv", extStoragePath);
         }
         m_csvLogString.setLength(0);
@@ -87,10 +86,8 @@ public class Vera implements CONSTANTS {
         vision = new Vision(this, telemetry);  // Telemetry needed for pipelines.
         // EACH SUBSYSTEM (end)
 
-        if (m_isAutonomous || isVisionTestMode) {
-            vision.startStreaming(initialPipelineType);
-            logCsvString("Started streaming " + initialPipelineType);
-        }
+        vision.startStreaming(initialPipelineType);
+        logCsvString("Started streaming " + initialPipelineType);
     }
 
     public boolean isAutonomous() {
@@ -98,9 +95,7 @@ public class Vera implements CONSTANTS {
     }
 
     public void stopVera() {
-        if (isAutonomous() || isVisionTestMode) {
-            vision.stopWebcamStreaming();
-        }
+        vision.stopWebcamStreaming();
         writeCsvLogData();
     }
 
@@ -162,9 +157,8 @@ public class Vera implements CONSTANTS {
             intake.getInputs();
             lift.getInputs();
         }
-        if (isAutonomous || isVisionTestMode) {
-            vision.getInputs();
-        }
+        vision.getInputs();
+
         // EACH SUBSYSTEM (end)
     }
 
@@ -172,6 +166,7 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM will process robot commands here.
         if (!isVisionTestMode) {
             drivetrain.veraUpdateTeleOp();
+            drivetrain.update();
             intake.update();
             lift.update();
         }
@@ -185,8 +180,6 @@ public class Vera implements CONSTANTS {
             drivetrain.reportData(telemetry);
             intake.reportData(telemetry);
             lift.reportData(telemetry);
-        }
-        if (isAutonomous() || isVisionTestMode) {
             vision.reportData(telemetry);
         }
         // EACH SUBSYSTEM (end)

@@ -37,7 +37,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         telemetry.update();
 
         m_vera.init(hardwareMap, false, false,
-                VeraPipelineType.SIGNAL, telemetry);
+                VeraPipelineType.FIND_POLE, telemetry);
         m_vera.setAllianceFromPriorAutonomousRun();
 
         m_vera.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -97,6 +97,14 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.intake.setIntakeOverrideSpeed(0.75);
         } else {
             m_vera.intake.setIntakeOverrideSpeed(0.0);
+        }
+
+        if (gamepad1.x) {
+            m_vera.drivetrain.findHighPole();
+        } else if (gamepad1.y) {
+            m_vera.drivetrain.findMidPole();
+        } else {
+            m_vera.drivetrain.stopFindingPole();
         }
 
         m_1DpadUp_AlreadyPressed = gamepad1.dpad_up;
@@ -176,7 +184,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
-
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
