@@ -105,10 +105,13 @@ public class Vision implements CONSTANTS {
                 getSignalPipelineInputs();
             }
         } else if (m_isFindPoleStreaming) {
+            logCsvString("getInputs");
             newFrameCount = m_findPolePipeline.getFrameCount();
             if (m_findPoleFrameCount != newFrameCount) {
                 m_findPoleFrameCount = newFrameCount;
+                logCsvString("newFrame");
                 if (m_isFindPoleEnabled) {
+                    logCsvString("isEnabled");
                     getFindPolePipelineInputs();
                     computeFindPoleNavigation();
                 }
@@ -125,18 +128,19 @@ public class Vision implements CONSTANTS {
     private final int NOMINAL_HIGH_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 62;
 
-    private final int MAX_HIGH_POLE_WIDTH_PIX = 38;
+    private final int MAX_HIGH_POLE_WIDTH_PIX = 120;
     private final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
-    private final int MIN_HIGH_POLE_WIDTH_PIX = 26;
+    private final int MIN_HIGH_POLE_WIDTH_PIX = 10;
 
     // Camera would ideally be about 10 inches from Mid poles
     // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     private final int NOMINAL_MID_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
-    private final int MAX_MID_POLE_WIDTH_PIX = 62;
+
+    private final int MAX_MID_POLE_WIDTH_PIX = 120;
     private final int NOMINAL_MID_POLE_WIDTH_PIX = 54;
-    private final int MIN_MID_POLE_WIDTH_PIX = 46;
+    private final int MIN_MID_POLE_WIDTH_PIX = 10;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;

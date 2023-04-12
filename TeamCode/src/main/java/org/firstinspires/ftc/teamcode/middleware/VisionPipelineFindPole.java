@@ -168,11 +168,11 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                 rectWidth > m_minPoleWidth_pix.get() &&
                 rectWidth < m_maxPoleWidth_pix.get()) {
             m_poleCol_pix.set(rectangle.x);
-            m_poleWidth_pix.set(rectWidth);
         } else {
             m_poleCol_pix.set(-1);
-            m_poleWidth_pix.set(-1);
         }
+        m_poleWidth_pix.set(rectWidth);
+        m_frameCount.incrementAndGet(); // Ignore return value from "Get".
 
         return m_matThreshCb;
     }
