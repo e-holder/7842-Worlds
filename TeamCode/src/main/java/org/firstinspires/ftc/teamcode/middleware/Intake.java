@@ -38,6 +38,7 @@ public class Intake implements CONSTANTS {
     }
 
     private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 30;
+    private final int HOMING_DELAY_COUNT = 10;
 
     // Note: Arm limit (where trigger switch resets) is about -33.0 degrees
     private final double ARM_EJECT_DEG = -30.0;
@@ -45,11 +46,11 @@ public class Intake implements CONSTANTS {
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 75.0;
-    private final double ARM_CONE4_DEG = 80.0;
-    private final double ARM_CONE3_DEG = 89.0;
-    private final double ARM_CONE2_DEG = 97.0;
-    private final double ARM_BEACON_DEG = 100.0;
+    private final double ARM_CONE5_DEG = 82.5; //old 75
+    private final double ARM_CONE4_DEG = 87.5; //old 80
+    private final double ARM_CONE3_DEG = 95.0; //old 89
+    private final double ARM_CONE2_DEG = 90.0; //old 97
+    private final double ARM_BEACON_DEG = 97.5;
     private final double ARM_CONE1_DEG = 116.0;
     private final double ARM_MAX_DEG = 125.0;    // Note: Max physical position is about 112.
 
@@ -65,7 +66,7 @@ public class Intake implements CONSTANTS {
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
     private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
-    private final double WRIST_POS_EJECT_CONE_DEG = 15.0;
+    private final double WRIST_POS_EJECT_CONE_DEG = 5.0;
     private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 160.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
 
@@ -124,6 +125,7 @@ public class Intake implements CONSTANTS {
     private double m_armDriverCmd;
     private int m_autonomousInitDelayCount = DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT;
     private int m_initDelayCounter = 0;
+    private int m_homingDelayCounter = 0;
     private int m_ejectDelayCounter = 0;
     private int m_ejectCounter;
     private int m_targetConeStackLevel;
@@ -500,8 +502,12 @@ public class Intake implements CONSTANTS {
                 break;
             case MOVING_TO_RESET_POS:
                 if (m_isLimitSwitchPressed) {
-                    resetArmMotor();
-                    m_state = IntakeState.MOVE_TO_IDLE_POS;
+                    m_homingDelayCounter++;
+                    if(m_homingDelayCounter > HOMING_DELAY_COUNT) {
+                        m_homingDelayCounter = 0;
+                        resetArmMotor();
+                        m_state = IntakeState.MOVE_TO_IDLE_POS;
+                    }
                 } else if (!m_isArmBusy) {
                     // Earlier move(s) didn't make it all the way. Keep moving toward limit switch.
                     moveToReset();
@@ -632,8 +638,7 @@ public class Intake implements CONSTANTS {
                     ", cmdDelta, " + df3.format(m_armDelta_deg) +
                     ", coneCmd, " + m_intakeConeCommand +
                     ", armCmd," + df3.format(m_armDriverCmd) +
-//                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
-//                    ", wristDeg, " + df3.format(m_wristPos_deg) +
+                    ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
 //                    ", wristPosV, " + df3.format(m_wristServoPos) +
 //                    ", bcnMode, " + m_isBeaconMode +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +

@@ -75,7 +75,7 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6.0, 0, 0.5);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.0, 0.1, 0.3);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 0.1, 0.3);
 
     public static double LATERAL_MULTIPLIER = 1.3275;
 
@@ -267,8 +267,10 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     }
 
     public void waitForIdle() {
-        while (!Thread.currentThread().isInterrupted() && isBusy())
-            update();
+        while (!Thread.currentThread().isInterrupted() && isBusy()) {
+            m_vera.getInputs(true);
+            m_vera.commandVera();
+        }
     }
 
     public boolean isBusy() {
