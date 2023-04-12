@@ -33,16 +33,6 @@ public interface CONSTANTS {
         HIGH
     }
 
-    // Find Pole Detection flag values for image rows A, B, and C.
-    public final int D_ABC = 7;  // 111
-    public final int D_AB = 6;   // 110
-    public final int D_AC = 5;   // 101
-    public final int D_BC = 3;   // 011
-    public final int D_A = 4;    // 100
-    public final int D_B = 2;    // 010
-    public final int D_C = 1;    // 001
-    public final int D_NONE = 0;
-
     // Field constants
     public static final int FIELD_SIZE_TILES = 6;
     public static final int NUM_TILES = FIELD_SIZE_TILES * FIELD_SIZE_TILES;

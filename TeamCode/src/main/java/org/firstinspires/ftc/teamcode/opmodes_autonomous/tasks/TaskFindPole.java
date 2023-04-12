@@ -19,7 +19,7 @@ public class TaskFindPole implements CONSTANTS {
     private TaskState m_state;
     private TaskState m_priorState = TaskState.FIND_POLE; // Anything but INIT
 
-    private int m_detections;            // Bits indicate detections on pole (A B C)
+    private boolean m_isPoleDetected = false;
     private double m_deltaToPole_deg;
     private double m_distToScore_in;
     private int m_startLoopCount;
@@ -50,7 +50,7 @@ public class TaskFindPole implements CONSTANTS {
         return (m_state != TaskState.IDLE);
     }
 
-    public boolean hasPoleDetection() { return m_detections != D_NONE; }
+    public boolean isPoleDetected() { return m_isPoleDetected; }
     public double getOffsetToPole_deg() {
         return m_deltaToPole_deg;
     }
@@ -85,14 +85,13 @@ public class TaskFindPole implements CONSTANTS {
                 }
                 break;
             case IDLE:
-                // Nothing to do but allow the pipeline to run.
+                m_vera.vision.findPoleEnable(false);
                 break;
             case FIND_POLE:
                 m_frameCount = m_vera.vision.getFindPoleFrameCount();
                 m_startFrameCount = m_frameCount;
                 m_priorFrameCount = m_frameCount - 1;
                 m_startLoopCount = m_vera.getLoopCount();
-                m_detections = D_NONE;
                 m_vera.vision.findPoleEnable(true);
                 m_state = TaskState.FINDING_POLE;
                 break;
@@ -100,11 +99,9 @@ public class TaskFindPole implements CONSTANTS {
                 m_frameCount = m_vera.vision.getFindPoleFrameCount();
                 if (m_frameCount > m_priorFrameCount) {
                     m_priorFrameCount = m_frameCount;
-                    m_detections = m_vera.vision.getDetections();
-                    m_vera.logCsvString("TaskFindPole det = " + m_detections);
+                    m_isPoleDetected = m_vera.vision.isPoleDetected();
                     m_deltaToPole_deg = m_vera.vision.getDeltaToPole_deg();
                     m_distToScore_in = m_vera.vision.getDistToScore_in();
-                    m_vera.vision.findPoleEnable(false);
 //                    if (m_frameCount != m_lastLoggedFrameCount) {
 //                        double loopsPerFrame =
 //                                (double) (m_vera.getLoopCount() - m_startLoopCount) /
@@ -112,18 +109,7 @@ public class TaskFindPole implements CONSTANTS {
 //                        m_vera.vision.logFindPoleData("Detected", loopsPerFrame);
 //                        m_lastLoggedFrameCount = m_frameCount;
 //                    }
-//                    if ((m_frameCount - m_startFrameCount) > MAX_DETECTION_ATTEMPTS) {
-//                        // Attempts failed. The "answers" in vision should contain the default values,
-//                        // so grab those, which means we are assuming the pole is exactly where it
-//                        // should be.
-//                        m_deltaToPole_deg = m_vera.vision.getDeltaToPole_deg();
-//                        m_distToScore_in = m_vera.vision.getDistToScore_in();
-//                        m_vera.vision.logFindPoleData("Failed",
-//                                (double) (m_vera.getLoopCount() - m_startLoopCount) /
-//                                        (double) (m_frameCount - m_startFrameCount));
-//                        m_vera.vision.findPoleEnable(false);
-//                        m_state = TaskState.IDLE;
-//                    }
+                    m_state = TaskState.IDLE;
                 }
                 break;
         }

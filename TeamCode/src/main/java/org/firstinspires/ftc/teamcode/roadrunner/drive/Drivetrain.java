@@ -405,8 +405,7 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     private final double VISION_DISTANCE_KP = -0.2;
     private final double VISION_TURN_KP = -0.1;
     public void findVisionPowers() {
-        m_vera.logCsvString("FindVisionPowers hasDet = " + m_taskFindPole.hasPoleDetection());
-        if(m_taskFindPole.hasPoleDetection()) {
+        if(m_taskFindPole.isPoleDetected()) {
             double pitch = VISION_DISTANCE_KP * m_taskFindPole.getDistToScore_in();
             double yaw = VISION_TURN_KP * m_taskFindPole.getOffsetToPole_deg();
             frontLeftPower = (pitch + yaw) * TELEOP_POWER_FACTOR;

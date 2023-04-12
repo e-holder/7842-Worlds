@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 public class RoadrunnerTest extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
-    private final TaskFindPole m_taskFindPole = new TaskFindPole(m_vera);
 
     private TaskFindPole.TaskState m_taskState;
 
@@ -31,47 +30,22 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         return m_taskReadSignal.getParkingZone();
     }
 
-    private void initializeFindPoleTask() {
-        TaskFindPole.TaskState taskState;
-        do {
-            getInputs();
-            taskState = m_taskFindPole.update();
-            commandVera();
-            reportData();
-        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
-    }
-
-    private void blockingFindPole(PoleType poleType) {
-        m_taskFindPole.startFindingPole(poleType);
-        TaskFindPole.TaskState taskState;
-        do {
-            getInputs();
-            taskState = m_taskFindPole.update();
-            commandVera();
-            reportData();
-        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
-    }
-
     @Override
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
         Signal parkingZone = readSignalCone();
-        initializeFindPoleTask();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         waitForStart();
 
-        // TODO: Figure out how to call and wait on: blockingFindPole(PoleType.MID);
-
         if (isStopRequested()) return;
 
         TrajectorySequence master = m_vera.drivetrain.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-24.0,2.0, Math.toRadians(-80.0)))
                 .lineToSplineHeading(new Pose2d(-43.5,-4.5, Math.toRadians(-114.0)))
-                .addDisplacementMarker(() -> { m_taskFindPole.startFindingPole(PoleType.MID); })
                 .build();
 
 
@@ -79,7 +53,6 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         while(!isStopRequested()) {
             getInputs();
-//            m_taskState = m_taskFindPole.update();   // TODO: Not sure we want this.
             commandVera();
             reportData();
         }
