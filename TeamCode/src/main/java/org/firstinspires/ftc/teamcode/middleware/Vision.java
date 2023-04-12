@@ -105,13 +105,10 @@ public class Vision implements CONSTANTS {
                 getSignalPipelineInputs();
             }
         } else if (m_isFindPoleStreaming) {
-            logCsvString("getInputs");
             newFrameCount = m_findPolePipeline.getFrameCount();
             if (m_findPoleFrameCount != newFrameCount) {
                 m_findPoleFrameCount = newFrameCount;
-                logCsvString("newFrame");
                 if (m_isFindPoleEnabled) {
-                    logCsvString("isEnabled");
                     getFindPolePipelineInputs();
                     computeFindPoleNavigation();
                 }
@@ -272,6 +269,9 @@ public class Vision implements CONSTANTS {
 
     public void findPoleEnable(boolean isEnabled) {
         m_isFindPoleEnabled = isEnabled;
+        if (!m_isFindPoleEnabled) {
+            m_isPoleDetected = false;
+        }
     }
 
     //============================================================================================
@@ -343,7 +343,7 @@ public class Vision implements CONSTANTS {
                             " (" + (int)m_signalAvgTop + " / " + (int)m_signalAvgBottom + ")");
         }
 
-        if (m_isFindPoleStreaming) {
+        if (m_isFindPoleEnabled) {
             telemetry.addData("Pole",
                     "DEG " + df3.format(m_deltaToPole_deg) +
                             ", IN " + df3.format(m_distToScore_in));
@@ -359,21 +359,19 @@ public class Vision implements CONSTANTS {
                     ", avgBottom, " + df3.format(m_signalAvgBottom) +
                     ", frame, " + m_signalFrameCount);
         }
-
-        logFindPoleData("n/a", 0.0);
     }
 
-    public void logFindPoleData(String status, double loopsPerFrame) {
+    public void logFindPoleData(double loopsPerFrame) {
         logCsvString("FindPole" +
                 ", frame, " + m_findPoleFrameCount +
-                ", LPFrame, " + df3.format(loopsPerFrame) +
-                ", status, " + status +
+                ", detected, " + m_isPoleDetected +
                 ", deltaDeg, " + df3.format(m_deltaToPole_deg) +
                 ", toScoreIn, " + df3.format(m_distToScore_in) +
                 ", Col, " + m_poleCol_pix +
                 ", Width, " + m_poleWidth_pix +
                 ", Delta, " + m_poleColDelta_pix +
                 ", DeltaW, " + m_widthDelta_pix +
+                ", LoopPerFrm, " + df3.format(loopsPerFrame) +
                 ", calF, " + df3.format(m_calibrationFactor) +
                 "");
     }

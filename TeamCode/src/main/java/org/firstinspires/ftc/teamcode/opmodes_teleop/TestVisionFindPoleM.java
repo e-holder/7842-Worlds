@@ -62,18 +62,6 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
     }
 
     private void initializeFindPoleTask(PoleType poleType) {
-        m_taskFindPole.startFindingPole(poleType);
-        TaskFindPole.TaskState taskState;
-        do {
-            getInputs();
-            taskState = m_taskFindPole.update();
-            commandVera();
-            reportData();
-        } while ((taskState != TaskFindPole.TaskState.IDLE) && !isStopRequested());
-    }
-
-    private void blockingFindPole(PoleType poleType) {
-        m_taskFindPole.startFindingPole(poleType);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();
@@ -91,8 +79,13 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
 
         waitForStart();
 
+        m_taskFindPole.startFindingPole(PoleType.MID);
+
         do {
-            blockingFindPole(PoleType.MID);
+            getInputs();
+            m_taskFindPole.update();  // Ignore return value
+            commandVera();
+            reportData();
         } while (!isStopRequested());
 
         stopVera();

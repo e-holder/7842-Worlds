@@ -180,11 +180,12 @@ public class Vera implements CONSTANTS {
             drivetrain.reportData(telemetry);
             intake.reportData(telemetry);
             lift.reportData(telemetry);
-            vision.reportData(telemetry);
         }
+        vision.reportData(telemetry);
         // EACH SUBSYSTEM (end)
     }
 
+    // KEEP THIS - commented out code that is used to profile main loop time issues.
 //    private double m_priorLoop_ms = 0;
 //    private double m_priorLog_ms = 0;
 //    public void logMainLoopTime() {
@@ -205,8 +206,7 @@ public class Vera implements CONSTANTS {
 //    }
 
     public void logCsvString(String record) {
-        m_csvLogString.append(record)
-                .append("\n");
+        m_csvLogString.append(record).append("\n");
     }
 
     public void writeCsvLogData() {
