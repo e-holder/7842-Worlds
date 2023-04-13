@@ -208,11 +208,18 @@ public class Intake implements CONSTANTS {
             double armTarget_deg = m_armPos_deg;
             if (m_intakeConeCommand != IntakeConeCommand.STOP) {
                 armTarget_deg += m_armDelta_deg;
-                armTarget_deg = Math.min(armTarget_deg, ARM_MAX_DEG);
                 armTarget_deg = Math.max(armTarget_deg, ARM_LOW_JUNCTION_DEG);
             }
+            // Enforce arm speed safety if operating outside planned ranges. Passing planned
+            // ranges can lift the front of the robot and could cause damage if it contacts the
+            // robot in either direction.
+            // We need to allow the driver to go past planned ranges, but not at full speed, in
+            // case the belt slips teeth during a match or in case arm position consistency is off
+            // for some reason.
+            m_armTargetSpeed =
+                    (((m_armPos_deg > ARM_MAX_DEG) || (m_armPos_deg < ARM_LOW_JUNCTION_DEG)) ?
+                    ARM_SPEED_SLOW : ARM_SPEED_FAST);
             m_armTargetPos_deg = armTarget_deg;
-            m_armTargetSpeed = ARM_SPEED_FAST;
         }
     }
 
