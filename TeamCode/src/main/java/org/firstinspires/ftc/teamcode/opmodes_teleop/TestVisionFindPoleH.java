@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 //@Disabled
 public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
 
-    private Vera m_vera = new Vera();
+    private Vera m_vera = new Vera(telemetry);
     private final TaskFindPole m_taskFindPole = new TaskFindPole(m_vera);
 
     private boolean m_1DpadUp_AlreadyPressed = false;
@@ -54,7 +54,7 @@ public class TestVisionFindPoleH extends LinearOpMode implements CONSTANTS {
     }
 
     private void reportData() {
-        m_vera.reportData(telemetry);
+        m_vera.reportData();
         telemetry.update();
     }
 

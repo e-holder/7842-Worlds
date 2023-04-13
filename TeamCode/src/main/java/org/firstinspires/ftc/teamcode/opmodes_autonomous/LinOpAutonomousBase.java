@@ -12,7 +12,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
 
     protected Alliance m_alliance;
     protected FieldSide m_fieldSide;
-    protected Vera m_vera = new Vera();
+    protected Vera m_vera = new Vera(telemetry);
     protected boolean m_isVisionTestMode;
     protected VeraPipelineType m_initialPipelineType;
 
@@ -70,7 +70,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
     }
 
     protected void reportData() {
-        m_vera.reportData(telemetry);
+        m_vera.reportData();
         telemetry.update();
     }
 

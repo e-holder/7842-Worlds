@@ -59,19 +59,14 @@ import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.kV;
  */
 @Config
 public class Drivetrain extends MecanumDrive implements CONSTANTS {
-    public enum PoleFindingState {
-        HIGH,
-        MID,
-        IDLE
-    }
 
     // Adjustment constants for low-thrust control in drone mode.
     private static final double DRONE_CONTROLS_SLOW_THRESH = -0.5;
     private static final double DRONE_CONTROLS_SLOW_FACTOR = 0.65;
 
     // Factor to reduce overall sensitivity in teleop.
-    // Added for 2022 KY scrimmage 1 (0.9 factor)
-    // Reduced for new drivers in 2022 KY scrimmage 2 (0.75 factor)
+    // Added for 2022 KY scrimmage #1 (0.9 factor)
+    // Reduced for new drivers in 2022 KY scrimmage #2 (0.75 factor)
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6.0, 0, 0.5);
@@ -270,6 +265,7 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
         while (!Thread.currentThread().isInterrupted() && isBusy()) {
             m_vera.getInputs(true);
             m_vera.commandVera();
+            m_vera.reportData();
         }
     }
 

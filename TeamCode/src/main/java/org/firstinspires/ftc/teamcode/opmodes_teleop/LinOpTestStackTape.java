@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 //@Disabled
 public class LinOpTestStackTape extends LinearOpMode implements CONSTANTS {
 
-    private Vera m_vera = new Vera();
+    private Vera m_vera = new Vera(telemetry);
 
     private void initializeVera() {
         telemetry.addData("Status", "Initializing...");
@@ -43,7 +43,7 @@ public class LinOpTestStackTape extends LinearOpMode implements CONSTANTS {
     }
 
     private void reportData() {
-        m_vera.reportData(telemetry);
+        m_vera.reportData();
         telemetry.update();
     }
 

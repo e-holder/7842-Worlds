@@ -32,6 +32,7 @@ public class Vera implements CONSTANTS {
     private StringBuilder m_csvLogString = new StringBuilder();
     private boolean m_isAutonomous = false;
     private int m_loopCount = 0;
+    private Telemetry m_telemetry;
     private Alliance m_alliance;
     private ElapsedTime m_timer = new ElapsedTime();
 
@@ -51,7 +52,8 @@ public class Vera implements CONSTANTS {
     public HwVision getHwVision() { return m_hwVera.getHwVision(); }
     // EACH SUBSYSTEM (end)
 
-    public Vera() {
+    public Vera(Telemetry telemetry) {
+        m_telemetry = telemetry;
         String extStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
         ALLIANCE_PATH = String.format("%s/FIRST/data/alliance.txt", extStoragePath);
     }
@@ -175,14 +177,14 @@ public class Vera implements CONSTANTS {
         // EACH SUBSYSTEM (end)
     }
 
-    public void reportData(Telemetry telemetry) {
+    public void reportData() {
         // EACH SUBSYSTEM will report data here.
         if (!isVisionTestMode) {
-            drivetrain.reportData(telemetry);
-            intake.reportData(telemetry);
-            lift.reportData(telemetry);
+            drivetrain.reportData(m_telemetry);
+            intake.reportData(m_telemetry);
+            lift.reportData(m_telemetry);
         }
-        vision.reportData(telemetry);
+        vision.reportData(m_telemetry);
         // EACH SUBSYSTEM (end)
     }
 

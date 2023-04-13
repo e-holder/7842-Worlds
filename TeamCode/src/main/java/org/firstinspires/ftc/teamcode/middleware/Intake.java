@@ -78,8 +78,8 @@ public class Intake implements CONSTANTS {
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
-    private final int EJECT_CONESTACK_DELAY_COUNT = 9;
-    private final int EJECT_COUNT = 20;
+    private final int EJECT_CONESTACK_DELAY_COUNT = 3;
+    private final int EJECT_COUNT = 15;
 
     //                             LEFT     RIGHT
     // BLUE:         full tape:  360-445   372-480
@@ -634,23 +634,24 @@ public class Intake implements CONSTANTS {
         if (true) {
             logCsvString("intake" +
 //                    ", armAmp, " + df3.format(m_intakeArmMotor_amp) +
-//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
-                    ", hasCone, " + m_hasCone +
-//                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
 //                    ", armTicks, " + m_armPos_ticks +
                     ", armSpeed, " + m_armTargetSpeed +
-                    ", armBusy, " + m_isArmBusy +
-                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
-                    ", coneCmd, " + m_intakeConeCommand +
-                    ", armCmd," + df3.format(m_armDriverCmd) +
+//                    ", armBusy, " + m_isArmBusy +
+//                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
+//                    ", coneCmd, " + m_intakeConeCommand +
+//                    ", armCmd," + df3.format(m_armDriverCmd) +
                     ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
 //                    ", wristPosV, " + df3.format(m_wristServoPos) +
-//                    ", bcnMode, " + m_isBeaconMode +
+//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
+                    ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
+                    ", hasCone, " + m_hasCone +
+                    ", delayToEject, " + m_ejectDelayCounter +
+                    ", ejectionDelay, " + m_ejectCounter +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
-//                    ", ejectDelay, " + m_ejectDelayCounter +
 //                    ", initDelay, " + m_initDelayCounter +
+//                    ", bcnMode, " + m_isBeaconMode +
                     ".");
         }
 

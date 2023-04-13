@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "RoadRunner Test")
@@ -44,24 +45,31 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
 
-        //Positions
+        //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
         Pose2d IntakePos = new Pose2d(-49, -20.5, Math.toRadians(-90.0));
         Pose2d ScorePos = new Pose2d(-50, -4, Math.toRadians(-135.0));
-        TrajectoryVelocityConstraint ScoringVelo = m_vera.drivetrain.getVelocityConstraint(32, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
-        TrajectoryVelocityConstraint IntakeVelo = m_vera.drivetrain.getVelocityConstraint(22, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
-        TrajectoryAccelerationConstraint ConstAccel = m_vera.drivetrain.getAccelerationConstraint(DriveConstants.MAX_ACCEL);
 
-        //Scoring Trajectory
-        Trajectory PreloadTraj = m_vera.drivetrain.trajectoryBuilder(startPose).lineToSplineHeading(ScorePos).build();
-        Trajectory ScoreTraj = m_vera.drivetrain.trajectoryBuilder(IntakePos).lineToSplineHeading(ScorePos, ScoringVelo, ConstAccel).build();
+        //Velocities and Accelerations for re-use
+        TrajectoryVelocityConstraint ScoringVelo = Drivetrain
+                .getVelocityConstraint(32, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryVelocityConstraint IntakeVelo = Drivetrain
+                .getVelocityConstraint(22, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryAccelerationConstraint ConstAccel = Drivetrain
+                .getAccelerationConstraint(DriveConstants.MAX_ACCEL);
 
-        //Wait Trajectory
+        //Scoring Trajectories for re-use
+        Trajectory PreloadTraj = m_vera.drivetrain.trajectoryBuilder(startPose)
+                .lineToSplineHeading(ScorePos).build();
+        Trajectory ScoreTraj = m_vera.drivetrain.trajectoryBuilder(IntakePos)
+                .lineToSplineHeading(ScorePos, ScoringVelo, ConstAccel).build();
+
+        //Wait Trajectories for re-use
         TrajectorySequence WaitForDrop = m_vera.drivetrain.trajectorySequenceBuilder(ScorePos).waitSeconds(1.5).build();
         TrajectorySequence WaitForDown = m_vera.drivetrain.trajectorySequenceBuilder(ScorePos).waitSeconds(0.5).build();
         TrajectorySequence WaitForIntake = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).waitSeconds(1.2).build();
 
-        //Intake Trajectories
+        //Intake Trajectories for re-use
         Trajectory IntakeTraj = m_vera.drivetrain.trajectoryBuilder(ScorePos).lineToLinearHeading(IntakePos).build();
 
         //Parking Trajectories
@@ -72,6 +80,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Scoring Preload
         m_vera.drivetrain.followTrajectory(PreloadTraj);
+// EBH Question: When does closed-loop findPole takes control? Is there a trigger along this trajectory?
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
@@ -94,7 +103,6 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.stopFindingPole();
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
-
 
 
         stopVera();

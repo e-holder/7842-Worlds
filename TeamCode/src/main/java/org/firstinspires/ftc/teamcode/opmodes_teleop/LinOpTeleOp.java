@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 @TeleOp(name = "TeleOp")
 public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
-    private Vera m_vera = new Vera();
+    private Vera m_vera = new Vera(telemetry);
 
     private boolean m_1DpadUp_AlreadyPressed = false;
     private boolean m_1DpadRight_AlreadyPressed = false;
@@ -171,7 +171,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         if (m_vera.lift.hasMiddlemanReceivedCone()) {
             gamepad2.runRumbleEffect(m_doubleRumble);
         }
-        m_vera.reportData(telemetry);
+        m_vera.reportData();
         telemetry.update();
 //        m_vera.logTime(1, "reportData");
     }
