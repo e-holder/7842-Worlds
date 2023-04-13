@@ -47,7 +47,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
-        Pose2d IntakePos = new Pose2d(-49, -20.5, Math.toRadians(-90.0));
+        Pose2d IntakePos = new Pose2d(-49, -20.0, Math.toRadians(-90.0));
         Pose2d ScorePos = new Pose2d(-50, -4, Math.toRadians(-135.0));
 
         //Velocities and Accelerations for re-use
@@ -80,7 +80,6 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Scoring Preload
         m_vera.drivetrain.followTrajectory(PreloadTraj);
-// EBH Question: When does closed-loop findPole takes control? Is there a trigger along this trajectory?
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
@@ -104,6 +103,24 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
+        //Stack Cone 4
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
+        m_vera.intake.moveToIntakeConePos(4);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.drivetrain.followTrajectory(ScoreTraj);
+        m_vera.drivetrain.findMidPole();
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Stack Cone 3
+        //Stack Cone 2
+        //Stack Cone 1
+        //Park in zone
 
         stopVera();
     }

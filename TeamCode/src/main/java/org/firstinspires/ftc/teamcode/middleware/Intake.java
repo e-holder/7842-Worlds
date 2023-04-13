@@ -79,7 +79,7 @@ public class Intake implements CONSTANTS {
     private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
-    private final int EJECT_COUNT = 15;
+    private final int EJECT_DURATION_COUNT = 18;
 
     //                             LEFT     RIGHT
     // BLUE:         full tape:  360-445   372-480
@@ -127,7 +127,7 @@ public class Intake implements CONSTANTS {
     private int m_initDelayCounter = 0;
     private int m_homingDelayCounter = 0;
     private int m_ejectDelayCounter = 0;
-    private int m_ejectCounter;
+    private int m_ejectDurationCounter;
     private int m_targetConeStackLevel;
     private int m_armPos_ticks;
     private int m_stackDataIdx = -1;
@@ -588,7 +588,7 @@ public class Intake implements CONSTANTS {
                 if (m_ejectDelayCounter <= 0) {
                     if (m_hasCone) {
                         m_intakeWheelSpeed = DEFAULT_INTAKE_WHEEL_EJECT_SPEED;
-                        m_ejectCounter = EJECT_COUNT;
+                        m_ejectDurationCounter = EJECT_DURATION_COUNT;
                         m_state = IntakeState.EJECTING_CONE;
                     } else {
                         m_state = IntakeState.MOVE_TO_IDLE_POS;
@@ -596,8 +596,8 @@ public class Intake implements CONSTANTS {
                 }
                 break;
             case EJECTING_CONE:
-                m_ejectCounter--;
-                if (m_ejectCounter <= 0) {
+                m_ejectDurationCounter--;
+                if (m_ejectDurationCounter <= 0) {
                     m_intakeWheelSpeed = 0.0;
                     m_hasCone = false;
                     m_isConeStackMode = false;
@@ -648,7 +648,7 @@ public class Intake implements CONSTANTS {
                     ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
                     ", hasCone, " + m_hasCone +
                     ", delayToEject, " + m_ejectDelayCounter +
-                    ", ejectionDelay, " + m_ejectCounter +
+                    ", ejectionDelay, " + m_ejectDurationCounter +
 //                    ", wheelOSpd, " + df3.format(m_intakeOverrideWheelSpeed) +
 //                    ", initDelay, " + m_initDelayCounter +
 //                    ", bcnMode, " + m_isBeaconMode +
