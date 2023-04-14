@@ -34,10 +34,7 @@ public class HwIntake {
             (WRIST_MAX_DEG - WRIST_MIN_DEG);
     private final double WRIST_DEG_PER_SERVO = 1.0 / WRIST_SERVO_PER_DEG;
 
-    private double LEFT_TAPE_SENSOR_RED_SCALE = 1.0;
-    private double RIGHT_TAPE_SENSOR_RED_SCALE = 0.92;    // TODO: Calibrate
-    private double LEFT_TAPE_SENSOR_BLUE_SCALE = 0.88;    // TODO: Calibrate
-    private double RIGHT_TAPE_SENSOR_BLUE_SCALE = 1.0;
+
 
     private DcMotorEx m_armMotor;
     private DcMotorEx m_intakeWheelMotor;
@@ -142,19 +139,34 @@ public class HwIntake {
 
     // =========  Red/Blue Tape Detection methods ==============
 
-    public double getLeftTapeSensorRed() {
-        return (m_tapeSensorL.red() * LEFT_TAPE_SENSOR_RED_SCALE);
-    }
+    private final double LEFT_TAPE_SENSOR_RED_BASE = 115.0;
+    private final double RIGHT_TAPE_SENSOR_RED_BASE = 118.0;
+    private final double LEFT_TAPE_SENSOR_BLUE_BASE = 110.0;
+    private final double RIGHT_TAPE_SENSOR_BLUE_BASE = 102.0;
+    private final double LOWEST_BASE = LEFT_TAPE_SENSOR_BLUE_BASE;
 
-    public double getLeftTapeSensorBlue() {
-        return (m_tapeSensorL.blue() * LEFT_TAPE_SENSOR_BLUE_SCALE);
+    private final double LEFT_TAPE_SENSOR_RED_SCALE = 1.4602;
+    private final double RIGHT_TAPE_SENSOR_RED_SCALE = 1.285;
+    private final double LEFT_TAPE_SENSOR_BLUE_SCALE = 1.0936;
+    private final double RIGHT_TAPE_SENSOR_BLUE_SCALE = 1.0;
+
+    public double getLeftTapeSensorRed() {
+        return (((m_tapeSensorL.red() - LEFT_TAPE_SENSOR_RED_BASE) *
+                LEFT_TAPE_SENSOR_RED_SCALE) + LOWEST_BASE);
     }
 
     public double getRightTapeSensorRed() {
-        return (m_tapeSensorR.red() * RIGHT_TAPE_SENSOR_RED_SCALE);
+        return (((m_tapeSensorR.red() - RIGHT_TAPE_SENSOR_RED_BASE) *
+                RIGHT_TAPE_SENSOR_RED_SCALE) + LOWEST_BASE);
+    }
+
+    public double getLeftTapeSensorBlue() {
+        return (((m_tapeSensorL.blue() - LEFT_TAPE_SENSOR_BLUE_BASE) *
+                LEFT_TAPE_SENSOR_BLUE_SCALE) + LOWEST_BASE);
     }
 
     public double getRightTapeSensorBlue() {
-        return (m_tapeSensorR.blue() * RIGHT_TAPE_SENSOR_BLUE_SCALE);
+        return (((m_tapeSensorR.blue() - RIGHT_TAPE_SENSOR_BLUE_BASE) *
+                RIGHT_TAPE_SENSOR_BLUE_SCALE) + LOWEST_BASE);
     }
 }

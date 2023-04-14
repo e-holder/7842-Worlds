@@ -283,8 +283,7 @@ public class Intake implements CONSTANTS {
         } else {
             m_poseY_in = m_vera.drivetrain.getPoseEstimate().getY();
         }
-        // TODO: Fix this for FieldSide and Alliance
-        if (m_poseY_in <  (m_priorPosY_in - 0.5)) {
+        if (!m_isStackTapeCalibrationMode || Math.abs(m_poseY_in - m_priorPosY_in) > 0.5) {
             if (m_vera.getAlliance() == Alliance.RED) {
                 m_leftVal = m_hwIntake.getLeftTapeSensorRed();
                 m_rightVal = m_hwIntake.getRightTapeSensorRed();
