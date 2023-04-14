@@ -10,8 +10,10 @@ public class Vision implements CONSTANTS {
     private final double CAMERA_TILT_SIGNAL = 0.0;
     // For the pole vision camera tilt, the following settings need to allow us to see just the pole
     // in our detection box without seeing any of a 4-stack of cones on that pole.
-    private final double CAMERA_TILT_HIGH_POLE = 0.285;    // About 12 degrees up
-    private final double CAMERA_TILT_MID_POLE = 0.33;      // About 30 degrees up
+    // 0.285 = about 12deg
+    // 0.33 = about 30deg
+    private final double CAMERA_TILT_HIGH_POLE = 0.33;
+    private final double CAMERA_TILT_MID_POLE = 0.33;
 
     private final Vera m_vera;
     private final StringBuilder m_csvLogStr = new StringBuilder();
@@ -136,8 +138,8 @@ public class Vision implements CONSTANTS {
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
 
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
-    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 68;
-    private final int MIN_MID_POLE_WIDTH_PIX = 10;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 80;
+    private final int MIN_MID_POLE_WIDTH_PIX = 25;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;
@@ -154,7 +156,7 @@ public class Vision implements CONSTANTS {
 //    private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
 //    private final double MAX_SCORE_MID_ADJUST_IN = 4.0;
     private final double HIGH_WIDTH_PIX_TO_DIST_IN = -1.001;
-    private final double MID_WIDTH_PIX_TO_DIST_IN = -0.25;
+    private final double MID_WIDTH_PIX_TO_DIST_IN = -(3.0 / 18.0); // Inches / Pixel Width Change
 
     // Ignore pole detections +/- this delta from nominal position.
     private final int MAX_DELTA_HIGH_PIX = 70;
@@ -362,8 +364,9 @@ public class Vision implements CONSTANTS {
         }
     }
 
-    public void logFindPoleData(double loopsPerFrame) {
+    public void logFindPoleData(String status, double loopsPerFrame) {
         logCsvString("FindPole" +
+                ", status," + status +
                 ", frame, " + m_findPoleFrameCount +
                 ", detected, " + m_isPoleDetected +
                 ", deltaDeg, " + df3.format(m_deltaToPole_deg) +

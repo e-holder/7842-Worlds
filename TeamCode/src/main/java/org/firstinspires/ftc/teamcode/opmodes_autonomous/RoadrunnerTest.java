@@ -47,8 +47,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
-        Pose2d IntakePos = new Pose2d(-49, -20.0, Math.toRadians(-90.0));
-        Pose2d ScorePos = new Pose2d(-50, -4, Math.toRadians(-135.0));
+        Pose2d IntakePos = new Pose2d(-46, -19, Math.toRadians(-100.0));
+        Pose2d ScorePos = new Pose2d(-44.5, -4, Math.toRadians(-117.5));
 
         //Velocities and Accelerations for re-use
         TrajectoryVelocityConstraint ScoringVelo = Drivetrain
@@ -90,9 +90,11 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 5
+        m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(5);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
@@ -104,9 +106,11 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 4
+        m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(4);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findMidPole();
         m_vera.lift.moveLiftToMidPole();
@@ -118,8 +122,53 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 3
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
+        m_vera.intake.moveToIntakeConePos(3);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(ScoreTraj);
+        m_vera.drivetrain.findMidPole();
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
         //Stack Cone 2
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
+        m_vera.intake.moveToIntakeConePos(2);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(ScoreTraj);
+        m_vera.drivetrain.findMidPole();
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
         //Stack Cone 1
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
+        m_vera.intake.moveToIntakeConePos(1);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(ScoreTraj);
+        m_vera.drivetrain.findMidPole();
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
         //Park in zone
 
         stopVera();
