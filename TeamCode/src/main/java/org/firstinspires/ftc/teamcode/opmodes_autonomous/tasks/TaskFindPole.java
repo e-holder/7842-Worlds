@@ -27,12 +27,12 @@ public class TaskFindPole implements CONSTANTS {
         m_state = TaskState.INIT;
     }
 
-    public void setInitializationPoleType(PoleType poleType) {
-        m_vera.vision.setPoleType(poleType);
+    public void setInitializationFindPoleMode(FindPoleMode findPoleMode) {
+        m_vera.vision.setFindPoleMode(findPoleMode);
     }
 
-    public void startFindingPole(PoleType poleType) {
-        m_vera.vision.setPoleType(poleType);
+    public void startFindingPole(FindPoleMode findPoleMode) {
+        m_vera.vision.setFindPoleMode(findPoleMode);
         if (m_state != TaskState.FIND_POLE && m_state != TaskState.FINDING_POLE) {
             m_vera.vision.logFindPoleData("starting", 0);
             m_state = TaskState.FIND_POLE;
@@ -97,7 +97,7 @@ public class TaskFindPole implements CONSTANTS {
                     m_frameCount = m_vera.vision.getFindPoleFrameCount();
                     if (m_frameCount > m_priorFrameCount) {
                         m_priorFrameCount = m_frameCount;
-                        double loopsPerFrame =(double)(m_vera.getLoopCount() - m_startLoopCount) /
+                        double loopsPerFrame = (double)(m_vera.getLoopCount() - m_startLoopCount) /
                                         Math.max(1.0, (m_frameCount - m_startFrameCount));
                         m_vera.vision.logFindPoleData("finding", loopsPerFrame);
                     }

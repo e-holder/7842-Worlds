@@ -105,7 +105,6 @@ public class Vera implements CONSTANTS {
     public void setAlliance(Alliance matchAlliance) {
         logCsvString("Alliance: " + matchAlliance);
         m_alliance = matchAlliance;
-        vision.setAlliance(m_alliance);
 
         // Write the current alliance to a file on the robot's SD Card so that TeleOp can determine
         // the alliance last used in Autonomous.

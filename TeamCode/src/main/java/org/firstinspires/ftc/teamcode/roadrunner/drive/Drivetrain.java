@@ -17,7 +17,6 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -391,12 +390,12 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     // POLEFINDING METHODS
     private final TaskFindPole m_taskFindPole;
 
-    private void initializeFindPoleTask(PoleType poleType) {
-        m_taskFindPole.startFindingPole(poleType);
+    private void initializeFindPoleTask(FindPoleMode findPoleMode) {
+        m_taskFindPole.startFindingPole(findPoleMode);
     }
 
-    public void findHighPole() { initializeFindPoleTask(PoleType.HIGH); }
-    public void findMidPole() { initializeFindPoleTask(PoleType.MID); }
+    public void findHighPole() { initializeFindPoleTask(FindPoleMode.HIGH_POLE); }
+    public void findMidPole() { initializeFindPoleTask(FindPoleMode.MID_POLE); }
     public void stopFindingPole() { m_taskFindPole.stopFindingPole(); }
     public boolean isFindingPole() { return m_taskFindPole.isFindingPole(); }
 

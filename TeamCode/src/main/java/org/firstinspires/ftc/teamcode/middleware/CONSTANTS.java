@@ -26,11 +26,12 @@ public interface CONSTANTS {
         FIND_POLE
     }
 
-    public enum PoleType {
+    public enum FindPoleMode {
         UNINITIALIZED,
-        LOW,
-        MID,
-        HIGH
+        MID_POLE,
+        HIGH_POLE,
+        MID_SCORED_CONES,
+        HIGH_SCORED_CONES
     }
 
     // Field constants

@@ -14,6 +14,8 @@ public class Vision implements CONSTANTS {
     // 0.33 = about 30 deg
     private final double CAMERA_TILT_HIGH_POLE = 0.33;
     private final double CAMERA_TILT_MID_POLE = 0.33;
+    private final double CAMERA_TILT_HIGH_SCORED_CONES = 0.0;
+    private final double CAMERA_TILT_MID_SCORED_CONES = 0.0;
 
     private final Vera m_vera;
     private final StringBuilder m_csvLogStr = new StringBuilder();
@@ -38,10 +40,6 @@ public class Vision implements CONSTANTS {
         throw new UnsupportedOperationException("Default constructor not supported.");
     }
 
-    public void setAlliance(Alliance alliance) {
-        // TBD: May need to notify pipelines. E.g., m_barcodePipeline.setAlliance(alliance);
-    }
-
     public void logCsvString(String record) {
         m_csvLogStr.append(record).append("\n");
     }
@@ -59,7 +57,7 @@ public class Vision implements CONSTANTS {
         OpenCvPipeline pipeline;
         switch (veraPipelineType) {
             case SIGNAL:
-                setCameraTiltForSignal();
+                m_hwVision.setCameraTilt(CAMERA_TILT_SIGNAL);
                 pipeline = m_signalPipeline;
                 m_startSignalLoopCount = m_vera.getLoopCount();
                 m_isSignalStreaming = true;
@@ -162,7 +160,7 @@ public class Vision implements CONSTANTS {
     private final int MAX_DELTA_HIGH_PIX = 70;
     private final int MAX_DELTA_MID_PIX = 60;
 
-    private PoleType m_poleType = PoleType.UNINITIALIZED;
+    private FindPoleMode m_findPoleMode = FindPoleMode.UNINITIALIZED;
     private final VisionPipelineFindPole m_findPolePipeline;
     private boolean m_isFindPoleStreaming = false;
     private boolean m_isFindPoleEnabled = false;
@@ -179,20 +177,12 @@ public class Vision implements CONSTANTS {
     // test OpMode.  They have no effect unless "m_calibrationFactor" is substituted in for the
     // constant being tuned.
     private double m_calibrationFactor = 3.5;
-    private double m_calibrationSmallStep = 0.01;
-    private double m_calibrationBigStep = 0.1;
+    private final double m_calibrationSmallStep = 0.01;
+    private final double m_calibrationBigStep = 0.1;
     public void calSmallStepUp() { m_calibrationFactor += m_calibrationSmallStep; }
     public void calSmallStepDown() { m_calibrationFactor -= m_calibrationSmallStep; }
     public void calBigStepUp() { m_calibrationFactor += m_calibrationBigStep; }
     public void calBigStepDown() { m_calibrationFactor -= m_calibrationBigStep; }
-
-    private void setMinMaxPoleWidth() {
-        if (m_poleType == PoleType.HIGH) {
-            m_findPolePipeline.setMinMaxPoleWidth(MIN_HIGH_POLE_WIDTH_PIX, MAX_HIGH_POLE_WIDTH_PIX);
-        } else {
-            m_findPolePipeline.setMinMaxPoleWidth(MIN_MID_POLE_WIDTH_PIX, MAX_MID_POLE_WIDTH_PIX);
-        }
-    }
 
     private void getFindPolePipelineInputs() {
         m_poleWidth_pix = m_findPolePipeline.getPoleWidth_pix();
@@ -200,7 +190,7 @@ public class Vision implements CONSTANTS {
     }
 
     private boolean computeDeltaLateralPix() {
-        int nominalCenter_pix = (m_poleType == PoleType.HIGH ?
+        int nominalCenter_pix = (m_findPoleMode == FindPoleMode.HIGH_POLE ?
                 NOMINAL_HIGH_POLE_CENTER_PIX :
                 NOMINAL_MID_POLE_CENTER_PIX);
         m_poleColDelta_pix = m_poleCol_pix - nominalCenter_pix;
@@ -208,7 +198,7 @@ public class Vision implements CONSTANTS {
     }
 
     private boolean computeDeltaWidthPix() {
-        int nominalWidth_pix = (m_poleType == PoleType.HIGH ?
+        int nominalWidth_pix = (m_findPoleMode == FindPoleMode.HIGH_POLE ?
                 NOMINAL_HIGH_POLE_WIDTH_PIX :
                 NOMINAL_MID_POLE_WIDTH_PIX);
         m_widthDelta_pix = m_poleWidth_pix - nominalWidth_pix;
@@ -216,12 +206,12 @@ public class Vision implements CONSTANTS {
     }
 
     private double computeDeltaAngle_deg(int deltaPix) {
-        return deltaPix * (m_poleType == PoleType.HIGH ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
+        return deltaPix * (m_findPoleMode == FindPoleMode.HIGH_POLE ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
     }
 
     private double computeDistToScore_in(int deltaWidthPix) {
         double distToScore_in;
-        if (m_poleType == PoleType.HIGH) {
+        if (m_findPoleMode == FindPoleMode.HIGH_POLE) {
             distToScore_in = deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN;
         } else {
             distToScore_in = deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN;
@@ -254,18 +244,39 @@ public class Vision implements CONSTANTS {
         return m_distToScore_in;
     }
 
-    public void setPoleType(PoleType newPoleType) {
-        // TODO: If we have time, we should also set tilt angle based on how many cones are on the
-        //  pole we are looking at. Note: This would affect distance to score calibrations.
-        if (m_poleType != newPoleType) {
-            m_poleType = newPoleType;
-            setMinMaxPoleWidth();
-            if (newPoleType == PoleType.HIGH) {
-                setCameraTiltForHighPole();
-            } else {
-                setCameraTiltForMidPole();
+    public void setFindPoleMode(FindPoleMode newFindPoleMode) {
+        if (m_findPoleMode != newFindPoleMode) {
+            m_findPoleMode = newFindPoleMode;
+            switch (m_findPoleMode) {
+                case MID_POLE:
+                    m_hwVision.setCameraTilt(CAMERA_TILT_MID_POLE);
+                    m_findPolePipeline.setFindPoleMode(FindPoleMode.MID_POLE,
+                            m_vera.getAlliance());
+                    m_findPolePipeline.setMinMaxWidth(
+                            MIN_MID_POLE_WIDTH_PIX, MAX_MID_POLE_WIDTH_PIX);
+                    break;
+                case HIGH_POLE:
+                    m_hwVision.setCameraTilt(CAMERA_TILT_HIGH_POLE);
+                    m_findPolePipeline.setFindPoleMode(FindPoleMode.HIGH_POLE,
+                            m_vera.getAlliance());
+                    m_findPolePipeline.setMinMaxWidth(
+                            MIN_HIGH_POLE_WIDTH_PIX, MAX_HIGH_POLE_WIDTH_PIX);
+                    break;
+                case MID_SCORED_CONES:
+                    m_hwVision.setCameraTilt(CAMERA_TILT_MID_SCORED_CONES);
+                    m_findPolePipeline.setFindPoleMode(FindPoleMode.MID_SCORED_CONES,
+                            m_vera.getAlliance());
+                    m_findPolePipeline.setMinMaxWidth(0, 0); // TODO: FIX!
+                    break;
+                case HIGH_SCORED_CONES:
+                default:
+                    m_hwVision.setCameraTilt(CAMERA_TILT_HIGH_SCORED_CONES);
+                    m_findPolePipeline.setFindPoleMode(FindPoleMode.HIGH_SCORED_CONES,
+                            m_vera.getAlliance());
+                    m_findPolePipeline.setMinMaxWidth(0, 0); // TODO: FIX!
+                    break;
             }
-            logCsvString("Vision, setPoleType, " + m_poleType);
+            logCsvString("Vision, setFindPoleMode, " + m_findPoleMode);
         }
     }
 
@@ -322,18 +333,11 @@ public class Vision implements CONSTANTS {
     }
 
     //============================================================================================
-    // Camera Tilt Servo Functionality
-
-    public void setCameraTiltForSignal() {
-        m_hwVision.setCameraTilt(CAMERA_TILT_SIGNAL);
-    }
-
-    public void setCameraTiltForMidPole() {
-        m_hwVision.setCameraTilt(CAMERA_TILT_MID_POLE);
-    }
-
-    public void setCameraTiltForHighPole() {
-        m_hwVision.setCameraTilt(CAMERA_TILT_HIGH_POLE);
+    private void useSomeVariablesToSatisfyAndroidStudio() {
+        double d = CAMERA_TILT_SIGNAL + CAMERA_TILT_HIGH_POLE + CAMERA_TILT_MID_POLE +
+                MAX_HIGH_POLE_WIDTH_PIX + MIN_HIGH_POLE_WIDTH_PIX + MAX_MID_POLE_WIDTH_PIX +
+                MIN_MID_POLE_WIDTH_PIX + HIGH_PIX_TO_DEG + MID_PIX_TO_DEG +
+                HIGH_WIDTH_PIX_TO_DIST_IN + MID_WIDTH_PIX_TO_DIST_IN ;
     }
 
     //============================================================================================

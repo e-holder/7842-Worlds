@@ -7,9 +7,9 @@ import org.firstinspires.ftc.teamcode.middleware.CONSTANTS;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
-@TeleOp(name = "Test Vision Find Pole-M")
+@TeleOp(name = "Test Find Pole-Mid")
 //@Disabled
-public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
+public class TestFindPoleM extends LinearOpMode implements CONSTANTS {
 
     private Vera m_vera = new Vera(telemetry);
     private final TaskFindPole m_taskFindPole = new TaskFindPole(m_vera);
@@ -19,18 +19,19 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
     private boolean m_1DpadLeft_AlreadyPressed = false;
     private boolean m_1DpadRight_AlreadyPressed = false;
 
-    private void initializeVera() {
+    protected void initializeVera() {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
         m_vera.init(hardwareMap, false, true,
                 VeraPipelineType.FIND_POLE, telemetry);
+        m_vera.setAllianceFromPriorAutonomousRun();
 
         telemetry.addData("WARNING:", "vision test mode!");
         telemetry.update();
     }
 
-    private void getInputs() {
+    protected void getInputs() {
         if (gamepad1.dpad_up && !m_1DpadUp_AlreadyPressed) {
             m_vera.vision.calBigStepUp();
         } else if (gamepad1.dpad_down && !m_1DpadDown_AlreadyPressed) {
@@ -49,21 +50,26 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
         m_vera.getInputs(false);
     }
 
-    private void commandVera() {
+    protected void startFindingPole(FindPoleMode findPoleMode) {
+        m_taskFindPole.startFindingPole(findPoleMode);
+    }
+
+    protected void commandVera() {
+        m_taskFindPole.update();  // Ignore return value
         m_vera.commandVera();
     }
 
-    private void reportData() {
+    protected void reportData() {
         m_vera.reportData();
         telemetry.update();
     }
 
-    private void stopVera() {
+    protected void stopVera() {
         m_vera.stopVera();
     }
 
-    private void initializeFindPoleTask(PoleType poleType) {
-        m_taskFindPole.setInitializationPoleType(poleType);
+    protected void initializeFindPoleTask(FindPoleMode findPoleMode) {
+        m_taskFindPole.setInitializationFindPoleMode(findPoleMode);
         TaskFindPole.TaskState taskState;
         do {
             getInputs();
@@ -77,15 +83,14 @@ public class TestVisionFindPoleM extends LinearOpMode implements CONSTANTS {
     public void runOpMode() throws InterruptedException {
 
         initializeVera();
-        initializeFindPoleTask(PoleType.MID);
+        initializeFindPoleTask(FindPoleMode.MID_POLE);
 
         waitForStart();
 
-        m_taskFindPole.startFindingPole(PoleType.MID);
+        startFindingPole(FindPoleMode.MID_POLE);
 
         do {
             getInputs();
-            m_taskFindPole.update();  // Ignore return value
             commandVera();
             reportData();
         } while (!isStopRequested());
