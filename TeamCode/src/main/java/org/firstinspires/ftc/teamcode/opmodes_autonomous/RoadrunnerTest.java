@@ -84,7 +84,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Scoring Preload
         m_vera.drivetrain.followTrajectory(PreloadTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -103,7 +103,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(IntakeNudge5);
 
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -122,7 +122,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(IntakeNudge4);
 
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -141,7 +141,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(IntakeNudge3);
 
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -160,7 +160,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(IntakeNudge2);
 
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -179,7 +179,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(IntakeNudge1);
 
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findMidPole();
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);

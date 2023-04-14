@@ -23,8 +23,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS {
 
     // In the Cb plane of a YCrCb image, the yellow poles should be very dark.
-    public final double POLE_LIGHT_THRESH = 0.0;
-    public final double POLE_DARK_THRESH = 100.0;
+    private final double POLE_DARK_THRESH = 0.0;
+    private final double POLE_LIGHT_THRESH = 100.0;
+
+    private final double CONES_BLUE_LOWER_THRESH = 140.0;
+    private final double CONES_RED_LOWER_THRESH = 150.0;
+    private final double CONES_UPPER_THRESH = 255.0;
+
+    private final int BLUR_SIZE = 21;   // Blur window size. Must be an odd number.
 
     // Note: The origin (0, 0) of the input image is the top-left of the screen.
 
@@ -35,7 +41,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // enough delta between the top and bottom of the box to detect how much the pole is leaning
     // left or right.
     private final int BOX_CENTER_ADJ = 0;
-    public static final int BOX_WIDTH = WEBCAM_WIDTH_PIX;
+    public static final int BOX_WIDTH = WEBCAM_WIDTH_PIX - 2;
     private final int BOX_HEIGHT = 150;
     private final int BOX_TOP = 0;
     private final int BOX_LEFT = (WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + BOX_CENTER_ADJ;
@@ -44,16 +50,26 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             new Point(BOX_LEFT + BOX_WIDTH, BOX_TOP + BOX_HEIGHT);
     private final Rect BOX = new Rect(BOX_TOP_LEFT, BOX_BOTTOM_RIGHT);
 
+    // TODO: Box needs to be higher for HIGH poles.
+    public static final int CONE_BOX_WIDTH = WEBCAM_WIDTH_PIX;
+    private final int CONE_BOX_HEIGHT = WEBCAM_HEIGHT_PIX / 3;
+    private final int CONE_BOX_TOP = WEBCAM_HEIGHT_PIX - CONE_BOX_HEIGHT - 1;
+    private final int CONE_BOX_LEFT = 0;
+    private final Point CONE_BOX_TOP_LEFT = new Point(CONE_BOX_LEFT, CONE_BOX_TOP);
+    private final Point CONE_BOX_BOTTOM_RIGHT =
+            new Point(CONE_BOX_WIDTH, CONE_BOX_TOP + CONE_BOX_HEIGHT);
+    private final Rect CONE_BOX = new Rect(CONE_BOX_TOP_LEFT, CONE_BOX_BOTTOM_RIGHT);
+
     private final Mat m_matYCrCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
-    private final Mat m_matCr = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
-    private final Mat m_matCb = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
-    private final Mat m_matWithinThresh = new Mat(BOX_HEIGHT, BOX_WIDTH, CvType.CV_8UC1);
+    private final Mat m_matPlaneOfInterest = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC1);
+    private final Mat m_matWithinThreshP = new Mat(BOX_HEIGHT, BOX_WIDTH, CvType.CV_8UC1);
+    private final Mat m_matWithinThreshC = new Mat(CONE_BOX_HEIGHT, CONE_BOX_WIDTH, CvType.CV_8UC1);
     private final Mat m_matOutput = new Mat(WEBCAM_HEIGHT_PIX, WEBCAM_WIDTH_PIX, CvType.CV_8UC3);
 
     // Volatile since accessed by OpMode thread w/o synchronization.
     private final AtomicInteger m_frameCount = new AtomicInteger(0);
     private final AtomicInteger m_poleCol_pix = new AtomicInteger(-999);
-    private final AtomicInteger m_poleWidth_pix = new AtomicInteger(-999);
+    private final AtomicInteger m_width_pix = new AtomicInteger(-999);
     private final AtomicInteger m_minPoleWidth_pix = new AtomicInteger(9999);
     private final AtomicInteger m_maxPoleWidth_pix = new AtomicInteger(9999);
     private final AtomicBoolean m_isFindScoredConesMode = new AtomicBoolean(false);
@@ -72,7 +88,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     }
 
     private Rect m_detectRectangle;
-    private double m_poleRow_pix;
+    private int m_poleRow_pix;
     private int m_outputSelect = 0;
 
     // Accessors to allow retrieving the results.
@@ -84,7 +100,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         return m_poleCol_pix.get();
     }
     public int getPoleWidth_pix() {
-        return m_poleWidth_pix.get();
+        return m_width_pix.get();
     }
     public StringBuilder getLogString() {
         return m_csvLogString;
@@ -138,8 +154,6 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
     private Mat processFrameForPole(Mat matInput) {
 
-        final int BLUR_SIZE = 21;   // Blur window size. Must be an odd number.
-
         // Simulate input image from a static file.
 //        matInput = Imgcodecs.imread("/sdcard/FIRST/data/image.jpg");
 
@@ -158,10 +172,10 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // component); Channel 2 is Cb (blue-difference [blue to yellow] chroma component).
         // In the Cb component, the yellow pole will appear darker than everything else we
         // expect to see in the frame.
-        Core.extractChannel(m_matYCrCb, m_matCb, 2);
+        Core.extractChannel(m_matYCrCb, m_matPlaneOfInterest, 2);
 
         // Extract just the portion of the image we care about.
-        Mat matBox = m_matCb.submat(BOX);
+        Mat matBox = m_matPlaneOfInterest.submat(BOX);
 
         // Remove noise from the image data in the sample box using a blur filter. This is so stray
         // dark pixel will not be seen as the pole and stray lighter pixels within the pole are not
@@ -169,13 +183,13 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // Note: The old Gaussian blur is preserved in comments at the end of this file.
         Imgproc.medianBlur(matBox, matBox, BLUR_SIZE);
 
-        Scalar lowerB = new Scalar(POLE_LIGHT_THRESH);
-        Scalar upperB = new Scalar(POLE_DARK_THRESH);
-        Core.inRange(matBox, lowerB, upperB, m_matWithinThresh);
+        Scalar lowerB = new Scalar(POLE_DARK_THRESH);
+        Scalar upperB = new Scalar(POLE_LIGHT_THRESH);
+        Core.inRange(matBox, lowerB, upperB, m_matWithinThreshP);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(m_matWithinThresh, contours, hierarchy,
+        Imgproc.findContours(m_matWithinThreshP, contours, hierarchy,
                 Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
 
         int rectWidth = 0;
@@ -196,11 +210,11 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         if (m_detectRectangle != null &&
                 m_detectRectangle.width > m_minPoleWidth_pix.get() &&
                 m_detectRectangle.width < m_maxPoleWidth_pix.get()) {
-            m_poleWidth_pix.set(m_detectRectangle.width);
+            m_width_pix.set(m_detectRectangle.width);
             m_poleCol_pix.set(m_detectRectangle.x + (m_detectRectangle.width / 2));
             m_poleRow_pix = m_detectRectangle.y + (m_detectRectangle.height / 2);
         } else {
-            m_poleWidth_pix.set(-1);
+            m_width_pix.set(-1);
             m_poleCol_pix.set(-1);
             m_poleRow_pix = -1;
         }
@@ -210,21 +224,21 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         if (Vera.isVisionTestMode) {
             switch (2) {  // TODO: use m_outputSelect if onViewportTap is fixed
                 case 0:
-                    output = drawDetectionAnnotations(matInput, false);
+                    output = drawPoleDetectionAnnotations(matInput, false);
                     break;
                 case 1:
-                    output = drawDetectionAnnotations(m_matCb, false);
+                    output = drawPoleDetectionAnnotations(m_matPlaneOfInterest, false);
                     break;
                 case 2:
                 default:
-                    m_matCb.copyTo(m_matOutput);
-                    m_matWithinThresh.copyTo(m_matOutput.submat(BOX));
-                    output = drawDetectionAnnotations(m_matOutput, true);
+                    m_matPlaneOfInterest.copyTo(m_matOutput);
+                    m_matWithinThreshP.copyTo(m_matOutput.submat(BOX));
+                    output = drawPoleDetectionAnnotations(m_matOutput, true);
                     break;
             }
         } else {
             // TODO: Put in a full size output frame with color annotations.
-            output = m_matWithinThresh;
+            output = m_matWithinThreshP;
         }
         return output;
     }
@@ -246,37 +260,28 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
 
         // Channel 0 is Y (luma component), Channel 1 is Cr (red-difference [red to green] chroma
         // component); Channel 2 is Cb (blue-difference [blue to yellow] chroma component).
-        // In the Cb component, the yellow pole will appear darker than everything else we
-        // expect to see in the frame.
-        Mat matBox;
-        Mat output;
+        // In the Cb component, the blue cones will appear whiter than everything else we
+        // expect to see in the frame, and likewise for Cr and red cones.
         if (m_alliance.get() == Alliance.BLUE.ordinal()) {
-            Core.extractChannel(m_matYCrCb, m_matCb, 2);
-            output = m_matCb;
-            // Extract just the portion of the image we care about.
-            matBox = m_matCb.submat(BOX);
+            Core.extractChannel(m_matYCrCb, m_matPlaneOfInterest, 2);
         } else {
-            Core.extractChannel(m_matYCrCb, m_matCr, 1);
-            output = m_matCr;
-            // Extract just the portion of the image we care about.
-            matBox = m_matCr.submat(BOX);
+            Core.extractChannel(m_matYCrCb, m_matPlaneOfInterest, 1);
         }
 
-        // TODO: Implement
-        /*
-        // Remove noise from the image data in the sample box using a blur filter. This is so stray
-        // dark pixel will not be seen as the pole and stray lighter pixels within the pole are not
-        // seen as background. We want to produce a solid column of dark pixels.
-        // Note: The old Gaussian blur is preserved in comments at the end of this file.
-        Imgproc.medianBlur(matBox, matBox, BLUR_SIZE);
+        // Extract just the portion of the image we care about.
+        Mat matConeBox = m_matPlaneOfInterest.submat(CONE_BOX);
 
-        Scalar lowerB = new Scalar(POLE_LIGHT_THRESH);
-        Scalar upperB = new Scalar(POLE_DARK_THRESH);
-        Core.inRange(matBox, lowerB, upperB, m_matWithinThresh);
+        // Remove noise from the image data in the sample box using a blur filter.
+        Imgproc.medianBlur(matConeBox, matConeBox, BLUR_SIZE);
+
+        Scalar lowerB = new Scalar(m_alliance.get() == Alliance.BLUE.ordinal() ?
+                CONES_BLUE_LOWER_THRESH : CONES_RED_LOWER_THRESH);
+        Scalar upperB = new Scalar(CONES_UPPER_THRESH);
+        Core.inRange(matConeBox, lowerB, upperB, m_matWithinThreshC);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(m_matWithinThresh, contours, hierarchy,
+        Imgproc.findContours(m_matWithinThreshC, contours, hierarchy,
                 Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
 
         int rectWidth = 0;
@@ -297,13 +302,15 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         if (m_detectRectangle != null &&
                 m_detectRectangle.width > m_minPoleWidth_pix.get() &&
                 m_detectRectangle.width < m_maxPoleWidth_pix.get()) {
-            m_poleWidth_pix.set(m_detectRectangle.width);
+            m_width_pix.set(m_detectRectangle.width);
             m_poleCol_pix.set(m_detectRectangle.x + (m_detectRectangle.width / 2));
-            m_poleRow_pix = m_detectRectangle.y + (m_detectRectangle.height / 2);
+            m_poleRow_pix = CONE_BOX_TOP + m_detectRectangle.y + (m_detectRectangle.height / 2);
         } else {
-            m_poleWidth_pix.set(-1);
-            m_poleCol_pix.set(-1);
-            m_poleRow_pix = -1;
+            // If we get no rectangle detection, we will assume we are so close the cones are
+            // filling the FOV and we will just assume we are centered.
+            m_width_pix.set(CONE_BOX_WIDTH);
+            m_poleCol_pix.set(Vision.NOMINAL_MID_CONES_CENTER_PIX);  // TODO: HIGH not implemented
+            m_poleRow_pix = CONE_BOX_TOP + (CONE_BOX_HEIGHT / 2);
         }
         m_frameCount.incrementAndGet(); // Ignore return value from "Get".
 
@@ -311,32 +318,33 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         if (Vera.isVisionTestMode) {
             switch (2) {  // TODO: use m_outputSelect if onViewportTap is fixed
                 case 0:
-                    output = drawDetectionAnnotations(matInput, false);
+                    output = drawConeDetectionAnnotations(matInput, false);
                     break;
                 case 1:
-                    output = drawDetectionAnnotations(m_matCb, false);
+                    output = drawConeDetectionAnnotations(m_matPlaneOfInterest, false);
                     break;
                 case 2:
                 default:
-                    m_matCb.copyTo(m_matOutput);
-                    m_matWithinThresh.copyTo(m_matOutput.submat(BOX));
-                    output = drawDetectionAnnotations(m_matOutput, true);
+                    m_matPlaneOfInterest.copyTo(m_matOutput);
+                    m_matWithinThreshC.copyTo(m_matOutput.submat(CONE_BOX));
+                    output = drawConeDetectionAnnotations(m_matOutput, true);
                     break;
             }
         } else {
             // TODO: Put in a full size output frame with color annotations.
-            output = m_matWithinThresh;
+            output = m_matWithinThreshC;
         }
 
-         */
         return output;
     }
 
-    private final Scalar WHITE = new Scalar(255, 255, 255);
-    private final Scalar RED = new Scalar(255, 0, 0);
-    private final Scalar GRAY = new Scalar(128, 128, 128);
+    //======== ANNOTATION DRAWING METHODS ==================================
 
-    private Mat drawDetectionAnnotations(Mat srcMat, boolean isGrayScale) {
+    private final Scalar WHITE = new Scalar(255, 255, 255);
+    private final Scalar GREEN = new Scalar(0, 255, 0);
+    private final Scalar GRAY = new Scalar(100, 100, 100);
+
+    private Mat drawPoleDetectionAnnotations(Mat srcMat, boolean isGrayScale) {
         Scalar color = (isGrayScale ? GRAY : WHITE);
         Imgproc.rectangle(
                 srcMat, // Buffer to draw on
@@ -362,16 +370,55 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         Imgproc.line(srcMat, point1, point2, color, 2);
 
         // Draw the pole "detection line"
-        color = (isGrayScale ? GRAY : RED);
+        color = (isGrayScale ? GRAY : GREEN);
         if (m_poleRow_pix >= 0) {
-            point1 = new Point((int)(BOX_LEFT + m_poleCol_pix.get() - (m_poleWidth_pix.get() / 2)),
+            point1 = new Point((int)(BOX_LEFT + m_poleCol_pix.get() - (m_width_pix.get() / 2)),
                     m_poleRow_pix);
-            point2 = new Point((int)(BOX_LEFT + m_poleCol_pix.get() + (m_poleWidth_pix.get() / 2)),
+            point2 = new Point((int)(BOX_LEFT + m_poleCol_pix.get() + (m_width_pix.get() / 2)),
                     m_poleRow_pix);
             Imgproc.line(srcMat, point1, point2, color, 10);
         }
+        return srcMat;
+    }
 
+    private Mat drawConeDetectionAnnotations(Mat srcMat, boolean isGrayScale) {
+        Scalar color = (isGrayScale ? GRAY : WHITE);
+        Imgproc.rectangle(
+                srcMat, // Buffer to draw on
+                CONE_BOX_TOP_LEFT,     // First point which defines the rectangle
+                CONE_BOX_BOTTOM_RIGHT, // Second point which defines the rectangle
+                color, // The color the rectangle is drawn in
+                1);
 
+        // Draw the nominal high cones position and width.
+        Point point1 = new Point(CONE_BOX_LEFT +
+                Vision.NOMINAL_HIGH_CONES_CENTER_PIX - Vision.NOMINAL_HIGH_CONES_WIDTH_PIX / 2.0,
+                CONE_BOX_TOP + 5);
+        Point point2 = new Point(BOX_LEFT +
+                Vision.NOMINAL_HIGH_CONES_CENTER_PIX + Vision.NOMINAL_HIGH_CONES_CENTER_PIX / 2.0,
+                CONE_BOX_TOP + 5);
+        Imgproc.line(srcMat, point1, point2, color, 2);
+
+        // Draw the nominal mid cones position and width.
+        point1 = new Point(CONE_BOX_LEFT +
+                Vision.NOMINAL_MID_CONES_CENTER_PIX - Vision.NOMINAL_MID_CONES_WIDTH_PIX / 2.0,
+                CONE_BOX_TOP + 15);
+        point2 = new Point(CONE_BOX_LEFT +
+                Vision.NOMINAL_MID_CONES_CENTER_PIX + Vision.NOMINAL_MID_CONES_WIDTH_PIX / 2.0,
+                CONE_BOX_TOP + 15);
+        Imgproc.line(srcMat, point1, point2, color, 2);
+
+        // Draw the cones "detection line"
+        color = (isGrayScale ? GRAY : GREEN);
+        if (m_poleRow_pix >= 0) {
+            point1 = new Point(
+                    (int)(CONE_BOX_LEFT + m_poleCol_pix.get() - (m_width_pix.get() / 2)),
+                    m_poleRow_pix);
+            point2 = new Point(
+                    (int)(CONE_BOX_LEFT + m_poleCol_pix.get() + (m_width_pix.get() / 2)),
+                    m_poleRow_pix);
+            Imgproc.line(srcMat, point1, point2, color, 10);
+        }
         return srcMat;
     }
 }

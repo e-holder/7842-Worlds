@@ -124,20 +124,31 @@ public class Vision implements CONSTANTS {
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     public static final int NOMINAL_HIGH_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 62;
-
     private final int MAX_HIGH_POLE_WIDTH_PIX = 120;
     public static final int NOMINAL_HIGH_POLE_WIDTH_PIX = 32;
     private final int MIN_HIGH_POLE_WIDTH_PIX = 10;
+
+    // TODO: Calibrate these three
+    public static final int NOMINAL_HIGH_CONES_CENTER_PIX =
+            (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) + 62;
+    private final int MAX_HIGH_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
+    public static final int NOMINAL_HIGH_CONES_WIDTH_PIX = 80;
+    private final int MIN_HIGH_CONES_WIDTH_PIX = 50;
 
     // Camera would ideally be about 10 inches from Mid poles
     // Camera will be about 4 inches above the floor and about 30 degrees up from horizontal
     // The pipeline processing box should sit right on top of a stack of 4 cones on the pole.
     public static final int NOMINAL_MID_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
-
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
     public static final int NOMINAL_MID_POLE_WIDTH_PIX = 86;
-    private final int MIN_MID_POLE_WIDTH_PIX = 47;
+    private final int MIN_MID_POLE_WIDTH_PIX = 47;  // TODO: Note this is too high if D > 10 in
+
+    public static final int NOMINAL_MID_CONES_CENTER_PIX =
+            (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) + 60;
+    private final int MAX_MID_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
+    public static final int NOMINAL_MID_CONES_WIDTH_PIX = 300;
+    private final int MIN_MID_CONES_WIDTH_PIX = 200;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;
@@ -266,14 +277,16 @@ public class Vision implements CONSTANTS {
                     m_hwVision.setCameraTilt(CAMERA_TILT_MID_SCORED_CONES);
                     m_findPolePipeline.setFindPoleMode(FindPoleMode.MID_SCORED_CONES,
                             m_vera.getAlliance());
-                    m_findPolePipeline.setMinMaxWidth(0, 0); // TODO: FIX!
+                    m_findPolePipeline.setMinMaxWidth(
+                            MIN_MID_CONES_WIDTH_PIX, MAX_MID_CONES_WIDTH_PIX);
                     break;
                 case HIGH_SCORED_CONES:
                 default:
                     m_hwVision.setCameraTilt(CAMERA_TILT_HIGH_SCORED_CONES);
                     m_findPolePipeline.setFindPoleMode(FindPoleMode.HIGH_SCORED_CONES,
                             m_vera.getAlliance());
-                    m_findPolePipeline.setMinMaxWidth(0, 0); // TODO: FIX!
+                    m_findPolePipeline.setMinMaxWidth(
+                            MIN_HIGH_CONES_WIDTH_PIX, MAX_HIGH_CONES_WIDTH_PIX);
                     break;
             }
             logCsvString("Vision, setFindPoleMode, " + m_findPoleMode);
