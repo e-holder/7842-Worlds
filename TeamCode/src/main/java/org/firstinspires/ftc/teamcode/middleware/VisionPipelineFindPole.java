@@ -25,7 +25,6 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     public final double POLE_LIGHT_THRESH = 0.0;
     public final double POLE_DARK_THRESH = 100.0;
 
-
     // Note: The origin (0, 0) of the input image is the top-left of the screen.
 
     // Define a box for the area where we expect to see the pole we are about to score on. It needs
@@ -35,7 +34,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     // enough delta between the top and bottom of the box to detect how much the pole is leaning
     // left or right.
     private final int BOX_CENTER_ADJ = 0;
-    public static final int BOX_WIDTH = 400;
+    public static final int BOX_WIDTH = WEBCAM_WIDTH_PIX;
     private final int BOX_HEIGHT = 150;
     private final int BOX_TOP = 0;
     private final int BOX_LEFT = (WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + BOX_CENTER_ADJ;

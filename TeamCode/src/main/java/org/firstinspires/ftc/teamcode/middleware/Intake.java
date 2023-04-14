@@ -123,6 +123,7 @@ public class Intake implements CONSTANTS {
     private double m_intakeOverrideWheelSpeed;
     private double m_armDelta_deg = ARM_TARGET_DELTA_DEG;
     private double m_armDriverCmd;
+    private double m_firstTapeDetectPosY_in;
     private int m_autonomousInitDelayCount = DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT;
     private int m_initDelayCounter = 0;
     private int m_homingDelayCounter = 0;
@@ -280,11 +281,10 @@ public class Intake implements CONSTANTS {
         if (m_isStackTapeCalibrationMode) {
             m_poseY_in = getStackTapeCalibrationPositionY();
         } else {
-            // TODO: Find out how to get current Y position from drivetrain
-            m_poseY_in = Math.abs(m_vera.drivetrain.getPoseEstimate().getY());
+            m_poseY_in = m_vera.drivetrain.getPoseEstimate().getY();
         }
-        // TODO: restore this conditional to use poseY
-        if (true /* m_poseY_in > (m_priorPosY_in + 0.5) */) {
+        // TODO: Fix this for FieldSide and Alliance
+        if (m_poseY_in <  (m_priorPosY_in - 0.5)) {
             if (m_vera.getAlliance() == Alliance.RED) {
                 m_leftVal = m_hwIntake.getLeftTapeSensorRed();
                 m_rightVal = m_hwIntake.getRightTapeSensorRed();
@@ -292,8 +292,7 @@ public class Intake implements CONSTANTS {
                 m_leftVal = m_hwIntake.getLeftTapeSensorBlue();
                 m_rightVal = m_hwIntake.getRightTapeSensorBlue();
             }
-            // TODO: Restore this after debugging and calibration.
-            if (true /* m_leftVal >= STACK_TAPE_THRESH || m_rightVal >= STACK_TAPE_THRESH */) {
+            if (m_leftVal >= STACK_TAPE_THRESH || m_rightVal >= STACK_TAPE_THRESH) {
                 if (m_stackDataIdx < 499) {
                     m_stackDataIdx++;
                 }
@@ -301,6 +300,9 @@ public class Intake implements CONSTANTS {
                 m_stackTapeData[m_stackDataIdx][1] = m_rightVal;
                 m_stackTapeData[m_stackDataIdx][2] = m_poseY_in;
                 m_priorPosY_in = m_poseY_in;
+                if (m_stackDataIdx == 0) {
+                    m_firstTapeDetectPosY_in = m_poseY_in;
+                }
             }
         }
     }
@@ -449,6 +451,7 @@ public class Intake implements CONSTANTS {
 
     public void turnOnStackTapeSensing() {
         m_isStackTapeSensingOn = true;
+        m_firstTapeDetectPosY_in = 2.0;
         m_stackDataIdx = -1;
         if (m_isStackTapeCalibrationMode) {
             m_vera.drivetrain.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -466,6 +469,10 @@ public class Intake implements CONSTANTS {
                     ", right, " + df3.format(m_stackTapeData[idx][1]) +
                     ", posY, " + df3.format(m_stackTapeData[idx][2]));
         }
+    }
+
+    public double getTapeDetectPosY_in() {
+        return m_firstTapeDetectPosY_in;
     }
 
     public double getStackDeltaX_in() {
@@ -533,6 +540,8 @@ public class Intake implements CONSTANTS {
             case MOVING_TO_EJECT_POS:
                 if (m_isLimitSwitchPressed) {
                     resetArmMotor();
+                    m_ejectDelayCounter = (m_isConeStackMode ? EJECT_CONESTACK_DELAY_COUNT : 0);
+                    m_state = IntakeState.EJECT_CONE;
                 }
                 if (!m_isArmBusy) {
                     m_ejectDelayCounter = (m_isConeStackMode ? EJECT_CONESTACK_DELAY_COUNT : 0);

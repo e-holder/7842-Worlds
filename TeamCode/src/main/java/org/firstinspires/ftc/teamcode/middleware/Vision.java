@@ -10,8 +10,8 @@ public class Vision implements CONSTANTS {
     private final double CAMERA_TILT_SIGNAL = 0.0;
     // For the pole vision camera tilt, the following settings need to allow us to see just the pole
     // in our detection box without seeing any of a 4-stack of cones on that pole.
-    // 0.285 = about 12deg
-    // 0.33 = about 30deg
+    // 0.285 = about 12 deg
+    // 0.33 = about 30 deg
     private final double CAMERA_TILT_HIGH_POLE = 0.33;
     private final double CAMERA_TILT_MID_POLE = 0.33;
 
@@ -138,8 +138,8 @@ public class Vision implements CONSTANTS {
             (VisionPipelineFindPole.BOX_WIDTH / 2) + 51;
 
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
-    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 80;
-    private final int MIN_MID_POLE_WIDTH_PIX = 25;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 86;
+    private final int MIN_MID_POLE_WIDTH_PIX = 47;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;
