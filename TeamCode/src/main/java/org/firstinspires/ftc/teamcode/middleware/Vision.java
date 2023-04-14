@@ -147,7 +147,7 @@ public class Vision implements CONSTANTS {
     public static final int NOMINAL_MID_CONES_CENTER_PIX =
             (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) + 60;
     private final int MAX_MID_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
-    public static final int NOMINAL_MID_CONES_WIDTH_PIX = 300;
+    public static final int NOMINAL_MID_CONES_WIDTH_PIX = 360;
     private final int MIN_MID_CONES_WIDTH_PIX = 200;
 
     // Constants to control how much heading change to score cones based on pole detection.
@@ -165,7 +165,9 @@ public class Vision implements CONSTANTS {
 //    private final double MAX_SCORE_HIGH_ADJUST_IN = 4.0;
 //    private final double MAX_SCORE_MID_ADJUST_IN = 4.0;
     private final double HIGH_WIDTH_PIX_TO_DIST_IN = -1.001;
-    private final double MID_WIDTH_PIX_TO_DIST_IN = -(3.0 / 18.0); // Inches / Pixel Width Change
+    private final double HIGH_CONES_WIDTH_PIX_TO_DIST_IN = 0.0000001; // TODO: Calibrate
+    private final double MID_WIDTH_PIX_TO_DIST_IN = -(3.0 / 18.0);        // Inches / Pixel Change
+    private final double MID_CONES_WIDTH_PIX_TO_DIST_IN = -(3.0 / 100.0); // Inches / Pixel Change
 
     // Ignore pole detections +/- this delta from nominal position.
     private final int MAX_DELTA_HIGH_PIX = 70;
@@ -209,23 +211,55 @@ public class Vision implements CONSTANTS {
     }
 
     private boolean computeDeltaWidthPix() {
-        int nominalWidth_pix = (m_findPoleMode == FindPoleMode.HIGH_POLE ?
-                NOMINAL_HIGH_POLE_WIDTH_PIX :
-                NOMINAL_MID_POLE_WIDTH_PIX);
-        m_widthDelta_pix = m_poleWidth_pix - nominalWidth_pix;
+        switch (m_findPoleMode) {
+            case HIGH_POLE:
+                m_widthDelta_pix = m_poleWidth_pix - NOMINAL_HIGH_POLE_WIDTH_PIX;
+                break;
+            case MID_POLE:
+                m_widthDelta_pix = m_poleWidth_pix - NOMINAL_MID_POLE_WIDTH_PIX;
+                break;
+            case HIGH_SCORED_CONES:
+                m_widthDelta_pix = m_poleWidth_pix - NOMINAL_HIGH_CONES_WIDTH_PIX;
+                break;
+            case MID_SCORED_CONES:
+                m_widthDelta_pix = m_poleWidth_pix - NOMINAL_MID_CONES_WIDTH_PIX;
+                break;
+        }
         return (m_poleWidth_pix > 0);
     }
 
     private double computeDeltaAngle_deg(int deltaPix) {
-        return deltaPix * (m_findPoleMode == FindPoleMode.HIGH_POLE ? HIGH_PIX_TO_DEG : MID_PIX_TO_DEG);
+        double deltaAngle_deg;
+        switch (m_findPoleMode) {
+            case HIGH_POLE:
+            case HIGH_SCORED_CONES:
+                deltaAngle_deg =  deltaPix * HIGH_PIX_TO_DEG;
+                break;
+            case MID_POLE:
+            case MID_SCORED_CONES:
+            default:
+                deltaAngle_deg =  deltaPix * MID_PIX_TO_DEG;
+                break;
+        }
+        return deltaAngle_deg;
     }
 
     private double computeDistToScore_in(int deltaWidthPix) {
         double distToScore_in;
-        if (m_findPoleMode == FindPoleMode.HIGH_POLE) {
-            distToScore_in = deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN;
-        } else {
-            distToScore_in = deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN;
+        switch (m_findPoleMode) {
+            case HIGH_POLE:
+                distToScore_in = deltaWidthPix * HIGH_WIDTH_PIX_TO_DIST_IN;
+                break;
+            case HIGH_SCORED_CONES:
+                distToScore_in =  deltaWidthPix * HIGH_CONES_WIDTH_PIX_TO_DIST_IN;
+                break;
+            case MID_POLE:
+                distToScore_in = deltaWidthPix * MID_WIDTH_PIX_TO_DIST_IN;
+                break;
+            case MID_SCORED_CONES:
+            default:
+                distToScore_in =  deltaWidthPix * MID_CONES_WIDTH_PIX_TO_DIST_IN;
+                break;
         }
         return distToScore_in;
     }
@@ -236,8 +270,8 @@ public class Vision implements CONSTANTS {
             m_deltaToPole_deg = computeDeltaAngle_deg(m_poleColDelta_pix);
             m_distToScore_in = computeDistToScore_in(m_widthDelta_pix);
         } else {
-            m_deltaToPole_deg = -999.0;
-            m_distToScore_in = -999.0;
+            m_deltaToPole_deg = 0.0;
+            m_distToScore_in = 0.0;
         }
     }
 

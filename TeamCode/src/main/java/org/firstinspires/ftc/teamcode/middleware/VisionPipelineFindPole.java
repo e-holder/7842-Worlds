@@ -50,10 +50,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             new Point(BOX_LEFT + BOX_WIDTH, BOX_TOP + BOX_HEIGHT);
     private final Rect BOX = new Rect(BOX_TOP_LEFT, BOX_BOTTOM_RIGHT);
 
-    // TODO: Box needs to be higher for HIGH poles.
     public static final int CONE_BOX_WIDTH = WEBCAM_WIDTH_PIX;
-    private final int CONE_BOX_HEIGHT = WEBCAM_HEIGHT_PIX / 3;
-    private final int CONE_BOX_TOP = WEBCAM_HEIGHT_PIX - CONE_BOX_HEIGHT - 1;
+    private final int CONE_BOX_HEIGHT = WEBCAM_HEIGHT_PIX;
+    private final int CONE_BOX_TOP = WEBCAM_HEIGHT_PIX - CONE_BOX_HEIGHT;
     private final int CONE_BOX_LEFT = 0;
     private final Point CONE_BOX_TOP_LEFT = new Point(CONE_BOX_LEFT, CONE_BOX_TOP);
     private final Point CONE_BOX_BOTTOM_RIGHT =
@@ -306,11 +305,17 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
             m_poleCol_pix.set(m_detectRectangle.x + (m_detectRectangle.width / 2));
             m_poleRow_pix = CONE_BOX_TOP + m_detectRectangle.y + (m_detectRectangle.height / 2);
         } else {
-            // If we get no rectangle detection, we will assume we are so close the cones are
+            // If we get no rectangle detection, check to see if we are so close the cones are
             // filling the FOV and we will just assume we are centered.
-            m_width_pix.set(CONE_BOX_WIDTH);
-            m_poleCol_pix.set(Vision.NOMINAL_MID_CONES_CENTER_PIX);  // TODO: HIGH not implemented
-            m_poleRow_pix = CONE_BOX_TOP + (CONE_BOX_HEIGHT / 2);
+            if (Core.mean(m_matWithinThreshC).val[0] > 200) {
+                m_width_pix.set(CONE_BOX_WIDTH);
+                m_poleCol_pix.set(Vision.NOMINAL_MID_CONES_CENTER_PIX);  // TODO: HIGH not implemented
+                m_poleRow_pix = CONE_BOX_TOP + (CONE_BOX_HEIGHT / 2);
+            } else {
+                m_width_pix.set(-1);
+                m_poleCol_pix.set(-1);
+                m_poleRow_pix = -1;
+            }
         }
         m_frameCount.incrementAndGet(); // Ignore return value from "Get".
 

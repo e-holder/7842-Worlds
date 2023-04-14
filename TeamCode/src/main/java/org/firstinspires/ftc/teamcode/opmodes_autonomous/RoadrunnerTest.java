@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskReadSignal;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.WaitSegment;
 
 @Autonomous(name = "RoadRunner Test")
 public class RoadrunnerTest extends LinOpAutonomousBase {
@@ -97,11 +98,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(5);
-        m_vera.intake.turnOffStackTapeSensing();
-
-        TrajectorySequence IntakeNudge5 = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).lineToLinearHeading(new Pose2d(-47.5, m_vera.intake.getTapeDetectPosY_in()-NudgeOffset, Math.toRadians(-95))).waitSeconds(1.2).build();
-        m_vera.drivetrain.followTrajectorySequence(IntakeNudge5);
-
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
         m_vera.lift.moveLiftToMidPole();
@@ -116,13 +113,9 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(4);
-        m_vera.intake.turnOffStackTapeSensing();
-
-        TrajectorySequence IntakeNudge4 = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).lineToLinearHeading(new Pose2d(-47.5, m_vera.intake.getTapeDetectPosY_in()-NudgeOffset, Math.toRadians(-95))).waitSeconds(1.2).build();
-        m_vera.drivetrain.followTrajectorySequence(IntakeNudge4);
-
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -135,11 +128,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(3);
-        m_vera.intake.turnOffStackTapeSensing();
-
-        TrajectorySequence IntakeNudge3 = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).lineToLinearHeading(new Pose2d(-47.5, m_vera.intake.getTapeDetectPosY_in()-NudgeOffset, Math.toRadians(-95))).waitSeconds(1.2).build();
-        m_vera.drivetrain.followTrajectorySequence(IntakeNudge3);
-
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
@@ -154,11 +143,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(2);
-        m_vera.intake.turnOffStackTapeSensing();
-
-        TrajectorySequence IntakeNudge2 = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).lineToLinearHeading(new Pose2d(-47.5, m_vera.intake.getTapeDetectPosY_in()-NudgeOffset, Math.toRadians(-95))).waitSeconds(1.2).build();
-        m_vera.drivetrain.followTrajectorySequence(IntakeNudge2);
-
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();
@@ -173,11 +158,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(1);
-        m_vera.intake.turnOffStackTapeSensing();
-
-        TrajectorySequence IntakeNudge1 = m_vera.drivetrain.trajectorySequenceBuilder(IntakePos).lineToLinearHeading(new Pose2d(-47.5, m_vera.intake.getTapeDetectPosY_in()-NudgeOffset, Math.toRadians(-95))).waitSeconds(1.2).build();
-        m_vera.drivetrain.followTrajectorySequence(IntakeNudge1);
-
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreTraj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES);
         m_vera.lift.moveLiftToMidPole();

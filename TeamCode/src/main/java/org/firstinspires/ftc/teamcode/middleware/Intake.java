@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.middleware;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -301,6 +302,8 @@ public class Intake implements CONSTANTS {
                 m_priorPosY_in = m_poseY_in;
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
+                    m_vera.drivetrain.setPoseEstimate(new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(), -11, m_vera.drivetrain.getPoseEstimate().getHeading()));
+                    turnOffStackTapeSensing();
                 }
             }
         }

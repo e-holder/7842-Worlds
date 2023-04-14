@@ -380,10 +380,10 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     }
 
     public void reportData(Telemetry telemetry) {
-//        if (false) {
-//            // Add CSV logging and/or telemetry here
-//            logCsvString("remDist, " + df3.format(m_remainingDist_in));
-//        }
+        if (true) {
+            // Add CSV logging and/or telemetry here
+            logCsvString("x = " + df3.format(getPoseEstimate().getX()) + " y = " + df3.format(getPoseEstimate().getY()) + " h = " + df3.format(getPoseEstimate().getHeading()));
+        }
     }
 
 
