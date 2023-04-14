@@ -86,7 +86,7 @@ public class Intake implements CONSTANTS {
     // BLUE:       center tape:  233-289   223-354
     // BLUE: 2-inch off center:  193-167   164-232
     // BLUE:           no tape:  139-147   144-158
-    private final double STACK_TAPE_THRESH = 160;  // TODO: Calibrate for RED too (this is BLUE)
+    private final double STACK_TAPE_THRESH = 180;  // TODO: Calibrate for RED too (this is BLUE)
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
