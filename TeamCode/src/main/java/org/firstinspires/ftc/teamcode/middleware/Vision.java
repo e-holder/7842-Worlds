@@ -148,7 +148,7 @@ public class Vision implements CONSTANTS {
             (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) + 60;
     private final int MAX_MID_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
     public static final int NOMINAL_MID_CONES_WIDTH_PIX = 360;
-    private final int MIN_MID_CONES_WIDTH_PIX = 200;
+    private final int MIN_MID_CONES_WIDTH_PIX = 80;
 
     // Constants to control how much heading change to score cones based on pole detection.
     private final double HIGH_PIX_TO_DEG = 0.088;

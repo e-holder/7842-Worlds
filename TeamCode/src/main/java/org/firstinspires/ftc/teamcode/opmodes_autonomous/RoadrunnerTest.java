@@ -48,7 +48,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
-        Pose2d IntakePos = new Pose2d(-48, -19, Math.toRadians(-95.0));
+        Pose2d IntakePos = new Pose2d(-48, -18.5, Math.toRadians(-95.0));
         //Pose2d IntakePos = new Pose2d(-49, -20, Math.toRadians(-90.0));
         //Vector2d IntakeVec = new Vector2d(-49, -20);
         Pose2d ScorePos = new Pose2d(-48, -4, Math.toRadians(-122.5));

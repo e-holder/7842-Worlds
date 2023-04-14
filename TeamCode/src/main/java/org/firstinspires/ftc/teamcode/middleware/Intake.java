@@ -73,11 +73,11 @@ public class Intake implements CONSTANTS {
 
     private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 175.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.5;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
@@ -251,7 +251,6 @@ public class Intake implements CONSTANTS {
             } else if (m_armTargetPos_deg <= ARM_CONE5_DEG) {
                 wristPos_deg = WRIST_POS_IDLE_DEG;
             } else {
-                // Note: At arm 107, we want wrist 223 (about 43-45 degrees up from arm).
                 wristPos_deg = m_armPos_deg + WRIST_POS_CONE_DELTA_DEG;
             }
         }
@@ -302,7 +301,7 @@ public class Intake implements CONSTANTS {
                 m_priorPosY_in = m_poseY_in;
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
-                    m_vera.drivetrain.setPoseEstimate(new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(), -11, m_vera.drivetrain.getPoseEstimate().getHeading()));
+                    m_vera.drivetrain.setPoseEstimate(new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(), -10.5, m_vera.drivetrain.getPoseEstimate().getHeading()));
                     turnOffStackTapeSensing();
                 }
             }
