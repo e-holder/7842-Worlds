@@ -390,11 +390,14 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     // POLEFINDING METHODS
     private final TaskFindPole m_taskFindPole;
 
-    private void initializeFindPoleTask(FindPoleMode findPoleMode) {
-        m_taskFindPole.startFindingPole(findPoleMode);
+    private void initializeFindPoleTask(FindPoleMode findPoleMode, String coneName) {
+        m_taskFindPole.startFindingPole(findPoleMode, coneName);
     }
 
-    public void findPole(FindPoleMode findPoleMode) { initializeFindPoleTask(findPoleMode); }
+    public void findPole(FindPoleMode findPoleMode, String coneName) {
+        initializeFindPoleTask(findPoleMode, coneName);
+    }
+
     public void stopFindingPole() { m_taskFindPole.stopFindingPole(); }
     public boolean isFindingPole() { return m_taskFindPole.isFindingPole(); }
 

@@ -107,9 +107,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         }
 
         if (gamepad1.x) {
-            m_vera.drivetrain.findPole(FindPoleMode.HIGH_POLE);
+            m_vera.drivetrain.findPole(FindPoleMode.HIGH_POLE, "teleHigh");
         } else if (gamepad1.y) {
-            m_vera.drivetrain.findPole(FindPoleMode.MID_POLE);
+            m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "teleMid");
         } else {
             m_vera.drivetrain.stopFindingPole();
         }

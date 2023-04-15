@@ -207,7 +207,7 @@ public class Vision implements CONSTANTS {
                 NOMINAL_HIGH_POLE_CENTER_PIX :
                 NOMINAL_MID_POLE_CENTER_PIX);
         m_poleColDelta_pix = m_poleCol_pix - nominalCenter_pix;
-        return (m_poleCol_pix > 0);
+        return (m_poleCol_pix >= 0);
     }
 
     private boolean computeDeltaWidthPix() {
@@ -225,7 +225,7 @@ public class Vision implements CONSTANTS {
                 m_widthDelta_pix = m_poleWidth_pix - NOMINAL_MID_CONES_WIDTH_PIX;
                 break;
         }
-        return (m_poleWidth_pix > 0);
+        return (m_poleWidth_pix >= 0);
     }
 
     private double computeDeltaAngle_deg(int deltaPix) {
@@ -289,8 +289,8 @@ public class Vision implements CONSTANTS {
         return m_distToScore_in;
     }
 
-    public void setFindPoleMode(FindPoleMode newFindPoleMode) {
-        logCsvString("Vision, setFindPoleMode, " + m_findPoleMode);
+    public void setFindPoleMode(FindPoleMode newFindPoleMode, String status) {
+        logCsvString("Vision, setFindPoleMode, " + m_findPoleMode + " " + status);
         if (m_findPoleMode != newFindPoleMode) {
             m_findPoleMode = newFindPoleMode;
             switch (m_findPoleMode) {

@@ -10,6 +10,7 @@ public class TaskFindPole implements CONSTANTS {
         INITIALIZING,
         IDLE,
         FIND_POLE,
+        SKIPPING_FRAMES,
         FINDING_POLE,
     }
 
@@ -21,6 +22,7 @@ public class TaskFindPole implements CONSTANTS {
     private int m_frameCount;
     private int m_priorFrameCount;
     private int m_startFrameCount;;
+    private int m_framesToSkip;
 
     public TaskFindPole(Vera vera) {
         m_vera = vera;
@@ -28,31 +30,57 @@ public class TaskFindPole implements CONSTANTS {
     }
 
     public void setInitializationFindPoleMode(FindPoleMode findPoleMode) {
-        m_vera.vision.setFindPoleMode(findPoleMode);
+        m_vera.vision.setFindPoleMode(findPoleMode, "init");
     }
 
-    public void startFindingPole(FindPoleMode findPoleMode) {
-        m_vera.vision.setFindPoleMode(findPoleMode);
-        if (m_state != TaskState.FIND_POLE && m_state != TaskState.FINDING_POLE) {
-            m_vera.vision.logFindPoleData("starting", 0);
-            m_state = TaskState.FIND_POLE;
+    public void startFindingPole(FindPoleMode findPoleMode, String coneName) {
+        m_vera.vision.setFindPoleMode(findPoleMode, coneName);
+        switch (m_state) {
+            case INIT:
+            case INITIALIZING:
+            case IDLE:
+                m_vera.vision.logFindPoleData("starting", 0);
+                m_state = TaskState.FIND_POLE;
+                break;
         }
     }
 
     public void stopFindingPole() {
-        if(m_state != TaskState.INIT && m_state != TaskState.INITIALIZING) {
-            m_vera.vision.logFindPoleData("stopping", 0);
-            m_state = TaskState.IDLE;
+        switch (m_state) {
+            case FIND_POLE:
+            case SKIPPING_FRAMES:
+            case FINDING_POLE:
+                m_vera.vision.logFindPoleData("stopping", 0);
+                m_state = TaskState.IDLE;
         }
     }
 
     public boolean isFindingPole() {
         return (m_state != TaskState.IDLE);
     }
-    public boolean isPoleDetected() { return m_vera.vision.isPoleDetected(); }
-    public double getOffsetToPole_deg() { return m_vera.vision.getDeltaToPole_deg(); }
+
+    public boolean isPoleDetected() {
+        if (m_state == TaskState.FIND_POLE || m_state == TaskState.SKIPPING_FRAMES) {
+            return true;
+        } else {
+            return m_vera.vision.isPoleDetected();
+        }
+    }
+
+    public double getOffsetToPole_deg() {
+        if (m_state == TaskState.FIND_POLE || m_state == TaskState.SKIPPING_FRAMES) {
+            return 0.0;
+        } else {
+            return m_vera.vision.getDeltaToPole_deg();
+        }
+    }
+
     public double getDistToScore_in() {
-        return m_vera.vision.getDistToScore_in();
+        if (m_state == TaskState.FIND_POLE || m_state == TaskState.SKIPPING_FRAMES) {
+            return 0.0;
+        } else {
+            return m_vera.vision.getDistToScore_in();
+        }
     }
 
     public TaskState update() {
@@ -90,7 +118,22 @@ public class TaskFindPole implements CONSTANTS {
                 m_startFrameCount = m_frameCount;
                 m_startLoopCount = m_vera.getLoopCount();
                 m_vera.vision.findPoleEnable(true);
-                m_state = TaskState.FINDING_POLE;
+                m_framesToSkip = 6;
+                m_state = TaskState.SKIPPING_FRAMES;
+                break;
+            case SKIPPING_FRAMES:
+                m_frameCount = m_vera.vision.getFindPoleFrameCount();
+                if (m_frameCount > m_priorFrameCount) {
+                    m_priorFrameCount = m_frameCount;
+                    m_framesToSkip--;
+                    if (m_vera.vision.isPoleDetected() ||
+                            (m_frameCount - m_startFrameCount) > m_framesToSkip) {
+                        m_vera.vision.logFindPoleData("endSkipping", 0);
+                        m_state = TaskState.FINDING_POLE;
+                    } else {
+                        m_vera.vision.logFindPoleData("skipping", 0);
+                    }
+                }
                 break;
             case FINDING_POLE:
                 if (true || Vera.isVisionTestMode) {
@@ -98,7 +141,7 @@ public class TaskFindPole implements CONSTANTS {
                     if (m_frameCount > m_priorFrameCount) {
                         m_priorFrameCount = m_frameCount;
                         double loopsPerFrame = (double)(m_vera.getLoopCount() - m_startLoopCount) /
-                                        Math.max(1.0, (m_frameCount - m_startFrameCount));
+                                        Math.max(0.0001, (m_frameCount - m_startFrameCount));
                         m_vera.vision.logFindPoleData("finding", loopsPerFrame);
                     }
                 }

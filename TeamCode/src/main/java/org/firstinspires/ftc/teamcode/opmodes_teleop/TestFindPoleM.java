@@ -51,7 +51,7 @@ public class TestFindPoleM extends LinearOpMode implements CONSTANTS {
     }
 
     protected void startFindingPole(FindPoleMode findPoleMode) {
-        m_taskFindPole.startFindingPole(findPoleMode);
+        m_taskFindPole.startFindingPole(findPoleMode, "");
     }
 
     protected void commandVera() {
