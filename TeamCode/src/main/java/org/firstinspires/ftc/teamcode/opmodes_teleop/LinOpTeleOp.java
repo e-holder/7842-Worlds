@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
-import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -27,6 +26,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
     private boolean m_2B_AlreadyPressed = false;
     private boolean m_2X_AlreadyPressed = false;
     private boolean m_2Y_AlreadyPressed = false;
+    private boolean m_2LeftBumper_AlreadyPressed = false;
+    private boolean m_2RightBumper_AlreadyPressed = false;
 
     private Gamepad.RumbleEffect m_doubleRumble;
     private boolean m_runGamepad1Rumble = false;
@@ -74,7 +75,6 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         } else if (gamepad2.left_stick_y > 0.5) {
             m_vera.intake.forceArmReset();
         }
-
     }
 
     private void getCommandsFromG1Buttons() {
@@ -135,7 +135,11 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.lift.toggleClawOverride();
         } else if (gamepad2.dpad_up && !m_2DpadUp_AlreadyPressed) {
             m_vera.intake.toggleBeaconMode();
-        }
+       } else if (gamepad2.right_bumper && !m_2RightBumper_AlreadyPressed) {
+           m_vera.intake.adjustWristDeltaOverride_deg(-3.0);
+        } else if (gamepad2.left_bumper && !m_2LeftBumper_AlreadyPressed) {
+           m_vera.intake.adjustWristDeltaOverride_deg(3.0);
+       }
         // NOTE: gamepad2 dpad_left and dpad_down are located in getCommandsFromG1Buttons to
         // prevent duplicated buttons from overwriting one another.
 
@@ -145,6 +149,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         m_2Y_AlreadyPressed = gamepad2.y;
         m_2DpadUp_AlreadyPressed = gamepad2.dpad_up;
         m_2DpadRight_AlreadyPressed = gamepad2.dpad_right;
+        m_2RightBumper_AlreadyPressed = gamepad2.right_bumper;
+        m_2LeftBumper_AlreadyPressed = gamepad2.left_bumper;
     }
 
     private void getCommandsFromButtons() {

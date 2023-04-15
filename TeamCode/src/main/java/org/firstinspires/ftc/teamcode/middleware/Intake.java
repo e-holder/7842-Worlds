@@ -114,6 +114,7 @@ public class Intake implements CONSTANTS {
     private double m_priorPosY_in = -999.0;
     // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
     private double m_wristCmdPos_deg = 0.0;
+    private double m_wristDeltaOverride_deg = 0.0;
     private double m_armPos_deg;    // 0 is vertical, 90 is extended/front parallel to floor.
     private double m_armTargetPos_deg;
     private double m_armPosAtHasCone_deg;
@@ -228,7 +229,9 @@ public class Intake implements CONSTANTS {
     private double computeWristAngle_deg() {
         double wristPos_deg = 0.0;
         if (m_hasResetOccurred) {
-            if (m_isConeStackMode) {
+            if (m_isLowJunctionMode && m_hasCone) {
+                wristPos_deg = WRIST_POS_AT_LOW_JUNCTION_DEG;
+            } else if (m_isConeStackMode) {
                 wristPos_deg = m_armPos_deg + WRIST_POS_STACK_DELTA_DEG;
                 switch (m_state) {
                     case MOVING_TO_EJECT_POS:
@@ -242,8 +245,6 @@ public class Intake implements CONSTANTS {
                 }
             } else if (m_isBeaconMode) {
                 wristPos_deg = m_armPos_deg + WRIST_POS_BEACON_DELTA_DEG;
-            } else if (m_isLowJunctionMode && m_hasCone) {
-                wristPos_deg = WRIST_POS_AT_LOW_JUNCTION_DEG;
             } else if (m_autonomousShutdown) {
                 wristPos_deg = WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG;
             } else if (m_armTargetPos_deg <= ARM_EJECT_DEG) {
@@ -254,7 +255,7 @@ public class Intake implements CONSTANTS {
                 wristPos_deg = m_armPos_deg + WRIST_POS_CONE_DELTA_DEG;
             }
         }
-        return wristPos_deg;
+        return wristPos_deg + m_wristDeltaOverride_deg;
     }
 
     private void setWristPosition() {
@@ -450,6 +451,10 @@ public class Intake implements CONSTANTS {
 
     public void setIntakeOverrideSpeed(double speed) {
         m_intakeOverrideWheelSpeed = speed;
+    }
+
+    public void adjustWristDeltaOverride_deg(double delta_deg) {
+        m_wristDeltaOverride_deg += delta_deg;
     }
 
     public void moveToEjectPos() {
