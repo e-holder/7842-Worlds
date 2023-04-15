@@ -51,7 +51,7 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
         Pose2d IntakePos = new Pose2d(-48, -18.5, Math.toRadians(-95.0));
         //Pose2d IntakePos = new Pose2d(-49, -20, Math.toRadians(-90.0));
         //Vector2d IntakeVec = new Vector2d(-49, -20);
-        Pose2d ScorePos = new Pose2d(-48, -4, Math.toRadians(-122.5));
+        Pose2d ScorePos = new Pose2d(-48, -4, Math.toRadians(-127));
         double NudgeOffset = 23.0;
 
         //Velocities and Accelerations for re-use
