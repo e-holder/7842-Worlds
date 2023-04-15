@@ -38,21 +38,45 @@ public class Intake implements CONSTANTS {
         UP_SLOW
     }
 
+    // For arm, 0 is vertical, 90 is extended/front parallel to floor.
+    // For wrist, 0 is inside/parallel to arm, 180 is extended/parallel to arm.
+    private final double T_ARM_CONE5_DEG = 70; //old 75
+    private final double T_ARM_CONE4_DEG = 78; //old 80
+    private final double T_ARM_CONE3_DEG = 87; //old 89
+    private final double T_ARM_CONE2_DEG = 95; //old 97
+    private final double T_ARM_CONE1_DEG = 108.0; //104 is too high
+    private final double T_WRIST_POS_STACK_DELTA_DEG = 173.0;
+    private final double T_WRIST_POS_CONE_DELTA_DEG = 180.0;
+
+    private final double A_ARM_CONE5_DEG = 82.5; //old 75
+    private final double A_ARM_CONE4_DEG = 87.5; //old 80
+    private final double A_ARM_CONE3_DEG = 95.0; //old 89
+    private final double A_ARM_CONE2_DEG = 90.0; //old 97
+    private final double A_ARM_CONE1_DEG = 116.0; //104 is too high
+    private final double A_WRIST_POS_STACK_DELTA_DEG = 173.0;
+    private final double A_WRIST_POS_CONE_DELTA_DEG = 180.0;
+
+    // This set of variables is specified separately for Auto & TeleOp just above (assigned in the
+    // constructor.
+    private double ARM_CONE5_DEG;
+    private double ARM_CONE4_DEG;
+    private double ARM_CONE3_DEG;
+    private double ARM_CONE2_DEG;
+    private double ARM_CONE1_DEG;
+    private double WRIST_POS_STACK_DELTA_DEG;
+    private double WRIST_POS_CONE_DELTA_DEG;
+
     private final int DEFAULT_AUTONOMOUS_INIT_DELAY_COUNT = 30;
     private final int HOMING_DELAY_COUNT = 10;
 
-    // Note: Arm limit (where trigger switch resets) is about -33.0 degrees
+    // Note: Arm limit (where limit switch triggers) is about -33.0 degrees
     private final double ARM_EJECT_DEG = -30.0;
     private final double ARM_IDLE_DEG = -10.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 70; //old 75
-    private final double ARM_CONE4_DEG = 78; //old 80
-    private final double ARM_CONE3_DEG = 87; //old 89
-    private final double ARM_CONE2_DEG = 95; //old 97
+
     private final double ARM_BEACON_DEG = 97.5; //old 97.5
-    private final double ARM_CONE1_DEG = 108.0; //104 is too high
     private final double ARM_MAX_DEG = 125.0;    // Note: Max physical position is about 112.
 
     private final double ARM_ARRIVAL_TOLERANCE_DEG = 2.0;
@@ -66,14 +90,11 @@ public class Intake implements CONSTANTS {
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
-    private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
+    private final double WRIST_POS_AT_AUTO_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 10.0;
     private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 177.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
-
     private final double WRIST_POS_BEACON_DELTA_DEG = -90.0;
-    private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
@@ -82,12 +103,7 @@ public class Intake implements CONSTANTS {
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
 
-    //                             LEFT     RIGHT
-    // BLUE:         full tape:  360-445   372-480
-    // BLUE:       center tape:  233-289   223-354
-    // BLUE: 2-inch off center:  193-167   164-232
-    // BLUE:           no tape:  139-147   144-158
-    private final double STACK_TAPE_THRESH = 180;  // TODO: Calibrate for RED too (this is BLUE)
+    private final double STACK_TAPE_THRESH = 180;
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
@@ -112,10 +128,11 @@ public class Intake implements CONSTANTS {
     private double[][] m_stackTapeData = new double[500][5];  // 0=left, 1=right, 2-4=X,Y,Heading
     private double m_leftVal, m_rightVal, m_poseX_in, m_poseY_in, m_poseHead_deg;
     private double m_priorPosY_in = -999.0;
-    // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
+    // For wrist, 0 is inside/parallel to arm, 180 is extended/parallel to arm.
     private double m_wristCmdPos_deg = 0.0;
     private double m_wristDeltaOverride_deg = 0.0;
-    private double m_armPos_deg;    // 0 is vertical, 90 is extended/front parallel to floor.
+    // For arm, 0 is vertical, 90 is extended/front parallel to floor.
+    private double m_armPos_deg;
     private double m_armTargetPos_deg;
     private double m_armPosAtHasCone_deg;
     private double m_armTargetSpeed;
@@ -142,6 +159,23 @@ public class Intake implements CONSTANTS {
         m_hwIntake = vera.getHwIntake();
 
         m_vera = vera;
+        if (m_vera.isAutonomous()) {
+            ARM_CONE5_DEG = A_ARM_CONE5_DEG;
+            ARM_CONE4_DEG = A_ARM_CONE4_DEG;
+            ARM_CONE3_DEG = A_ARM_CONE3_DEG;
+            ARM_CONE2_DEG = A_ARM_CONE2_DEG;
+            ARM_CONE1_DEG = A_ARM_CONE1_DEG;
+            WRIST_POS_STACK_DELTA_DEG = A_WRIST_POS_STACK_DELTA_DEG;
+            WRIST_POS_CONE_DELTA_DEG = A_WRIST_POS_CONE_DELTA_DEG;
+        } else {
+            ARM_CONE5_DEG = T_ARM_CONE5_DEG;
+            ARM_CONE4_DEG = T_ARM_CONE4_DEG;
+            ARM_CONE3_DEG = T_ARM_CONE3_DEG;
+            ARM_CONE2_DEG = T_ARM_CONE2_DEG;
+            ARM_CONE1_DEG = T_ARM_CONE1_DEG;
+            WRIST_POS_STACK_DELTA_DEG = T_WRIST_POS_STACK_DELTA_DEG;
+            WRIST_POS_CONE_DELTA_DEG = T_WRIST_POS_CONE_DELTA_DEG;
+        }
         m_isLimitSwitchPressed = false;
         // This wrist move is required so our robot is shorter than 18" after INIT.
         m_hwIntake.wristMoveToPosition(10.0);
@@ -246,7 +280,7 @@ public class Intake implements CONSTANTS {
             } else if (m_isBeaconMode) {
                 wristPos_deg = m_armPos_deg + WRIST_POS_BEACON_DELTA_DEG;
             } else if (m_autonomousShutdown) {
-                wristPos_deg = WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG;
+                wristPos_deg = WRIST_POS_AT_AUTO_SHUTDOWN_DEG;
             } else if (m_armTargetPos_deg <= ARM_EJECT_DEG) {
                 wristPos_deg = WRIST_POS_EJECT_CONE_DEG;
             } else if (m_armTargetPos_deg <= ARM_CONE5_DEG) {
