@@ -118,7 +118,7 @@ public class TaskFindPole implements CONSTANTS {
                 m_startFrameCount = m_frameCount;
                 m_startLoopCount = m_vera.getLoopCount();
                 m_vera.vision.findPoleEnable(true);
-                m_framesToSkip = 6;
+                m_framesToSkip = 8;
                 m_state = TaskState.SKIPPING_FRAMES;
                 break;
             case SKIPPING_FRAMES:
