@@ -51,8 +51,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final Rect BOX = new Rect(BOX_TOP_LEFT, BOX_BOTTOM_RIGHT);
 
     public static final int CONE_BOX_WIDTH = WEBCAM_WIDTH_PIX;
-    private final int CONE_BOX_HEIGHT = WEBCAM_HEIGHT_PIX;
-    private final int CONE_BOX_TOP = WEBCAM_HEIGHT_PIX - CONE_BOX_HEIGHT;
+    private final int CONE_BOX_HEIGHT = WEBCAM_HEIGHT_PIX / 3;
+    private final int CONE_BOX_TOP = WEBCAM_HEIGHT_PIX - CONE_BOX_HEIGHT - 1;
     private final int CONE_BOX_LEFT = 0;
     private final Point CONE_BOX_TOP_LEFT = new Point(CONE_BOX_LEFT, CONE_BOX_TOP);
     private final Point CONE_BOX_BOTTOM_RIGHT =

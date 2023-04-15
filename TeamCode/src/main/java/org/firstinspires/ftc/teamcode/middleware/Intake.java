@@ -151,6 +151,7 @@ public class Intake implements CONSTANTS {
     private int m_targetConeStackLevel;
     private int m_armPos_ticks;
     private int m_stackDataIdx = -1;
+    private double tapeXOffset = 0;
     private StringBuilder m_csvLogStr = new StringBuilder();
 
     // SUBSYSTEM has a public constructor here.
@@ -338,10 +339,15 @@ public class Intake implements CONSTANTS {
                 m_stackTapeData[m_stackDataIdx][3] = m_poseY_in;
                 m_stackTapeData[m_stackDataIdx][4] = m_poseHead_deg;
                 m_priorPosY_in = m_poseY_in;
+
+                if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) tapeXOffset = 0;
+                else if (m_leftVal >= STACK_TAPE_THRESH) tapeXOffset = -0.8;
+                else if (m_rightVal >= STACK_TAPE_THRESH) tapeXOffset = 0.8;
+
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
                     m_vera.drivetrain.setPoseEstimate(
-                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(),
+                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX()+tapeXOffset,
                                     -10.5,
                                     m_vera.drivetrain.getPoseEstimate().getHeading()));
                     turnOffStackTapeSensing();

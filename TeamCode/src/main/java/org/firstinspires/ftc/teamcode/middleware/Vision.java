@@ -145,7 +145,7 @@ public class Vision implements CONSTANTS {
     private final int MIN_MID_POLE_WIDTH_PIX = 47;  // TODO: Note this is too high if D > 10 in
 
     public static final int NOMINAL_MID_CONES_CENTER_PIX =
-            (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) -5;
+            (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) - 5;
     private final int MAX_MID_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
     public static final int NOMINAL_MID_CONES_WIDTH_PIX = 360;
     private final int MIN_MID_CONES_WIDTH_PIX = 80;
