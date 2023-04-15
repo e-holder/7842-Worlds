@@ -30,8 +30,8 @@ public class VisionPipelineSignal extends OpenCvPipeline {
     private final int BOX_WIDTH = 85;
     private final int BOX_HEIGHT = 80;
     // Adjust the top/left constants in these expressions to position the box.
-    private final int BOX_TOP = HwVision.WEBCAM_HEIGHT_PIX - BOX_HEIGHT - 130;
-    private final int BOX_LEFT = (HwVision.WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) + 42;
+    private final int BOX_TOP = HwVision.WEBCAM_HEIGHT_PIX - BOX_HEIGHT - 122;
+    private final int BOX_LEFT = (HwVision.WEBCAM_WIDTH_PIX / 2) - (BOX_WIDTH / 2) - 20;
 
     // These constants are derived from the above and the camera image size.
     private final Point BOX_TOP_LEFT = new Point(BOX_LEFT, BOX_TOP);
