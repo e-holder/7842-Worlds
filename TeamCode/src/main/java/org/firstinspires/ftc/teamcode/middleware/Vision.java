@@ -290,6 +290,7 @@ public class Vision implements CONSTANTS {
     }
 
     public void setFindPoleMode(FindPoleMode newFindPoleMode) {
+        logCsvString("Vision, setFindPoleMode, " + m_findPoleMode);
         if (m_findPoleMode != newFindPoleMode) {
             m_findPoleMode = newFindPoleMode;
             switch (m_findPoleMode) {
@@ -323,7 +324,6 @@ public class Vision implements CONSTANTS {
                             MIN_HIGH_CONES_WIDTH_PIX, MAX_HIGH_CONES_WIDTH_PIX);
                     break;
             }
-            logCsvString("Vision, setFindPoleMode, " + m_findPoleMode);
         }
     }
 
@@ -416,8 +416,7 @@ public class Vision implements CONSTANTS {
     }
 
     public void logFindPoleData(String status, double loopsPerFrame) {
-        logCsvString("FindPole" +
-                ", status," + status +
+        logCsvString("FindPole: " + status +
                 ", frame, " + m_findPoleFrameCount +
                 ", detected, " + m_isPoleDetected +
                 ", deltaDeg, " + df3.format(m_deltaToPole_deg) +

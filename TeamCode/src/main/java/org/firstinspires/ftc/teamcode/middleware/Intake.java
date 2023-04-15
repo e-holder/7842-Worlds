@@ -47,12 +47,12 @@ public class Intake implements CONSTANTS {
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 82.5; //old 75
-    private final double ARM_CONE4_DEG = 87.5; //old 80
-    private final double ARM_CONE3_DEG = 95.0; //old 89
-    private final double ARM_CONE2_DEG = 90.0; //old 97
-    private final double ARM_BEACON_DEG = 97.5;
-    private final double ARM_CONE1_DEG = 116.0;
+    private final double ARM_CONE5_DEG = 72; //old 75
+    private final double ARM_CONE4_DEG = 80; //old 80
+    private final double ARM_CONE3_DEG = 89; //old 89
+    private final double ARM_CONE2_DEG = 97; //old 97
+    private final double ARM_BEACON_DEG = 97.5; //old 97.5
+    private final double ARM_CONE1_DEG = 104.0; //old 116
     private final double ARM_MAX_DEG = 125.0;    // Note: Max physical position is about 112.
 
     private final double ARM_ARRIVAL_TOLERANCE_DEG = 2.0;
@@ -73,11 +73,11 @@ public class Intake implements CONSTANTS {
 
     private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 180.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 185.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.5;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.52;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
@@ -109,8 +109,8 @@ public class Intake implements CONSTANTS {
     private boolean m_isBeaconMode = false;
     private boolean m_isLowJunctionMode = false;
     private boolean m_autonomousShutdown = false;
-    private double[][] m_stackTapeData = new double[500][3];  // 0 = left, 1 = right, 2 = Y pos
-    private double m_leftVal, m_rightVal, m_poseY_in;
+    private double[][] m_stackTapeData = new double[500][5];  // 0=left, 1=right, 2-4=X,Y,Heading
+    private double m_leftVal, m_rightVal, m_poseX_in, m_poseY_in, m_poseHead_deg;
     private double m_priorPosY_in = -999.0;
     // 0 is inside/parallel to arm, 180 is extended/parallel to arm.
     private double m_wristCmdPos_deg = 0.0;
@@ -281,7 +281,9 @@ public class Intake implements CONSTANTS {
         if (m_isStackTapeCalibrationMode) {
             m_poseY_in = getStackTapeCalibrationPositionY();
         } else {
+            m_poseX_in = m_vera.drivetrain.getPoseEstimate().getX();
             m_poseY_in = m_vera.drivetrain.getPoseEstimate().getY();
+            m_poseHead_deg = Math.toDegrees(m_vera.drivetrain.getPoseEstimate().getHeading());
         }
         if (!m_isStackTapeCalibrationMode || Math.abs(m_poseY_in - m_priorPosY_in) > 0.5) {
             if (m_vera.getAlliance() == Alliance.RED) {
@@ -297,11 +299,16 @@ public class Intake implements CONSTANTS {
                 }
                 m_stackTapeData[m_stackDataIdx][0] = m_leftVal;
                 m_stackTapeData[m_stackDataIdx][1] = m_rightVal;
-                m_stackTapeData[m_stackDataIdx][2] = m_poseY_in;
+                m_stackTapeData[m_stackDataIdx][2] = m_poseX_in;
+                m_stackTapeData[m_stackDataIdx][3] = m_poseY_in;
+                m_stackTapeData[m_stackDataIdx][4] = m_poseHead_deg;
                 m_priorPosY_in = m_poseY_in;
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
-                    m_vera.drivetrain.setPoseEstimate(new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(), -10.5, m_vera.drivetrain.getPoseEstimate().getHeading()));
+                    m_vera.drivetrain.setPoseEstimate(
+                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(),
+                                    -10.5,
+                                    m_vera.drivetrain.getPoseEstimate().getHeading()));
                     turnOffStackTapeSensing();
                 }
             }
@@ -352,9 +359,12 @@ public class Intake implements CONSTANTS {
         return (m_state == IntakeState.EJECTING_CONE);
     }
 
-    public void hasConeOverride(double stick) {
-        m_hasConeOverride = (stick < -0.5);
-        m_hasCone |= m_hasConeOverride;
+    public void hasConeOverride() {
+        m_hasCone = true;
+    }
+
+    public void forceArmReset() {
+        m_state = IntakeState.MOVE_TO_RESET_POS;
     }
 
     public void moveToIntakeConePos(int coneLevel) {
@@ -464,11 +474,13 @@ public class Intake implements CONSTANTS {
 
     public void turnOffStackTapeSensing() {
         m_isStackTapeSensingOn = false;
-        logCsvString(m_vera.getAlliance() + ", left, , right, , Y");
+        logCsvString(m_vera.getAlliance() + " , left , , right , , X ,Y , Head");
         for (int idx = 0; idx <= m_stackDataIdx; idx++) {
             logCsvString("left, " + df3.format(m_stackTapeData[idx][0]) +
                     ", right, " + df3.format(m_stackTapeData[idx][1]) +
-                    ", posY, " + df3.format(m_stackTapeData[idx][2]));
+                    ", pose, " + df3.format(m_stackTapeData[idx][2]) +
+                    ", " + df3.format(m_stackTapeData[idx][3]) +
+                    ", " + df3.format(m_stackTapeData[idx][4]));
         }
     }
 

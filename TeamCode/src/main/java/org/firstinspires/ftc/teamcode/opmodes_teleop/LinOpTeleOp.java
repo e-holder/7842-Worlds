@@ -69,7 +69,12 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
 
         m_vera.lift.driverPlaceConeCommand(-gamepad2.right_stick_y);
 
-        m_vera.intake.hasConeOverride(gamepad2.left_stick_y);
+        if (gamepad2.left_stick_y < -0.5) {
+            m_vera.intake.hasConeOverride();
+        } else if (gamepad2.left_stick_y > 0.5) {
+            m_vera.intake.forceArmReset();
+        }
+
     }
 
     private void getCommandsFromG1Buttons() {
@@ -91,6 +96,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.intake.moveToBeaconPlacePos();
         }
 
+        // NOTE: gamepad2 dpad_left and dpad_down are located here to prevent duplicated buttons
+        // from overwriting one another.
         if (gamepad1.dpad_left || gamepad2.dpad_left) {
             m_vera.intake.setIntakeOverrideSpeed(-0.75);
         } else if (gamepad1.dpad_down || gamepad2.dpad_down) {
@@ -129,8 +136,8 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         } else if (gamepad2.dpad_up && !m_2DpadUp_AlreadyPressed) {
             m_vera.intake.toggleBeaconMode();
         }
-        // NOTE: dpad_left and dpad_right are used in getCommandsFromG1Buttons to prevent
-        // duplicated buttons from overwriting one another.
+        // NOTE: gamepad2 dpad_left and dpad_down are located in getCommandsFromG1Buttons to
+        // prevent duplicated buttons from overwriting one another.
 
         m_2A_AlreadyPressed = gamepad2.a;
         m_2B_AlreadyPressed = gamepad2.b;
