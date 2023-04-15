@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.middleware.Intake;
 import org.firstinspires.ftc.teamcode.middleware.Vera;
 
 @TeleOp(name="Test Calibrate Stack Tape")
-//@Disabled
+@Disabled
 public class LinOpTestStackTape extends LinearOpMode implements CONSTANTS {
 
     private Vera m_vera = new Vera(telemetry);

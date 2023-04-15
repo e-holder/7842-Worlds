@@ -47,12 +47,12 @@ public class Intake implements CONSTANTS {
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
-    private final double ARM_CONE5_DEG = 72; //old 75
-    private final double ARM_CONE4_DEG = 80; //old 80
-    private final double ARM_CONE3_DEG = 89; //old 89
-    private final double ARM_CONE2_DEG = 97; //old 97
+    private final double ARM_CONE5_DEG = 70; //old 75
+    private final double ARM_CONE4_DEG = 78; //old 80
+    private final double ARM_CONE3_DEG = 87; //old 89
+    private final double ARM_CONE2_DEG = 95; //old 97
     private final double ARM_BEACON_DEG = 97.5; //old 97.5
-    private final double ARM_CONE1_DEG = 104.0; //old 116
+    private final double ARM_CONE1_DEG = 108.0; //104 is too high
     private final double ARM_MAX_DEG = 125.0;    // Note: Max physical position is about 112.
 
     private final double ARM_ARRIVAL_TOLERANCE_DEG = 2.0;
@@ -73,7 +73,7 @@ public class Intake implements CONSTANTS {
 
     private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
-    private final double WRIST_POS_CONE_DELTA_DEG = 185.0;
+    private final double WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
@@ -660,14 +660,14 @@ public class Intake implements CONSTANTS {
                     ", armTgt, " + df3.format(m_armTargetPos_deg) +
                     ", armDeg, " + df3.format(m_armPos_deg) +
 //                    ", armTicks, " + m_armPos_ticks +
-                    ", armSpeed, " + m_armTargetSpeed +
+//                    ", armSpeed, " + m_armTargetSpeed +
 //                    ", armBusy, " + m_isArmBusy +
 //                    ", cmdDelta, " + df3.format(m_armDelta_deg) +
 //                    ", coneCmd, " + m_intakeConeCommand +
 //                    ", armCmd," + df3.format(m_armDriverCmd) +
                     ", wristCmd, " + df3.format(m_wristCmdPos_deg) +
 //                    ", wristPosV, " + df3.format(m_wristServoPos) +
-//                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
+                    ", wheelAmp, " + df3.format(m_intakeWheelMotor_amp) +
                     ", wheelSpd, " + df3.format(m_intakeWheelSpeed) +
                     ", hasCone, " + m_hasCone +
                     ", delayToEject, " + m_ejectDelayCounter +
