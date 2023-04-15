@@ -68,11 +68,11 @@ public class Intake implements CONSTANTS {
 
     private final double WRIST_POS_AT_AUTONOMOUS_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 10.0;
-    private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 160.0;
+    private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 177.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
 
+    private final double WRIST_POS_BEACON_DELTA_DEG = -90.0;
     private final double WRIST_POS_STACK_DELTA_DEG = 173.0;
-    private final double WRIST_POS_BEACON_DELTA_DEG = 90.0;
     private final double WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
@@ -241,7 +241,7 @@ public class Intake implements CONSTANTS {
                         break;
                 }
             } else if (m_isBeaconMode) {
-                wristPos_deg = m_armPos_deg - WRIST_POS_BEACON_DELTA_DEG;
+                wristPos_deg = m_armPos_deg + WRIST_POS_BEACON_DELTA_DEG;
             } else if (m_isLowJunctionMode && m_hasCone) {
                 wristPos_deg = WRIST_POS_AT_LOW_JUNCTION_DEG;
             } else if (m_autonomousShutdown) {
