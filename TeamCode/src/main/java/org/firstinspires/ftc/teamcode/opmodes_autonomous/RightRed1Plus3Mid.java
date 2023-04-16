@@ -12,13 +12,13 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "Left Blue 1+4 Mid")
-public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
+@Autonomous(name = "Right Red 1+3 Mid")
+public class RightRed1Plus3Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
     protected void initializeRoute() {
-        setupAlliance(Alliance.BLUE, FieldSide.LEFT);
+        setupAlliance(Alliance.RED, FieldSide.RIGHT);
     }
 
     // Use vision (webcam) to read the signal cone.
@@ -42,18 +42,18 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.setPoseEstimate(startPose);
 
         //Positions in order of route
-        Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        Pose2d IntakePosCone5 = new Pose2d(-47.6, -18.0, Math.toRadians(-94.5));
-        Pose2d ScoreConePos = new Pose2d(-48.5, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone4 = new Pose2d(-47.6, -18.5, Math.toRadians(-94.5));
+        Pose2d PreloadConeScorePos = new Pose2d(-49.5, -1.0, Math.toRadians(120));
+        Pose2d IntakePosCone5 = new Pose2d(-50.1, 18.4, Math.toRadians(94.0));
+        Pose2d ScoreConePos = new Pose2d(-50, 2.0, Math.toRadians(124));
+        Pose2d IntakePosCone4 = new Pose2d(-49.1, 18.55, Math.toRadians(95.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.6, Math.toRadians(-94.5));
+        Pose2d IntakePosCone3 = new Pose2d(-49.1, 18.65, Math.toRadians(94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
+        Pose2d IntakePosCone2 = new Pose2d(-49.1, 18.8, Math.toRadians(94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
-        Pose2d ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
-        Pose2d ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
+        Pose2d ParkZone1Pos = new Pose2d(-49, -27.0, Math.toRadians(90.0));
+        Pose2d ParkZone2Pos = new Pose2d(-50.5, -3.0, Math.toRadians(90.0));
+        Pose2d ParkZone3Pos = new Pose2d(-49.5, 26, Math.toRadians(90.0));
 
         //Velocities and Accelerations for re-use
         TrajectoryVelocityConstraint ScoringVelo = Drivetrain
@@ -80,17 +80,13 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
                 .trajectorySequenceBuilder(IntakePosCone5).waitSeconds(0.6).build();
 
         //Intake Trajectories for re-use
-        Trajectory IntakeCone5Traj = m_vera.drivetrain
-                .trajectoryBuilder(PreloadConeScorePos)
+        Trajectory IntakeCone5Traj = m_vera.drivetrain.trajectoryBuilder(PreloadConeScorePos)
                 .lineToLinearHeading(IntakePosCone5, IntakeVelo, ConstAccel).build();
-        Trajectory IntakeCone4Traj = m_vera.drivetrain
-                .trajectoryBuilder(PreloadConeScorePos)
+        Trajectory IntakeCone4Traj = m_vera.drivetrain.trajectoryBuilder(PreloadConeScorePos)
                 .lineToLinearHeading(IntakePosCone4, IntakeVelo, ConstAccel).build();
-        Trajectory IntakeCone3Traj = m_vera.drivetrain
-                .trajectoryBuilder(PreloadConeScorePos)
+        Trajectory IntakeCone3Traj = m_vera.drivetrain.trajectoryBuilder(PreloadConeScorePos)
                 .lineToLinearHeading(IntakePosCone3, IntakeVelo, ConstAccel).build();
-        Trajectory IntakeCone2Traj = m_vera.drivetrain
-                .trajectoryBuilder(PreloadConeScorePos)
+        Trajectory IntakeCone2Traj = m_vera.drivetrain.trajectoryBuilder(PreloadConeScorePos)
                 .lineToLinearHeading(IntakePosCone2, IntakeVelo, ConstAccel).build();
 
         //Parking Trajectories
@@ -113,7 +109,6 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 5
@@ -128,7 +123,6 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 4
@@ -143,7 +137,6 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 3
@@ -158,35 +151,32 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 2
-        m_vera.intake.turnOnStackTapeSensing();
-        m_vera.intake.moveToIntakeConePos(2);
-        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
-        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-        m_vera.lift.moveLiftToBottom();
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(2);
+//        m_vera.drivetrain.followTrajectory(IntakeTraj);
+//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+//        m_vera.drivetrain.followTrajectory(Score2Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.lift.moveLiftToBottom();
 
         //Park in zone
         switch (parkingZone) {
             case ZONE1:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
                 m_vera.drivetrain.followTrajectory(ParkZone1Traj);
                 break;
             case ZONE2:
-                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
                 m_vera.drivetrain.followTrajectory(ParkZone2Traj);
                 break;
             case ZONE3:
-                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
                 m_vera.drivetrain.followTrajectory(ParkZone3Traj);
                 break;
         }

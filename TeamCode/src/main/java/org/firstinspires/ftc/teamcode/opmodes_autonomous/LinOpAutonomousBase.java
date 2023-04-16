@@ -48,7 +48,7 @@ public abstract class LinOpAutonomousBase extends LinearOpMode implements CONSTA
         preInitSetup();  // Allows for override in various child OpModes.
 
         m_vera.init(hardwareMap, true,
-                m_isVisionTestMode, m_initialPipelineType, telemetry);
+                m_isVisionTestMode, m_fieldSide, m_initialPipelineType, telemetry);
 
         // Call abstract function defined in the autonomous OpMode.
         initializeRoute();

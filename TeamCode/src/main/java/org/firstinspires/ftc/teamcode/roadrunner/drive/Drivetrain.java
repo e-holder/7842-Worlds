@@ -402,7 +402,7 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     public boolean isFindingPole() { return m_taskFindPole.isFindingPole(); }
 
     private final double VISION_DISTANCE_KP = -0.05;
-    private final double VISION_TURN_KP = 0.025;
+    private final double VISION_TURN_KP = 0.017; // Was 0.025
     public void findVisionPowers() {
         if(m_taskFindPole.isPoleDetected()) {
             double pitch = VISION_DISTANCE_KP * m_taskFindPole.getDistToScore_in();

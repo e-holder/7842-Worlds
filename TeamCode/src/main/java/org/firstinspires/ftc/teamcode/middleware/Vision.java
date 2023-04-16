@@ -258,6 +258,9 @@ public class Vision implements CONSTANTS {
                 break;
             case MID_SCORED_CONES:
             default:
+                if (m_vera.getAlliance() == Alliance.RED) {
+                    deltaWidthPix -= 30;
+                }
                 distToScore_in =  deltaWidthPix * MID_CONES_WIDTH_PIX_TO_DIST_IN;
                 break;
         }

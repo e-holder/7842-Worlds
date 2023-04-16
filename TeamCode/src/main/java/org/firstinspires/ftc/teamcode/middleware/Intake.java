@@ -87,7 +87,7 @@ public class Intake implements CONSTANTS {
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
-    private final double ARM_SPEED_AUTO = 475;
+    private final double ARM_SPEED_AUTO = 465;
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
@@ -341,15 +341,19 @@ public class Intake implements CONSTANTS {
                 m_stackTapeData[m_stackDataIdx][4] = m_poseHead_deg;
                 m_priorPosY_in = m_poseY_in;
 
-                if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) tapeXOffset = 0;
-                else if (m_leftVal >= STACK_TAPE_THRESH) tapeXOffset = -0.8;
-                else if (m_rightVal >= STACK_TAPE_THRESH) tapeXOffset = 0.8;
+                if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
+                    tapeXOffset = 0;
+                } else if (m_leftVal >= STACK_TAPE_THRESH) {
+                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.8 : 0.8);
+                } else if (m_rightVal >= STACK_TAPE_THRESH) {
+                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.8 : -0.8);
+                }
 
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
                     m_vera.drivetrain.setPoseEstimate(
                             new Pose2d(m_vera.drivetrain.getPoseEstimate().getX()+tapeXOffset,
-                                    -10.5,
+                                    (m_vera.getAlliance() == Alliance.BLUE ? -10.5 : 10.5),
                                     m_vera.drivetrain.getPoseEstimate().getHeading()));
                     turnOffStackTapeSensing();
                 }

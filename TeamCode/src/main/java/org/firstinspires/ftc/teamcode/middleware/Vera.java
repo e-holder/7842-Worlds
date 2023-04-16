@@ -34,6 +34,7 @@ public class Vera implements CONSTANTS {
     private int m_loopCount = 0;
     private Telemetry m_telemetry;
     private Alliance m_alliance;
+    private FieldSide m_fieldSide;
     private ElapsedTime m_timer = new ElapsedTime();
 
     // Note: This is not ideal practice. The subsystem and alliance member data really should not
@@ -59,12 +60,15 @@ public class Vera implements CONSTANTS {
     }
 
     public Alliance getAlliance() { return m_alliance; }
+    public FieldSide getFieldSide() { return m_fieldSide; }
     public int getLoopCount() { return m_loopCount; }
 
     public void init(HardwareMap hwMap, boolean isAutonomous, boolean visionTestMode,
-                     VeraPipelineType initialPipelineType, Telemetry telemetry) {
+                     FieldSide fieldSide, VeraPipelineType initialPipelineType,
+                     Telemetry telemetry) {
         m_isAutonomous = isAutonomous;
         Vera.isVisionTestMode = visionTestMode;
+        m_fieldSide = fieldSide;
 
         PhotonCore.enable();
         PhotonCore.experimental.setMaximumParallelCommands(7);

@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "Left Blue 1+4 Mid")
-public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
+@Autonomous(name = "Left Blue 1+3 Mid")
+public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
@@ -162,19 +162,19 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.lift.moveLiftToBottom();
 
         //Stack Cone 2
-        m_vera.intake.turnOnStackTapeSensing();
-        m_vera.intake.moveToIntakeConePos(2);
-        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
-        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-        m_vera.lift.moveLiftToBottom();
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(2);
+//        m_vera.drivetrain.followTrajectory(IntakeTraj);
+//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+//        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//        m_vera.lift.moveLiftToBottom();
 
         //Park in zone
         switch (parkingZone) {

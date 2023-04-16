@@ -19,7 +19,7 @@ public class LinOpTestStackTape extends LinearOpMode implements CONSTANTS {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
-        m_vera.init(hardwareMap, false, false,
+        m_vera.init(hardwareMap, false, false, FieldSide.LEFT,
                 VeraPipelineType.SIGNAL, telemetry);
         m_vera.setAllianceFromPriorAutonomousRun();
         m_vera.intake.enableStackTapeCalibrationMode();

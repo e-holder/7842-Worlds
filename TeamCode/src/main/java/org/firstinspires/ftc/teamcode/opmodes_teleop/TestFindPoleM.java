@@ -23,7 +23,7 @@ public class TestFindPoleM extends LinearOpMode implements CONSTANTS {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
-        m_vera.init(hardwareMap, false, true,
+        m_vera.init(hardwareMap, false, true, FieldSide.LEFT,
                 VeraPipelineType.FIND_POLE, telemetry);
         m_vera.setAllianceFromPriorAutonomousRun();
 

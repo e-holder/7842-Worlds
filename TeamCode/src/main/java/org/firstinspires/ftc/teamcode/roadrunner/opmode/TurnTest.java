@@ -22,7 +22,8 @@ public class TurnTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        m_vera.init(hardwareMap, true, false, CONSTANTS.VeraPipelineType.SIGNAL, telemetry);
+        m_vera.init(hardwareMap, true, false, CONSTANTS.FieldSide.LEFT,
+                CONSTANTS.VeraPipelineType.SIGNAL, telemetry);
         Drivetrain drive = new Drivetrain(hardwareMap, m_vera);
 
         waitForStart();

@@ -37,7 +37,7 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
         telemetry.addData("Status", "Initializing...");
         telemetry.update();
 
-        m_vera.init(hardwareMap, false, false,
+        m_vera.init(hardwareMap, false, false, FieldSide.LEFT,
                 VeraPipelineType.FIND_POLE, telemetry);
         m_vera.setAllianceFromPriorAutonomousRun();
 
