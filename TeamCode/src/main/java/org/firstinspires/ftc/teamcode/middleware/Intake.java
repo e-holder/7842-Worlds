@@ -104,7 +104,7 @@ public class Intake implements CONSTANTS {
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
 
-    private final double STACK_TAPE_THRESH = 180;
+    private final double STACK_TAPE_THRESH = 200;
 
     // MEMBER DATA ================================================================================
     // SUBSYSTEM has an instance of its corresponding hardware class here.
