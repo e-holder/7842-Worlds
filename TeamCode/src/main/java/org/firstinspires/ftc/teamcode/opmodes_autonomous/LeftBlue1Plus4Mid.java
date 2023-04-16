@@ -41,14 +41,16 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
 
-        //Positions for re-use in order of route
+        //Positions in order of route
         Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        Pose2d IntakePosCone5 = new Pose2d(-47.6, -18.1 + 0.1, Math.toRadians(-94.8));
+        Pose2d IntakePosCone5 = new Pose2d(-47.6, -18.0, Math.toRadians(-94.5));
         Pose2d ScoreConePos = new Pose2d(-48.5, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone4 = new Pose2d(-47.6, -18.1 + 0.4, Math.toRadians(-97.0));
-        //
-        Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.1 + 0.5, Math.toRadians(-98.0));
-        Pose2d IntakePosCone2 = new Pose2d(-47.6, -18.1 + 0.6, Math.toRadians(-90.0));
+        Pose2d IntakePosCone4 = new Pose2d(-47.6, -18.1 + 0.4, Math.toRadians(-94.5));
+        //ScoreConePos TODO: make different traj for all cone scoring
+        Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.1 + 0.5, Math.toRadians(-94.5));
+        //ScoreConePos TODO: make different traj for all cone scoring
+        Pose2d IntakePosCone2 = new Pose2d(-47.6, -18.1 + 0.6, Math.toRadians(-94.5));
+        //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
         Pose2d ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
         Pose2d ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
@@ -138,9 +140,24 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.intake.moveToIntakeConePos(3);
         m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Stack Cone 2
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(2);
+//        m_vera.drivetrain.followTrajectory(IntakeTraj);
 //        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
 //        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
-//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
 //        m_vera.lift.moveLiftToMidPole();
 //        m_vera.intake.moveToIdlePos();
 //        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -148,36 +165,21 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 //        m_vera.drivetrain.stopFindingPole();
 //        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
 //        m_vera.lift.moveLiftToBottom();
-//
-//        //Stack Cone 2
-////        m_vera.intake.turnOnStackTapeSensing();
-////        m_vera.intake.moveToIntakeConePos(2);
-////        m_vera.drivetrain.followTrajectory(IntakeTraj);
-////        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-////        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
-////        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-////        m_vera.lift.moveLiftToMidPole();
-////        m_vera.intake.moveToIdlePos();
-////        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-////        m_vera.lift.dropCone();
-////        m_vera.drivetrain.stopFindingPole();
-////        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-////        m_vera.lift.moveLiftToBottom();
-//
-//        //Park in zone
-//        switch (parkingZone) {
-//            case ZONE1:
-//                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
-//                break;
-//            case ZONE2:
-//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
-//                break;
-//            case ZONE3:
-//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
-//                break;
-//        }
+
+        //Park in zone
+        switch (parkingZone) {
+            case ZONE1:
+                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
+                break;
+            case ZONE2:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
+                break;
+            case ZONE3:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
+                break;
+        }
 
         stopVera();
     }
