@@ -68,10 +68,10 @@ public class Drivetrain extends MecanumDrive implements CONSTANTS {
     // Reduced for new drivers in 2022 KY scrimmage #2 (0.75 factor)
     private static final double TELEOP_POWER_FACTOR = 0.9;
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6.0, 0, 0.5);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 0.1, 0.3);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6.0, 0, 0.3);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7, 0.1, 0.4);
 
-    public static double LATERAL_MULTIPLIER = 1.3275;
+    public static double LATERAL_MULTIPLIER = 1.1939389;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
