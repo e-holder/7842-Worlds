@@ -87,6 +87,7 @@ public class Intake implements CONSTANTS {
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
+    private final double ARM_SPEED_AUTO = 475;
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
@@ -199,7 +200,7 @@ public class Intake implements CONSTANTS {
         m_hwIntake.armRunToPosition(m_armTargetPos_deg, m_armTargetSpeed);
     }
 
-    private void moveToTargetConeStackLevel() {
+    private void moveToTargetConeStackLevel(double armTargetSpeed) {
         double armTarget_deg;
         switch (m_targetConeStackLevel) {
             case 5:
@@ -220,7 +221,7 @@ public class Intake implements CONSTANTS {
                 break;
         }
         m_armTargetPos_deg = armTarget_deg;
-        m_armTargetSpeed = ARM_SPEED_FAST;
+        m_armTargetSpeed = armTargetSpeed;
     }
 
     private void moveToReset() {
@@ -239,7 +240,7 @@ public class Intake implements CONSTANTS {
 
     private void controlDriverConeIntake() {
         if (m_isConeStackMode) {
-            moveToTargetConeStackLevel();
+            moveToTargetConeStackLevel(ARM_SPEED_FAST);
         } else {
             // Move the arm slowly per driver commands. The default is to STOP the arm
             // motion by running the arm to its CURRENT position.
@@ -623,7 +624,7 @@ public class Intake implements CONSTANTS {
                 }
                 break;
             case MOVE_TO_CONE_POS:
-                moveToTargetConeStackLevel();
+                moveToTargetConeStackLevel(m_vera.isAutonomous() ? ARM_SPEED_AUTO : ARM_SPEED_FAST);
                 m_state = IntakeState.MOVING_TO_CONE_POS;
                 break;
             case MOVING_TO_CONE_POS:

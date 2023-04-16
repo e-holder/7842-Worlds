@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.sequencesegment.WaitSegment;
 
-@Autonomous(name = "RoadRunner Test")
-public class RoadrunnerTest extends LinOpAutonomousBase {
+@Autonomous(name = "Left 1 + 4 Mid")
+public class Left1Plus4Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
@@ -48,13 +48,13 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
-        Pose2d IntakePosCone5 = new Pose2d(-48, -18.5, Math.toRadians(-95.0));
-        Pose2d IntakePosCone4 = new Pose2d(-48, -18.5 + 0.2, Math.toRadians(-94.0));
-        Pose2d IntakePosCone3 = new Pose2d(-48, -18.5 + 0.4, Math.toRadians(-93.0));
-        Pose2d IntakePosCone2 = new Pose2d(-48, -18.5 + 0.6, Math.toRadians(-92.0));
+        Pose2d IntakePosCone5 = new Pose2d(-47.5, -18.1, Math.toRadians(-90.0));
+        Pose2d IntakePosCone4 = new Pose2d(-47.5, -18.1 + 0.2, Math.toRadians(-88.0));
+        Pose2d IntakePosCone3 = new Pose2d(-47.5, -18.1 + 0.4, Math.toRadians(-86.0));
+        Pose2d IntakePosCone2 = new Pose2d(-47.5, -18.1 + 0.6, Math.toRadians(-84.0));
         //Pose2d IntakePos = new Pose2d(-49, -20, Math.toRadians(-90.0));
         //Vector2d IntakeVec = new Vector2d(-49, -20);
-        Pose2d ScorePos = new Pose2d(-46.8, -2, Math.toRadians(-127));
+        Pose2d ScorePos = new Pose2d(-48.0, -3.5, Math.toRadians(-127));
         double NudgeOffset = 23.0;
 
         //Velocities and Accelerations for re-use
@@ -105,8 +105,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Stack Cone 5
         m_vera.intake.turnOnStackTapeSensing();
-        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(5);
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(Score5Traj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
@@ -120,8 +120,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Stack Cone 4
         m_vera.intake.turnOnStackTapeSensing();
-        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(4);
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(Score4Traj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone4");
@@ -135,8 +135,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Stack Cone 3
         m_vera.intake.turnOnStackTapeSensing();
-        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(3);
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(Score3Traj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
@@ -150,8 +150,8 @@ public class RoadrunnerTest extends LinOpAutonomousBase {
 
         //Stack Cone 2
         m_vera.intake.turnOnStackTapeSensing();
-        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.intake.moveToIntakeConePos(2);
+        m_vera.drivetrain.followTrajectory(IntakeTraj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(Score2Traj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
