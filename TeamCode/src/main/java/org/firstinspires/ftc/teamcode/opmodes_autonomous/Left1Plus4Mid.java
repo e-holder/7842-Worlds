@@ -48,20 +48,20 @@ public class Left1Plus4Mid extends LinOpAutonomousBase {
 
         //Positions for re-use
         //Pose2d IntakeLineupPos = new Pose2d(-49, -6, Math.toRadians(-90.0));
-        Pose2d IntakePosCone5 = new Pose2d(-47.5, -18.1, Math.toRadians(-90.0));
-        Pose2d IntakePosCone4 = new Pose2d(-47.5, -18.1 + 0.2, Math.toRadians(-88.0));
-        Pose2d IntakePosCone3 = new Pose2d(-47.5, -18.1 + 0.4, Math.toRadians(-86.0));
-        Pose2d IntakePosCone2 = new Pose2d(-47.5, -18.1 + 0.6, Math.toRadians(-84.0));
+        Pose2d IntakePosCone5 = new Pose2d(-47.6, -18.1 + 0.0, Math.toRadians(-99.0));
+        Pose2d IntakePosCone4 = new Pose2d(-47.6, -18.1 + 0.2, Math.toRadians(-97.0));
+        Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.1 + 0.4, Math.toRadians(-98.0));
+        Pose2d IntakePosCone2 = new Pose2d(-47.6, -18.1 + 0.6, Math.toRadians(-90.0));
         //Pose2d IntakePos = new Pose2d(-49, -20, Math.toRadians(-90.0));
         //Vector2d IntakeVec = new Vector2d(-49, -20);
-        Pose2d ScorePos = new Pose2d(-48.0, -3.5, Math.toRadians(-127));
+        Pose2d ScorePos = new Pose2d(-48.5, -2, Math.toRadians(-127));
         double NudgeOffset = 23.0;
 
         //Velocities and Accelerations for re-use
         TrajectoryVelocityConstraint ScoringVelo = Drivetrain
-                .getVelocityConstraint(32, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+                .getVelocityConstraint(33, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryVelocityConstraint IntakeVelo = Drivetrain
-                .getVelocityConstraint(27, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+                .getVelocityConstraint(28, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint ConstAccel = Drivetrain
                 .getAccelerationConstraint(DriveConstants.MAX_ACCEL);
 
