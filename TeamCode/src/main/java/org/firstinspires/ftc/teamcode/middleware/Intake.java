@@ -44,7 +44,7 @@ public class Intake implements CONSTANTS {
     private final double T_ARM_CONE4_DEG = 78; //old 80
     private final double T_ARM_CONE3_DEG = 87; //old 89
     private final double T_ARM_CONE2_DEG = 95; //old 97
-    private final double T_ARM_CONE1_DEG = 108.0; //104 is too high
+    private final double T_ARM_CONE1_DEG = 106.0; //104 is too high
     private final double T_WRIST_POS_STACK_DELTA_DEG = 173.0;
     private final double T_WRIST_POS_CONE_DELTA_DEG = 176.0;
 
