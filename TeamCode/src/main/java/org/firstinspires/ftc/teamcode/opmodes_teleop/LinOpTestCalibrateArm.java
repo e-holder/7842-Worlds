@@ -17,7 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @TeleOp(name="Test Calibrate Arm")
-//@Disabled
+@Disabled
 public class LinOpTestCalibrateArm extends LinearOpMode {
     private enum ArmMode {
         INIT,

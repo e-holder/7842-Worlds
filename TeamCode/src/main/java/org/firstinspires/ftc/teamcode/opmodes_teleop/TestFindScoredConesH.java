@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes_teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
 @TeleOp(name = "Test Find Scored Cones-High")
-//@Disabled
+@Disabled
 public class TestFindScoredConesH extends TestFindPoleM implements CONSTANTS {
 
     @Override

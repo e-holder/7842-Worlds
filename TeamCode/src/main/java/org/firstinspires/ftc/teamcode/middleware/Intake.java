@@ -53,7 +53,7 @@ public class Intake implements CONSTANTS {
     private final double A_ARM_CONE3_DEG = 95.0; //old 89
     private final double A_ARM_CONE2_DEG = 90.0; //old 97
     private final double A_ARM_CONE1_DEG = 116.0; //104 is too high
-    private final double A_WRIST_POS_STACK_DELTA_DEG = 173.0;
+    private final double A_WRIST_POS_STACK_DELTA_DEG = 160.0; //Old 165
     private final double A_WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     // This set of variables is specified separately for Auto & TeleOp just above (assigned in the
@@ -87,7 +87,7 @@ public class Intake implements CONSTANTS {
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
-    private final double ARM_SPEED_AUTO = 465;
+    private final double ARM_SPEED_AUTO = 473.5;
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
@@ -346,18 +346,18 @@ public class Intake implements CONSTANTS {
                 if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
                     tapeXOffset = 0;
                 } else if (m_leftVal >= STACK_TAPE_THRESH) {
-                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.8 : 0.8);
+                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.4 : 0.8);
                 } else if (m_rightVal >= STACK_TAPE_THRESH) {
-                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.8 : -0.8);
+                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.4 : -0.8);
                 }
 
                 if (m_stackDataIdx == 0) {
                     m_firstTapeDetectPosY_in = m_poseY_in;
                     m_vera.drivetrain.setPoseEstimate(
-                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX()+tapeXOffset,
+                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(),// + tapeXOffset,
                                     (m_vera.getAlliance() == Alliance.BLUE ? -10.5 : 10.5),
                                     m_vera.drivetrain.getPoseEstimate().getHeading()));
-                    turnOffStackTapeSensing();
+//                    turnOffStackTapeSensing();
                 }
             }
         }
@@ -526,6 +526,17 @@ public class Intake implements CONSTANTS {
 
     public void turnOffStackTapeSensing() {
         m_isStackTapeSensingOn = false;
+        if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
+            tapeXOffset = 0;
+        } else if (m_leftVal >= STACK_TAPE_THRESH) {
+            tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.4 : 0.8);
+        } else if (m_rightVal >= STACK_TAPE_THRESH) {
+            tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.4 : -0.8);
+        }
+        m_vera.drivetrain.setPoseEstimate(
+                new Pose2d(m_vera.drivetrain.getPoseEstimate().getX() + tapeXOffset,
+                        m_vera.drivetrain.getPoseEstimate().getY(),
+                        m_vera.drivetrain.getPoseEstimate().getHeading()));
         logCsvString(m_vera.getAlliance() + " , left , , right , , X ,Y , Head");
         for (int idx = 0; idx <= m_stackDataIdx; idx++) {
             logCsvString("left, " + df3.format(m_stackTapeData[idx][0]) +

@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @TeleOp(name="Test Calibrate Wrist")
-//@Disabled
+@Disabled
 public class LinOpTestCalibrateWrist extends LinearOpMode {
 
     private final double WRIST_MIN_DEG = 0.0;
