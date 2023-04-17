@@ -45,11 +45,11 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
         Pose2d IntakePosCone5 = new Pose2d(-48.6, -17.75, Math.toRadians(-94.5));
         Pose2d ScoreConePos = new Pose2d(-48.5, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone4 = new Pose2d(-49.25, -17.5, Math.toRadians(-94.5));
+        Pose2d IntakePosCone4 = new Pose2d(-49.25, -17.25, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d IntakePosCone3 = new Pose2d(-49.75, -17.25, Math.toRadians(-94.5));
+        Pose2d IntakePosCone3 = new Pose2d(-49.75, -16.75, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d IntakePosCone2 = new Pose2d(-50, -17.0, Math.toRadians(-94.5));
+        Pose2d IntakePosCone2 = new Pose2d(-50, -16.25, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
         Pose2d ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
