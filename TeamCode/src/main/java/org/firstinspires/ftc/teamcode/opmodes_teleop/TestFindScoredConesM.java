@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
 @TeleOp(name = "Test Find Scored Cones-Mid")
-@Disabled
+//@Disabled
 public class TestFindScoredConesM extends TestFindPoleM implements CONSTANTS {
 
     @Override

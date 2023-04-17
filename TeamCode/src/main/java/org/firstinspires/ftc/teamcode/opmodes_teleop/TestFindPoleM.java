@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.middleware.Vera;
 import org.firstinspires.ftc.teamcode.opmodes_autonomous.tasks.TaskFindPole;
 
 @TeleOp(name = "Test Find Pole-Mid")
-@Disabled
+//@Disabled
 public class TestFindPoleM extends LinearOpMode implements CONSTANTS {
 
     private Vera m_vera = new Vera(telemetry);
