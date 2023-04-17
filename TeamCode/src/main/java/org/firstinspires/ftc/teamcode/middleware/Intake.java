@@ -46,7 +46,7 @@ public class Intake implements CONSTANTS {
     private final double T_ARM_CONE2_DEG = 95; //old 97
     private final double T_ARM_CONE1_DEG = 108.0; //104 is too high
     private final double T_WRIST_POS_STACK_DELTA_DEG = 173.0;
-    private final double T_WRIST_POS_CONE_DELTA_DEG = 180.0;
+    private final double T_WRIST_POS_CONE_DELTA_DEG = 176.0;
 
     private final double A_ARM_CONE5_DEG = 82.5; //old 75
     private final double A_ARM_CONE4_DEG = 87.5; //old 80
@@ -71,7 +71,7 @@ public class Intake implements CONSTANTS {
 
     // Note: Arm limit (where limit switch triggers) is about -33.0 degrees
     private final double ARM_EJECT_DEG = -30.0;
-    private final double ARM_IDLE_DEG = -10.0;
+    private final double ARM_IDLE_DEG = -20.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
@@ -93,13 +93,13 @@ public class Intake implements CONSTANTS {
 
     private final double WRIST_POS_AT_AUTO_SHUTDOWN_DEG = 0.0;
     private final double WRIST_POS_EJECT_CONE_DEG = 10.0;
-    private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 177.0;
+    private final double WRIST_POS_AT_LOW_JUNCTION_DEG = 189.0;
     private final double WRIST_POS_IDLE_DEG = 170.0;
     private final double WRIST_POS_BEACON_DELTA_DEG = -90.0;
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.52;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
@@ -341,6 +341,8 @@ public class Intake implements CONSTANTS {
                 m_stackTapeData[m_stackDataIdx][4] = m_poseHead_deg;
                 m_priorPosY_in = m_poseY_in;
 
+                // Correction of X position depends on field side (i.e., which side the tape is
+                // approached from in autonomous).
                 if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
                     tapeXOffset = 0;
                 } else if (m_leftVal >= STACK_TAPE_THRESH) {

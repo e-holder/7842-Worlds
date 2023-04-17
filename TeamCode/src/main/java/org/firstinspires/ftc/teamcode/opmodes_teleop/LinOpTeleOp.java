@@ -84,9 +84,9 @@ public class LinOpTeleOp extends LinearOpMode implements CONSTANTS {
             m_vera.intake.moveToIntakeConePos(1);
         } else if (gamepad1.b && !m_1B_AlreadyPressed) {
             if (m_vera.intake.toggleLowJunctionMode()) {
-                m_runGamepad1DoubleRumble = true;
-            } else {
                 m_runGamepad1Rumble = true;
+            } else {
+                m_runGamepad1DoubleRumble = true;
             }
         } else if (gamepad1.a && !m_1A_AlreadyPressed) {
             m_vera.intake.moveToIntakeConePos(5);

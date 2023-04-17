@@ -259,6 +259,9 @@ public class Vision implements CONSTANTS {
             case MID_SCORED_CONES:
             default:
                 if (m_vera.getAlliance() == Alliance.RED) {
+                    // Distance to score needed to be greater for RED. Since it is easier for the
+                    // camera to see Red vs Blue, it was assumed the scored Red cones were
+                    // appearing significantly wider than Blue. This compensates for this.
                     deltaWidthPix -= 30;
                 }
                 distToScore_in =  deltaWidthPix * MID_CONES_WIDTH_PIX_TO_DIST_IN;
