@@ -161,21 +161,6 @@ public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
-        //Stack Cone 2
-//        m_vera.intake.turnOnStackTapeSensing();
-//        m_vera.intake.moveToIntakeConePos(2);
-//        m_vera.drivetrain.followTrajectory(IntakeTraj);
-//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-//        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
-//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-//        m_vera.lift.moveLiftToMidPole();
-//        m_vera.intake.moveToIdlePos();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-//        m_vera.lift.dropCone();
-//        m_vera.drivetrain.stopFindingPole();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//        m_vera.lift.moveLiftToBottom();
-
         //Park in zone
         switch (parkingZone) {
             case ZONE1:
