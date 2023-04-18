@@ -393,6 +393,9 @@ public class Lift implements CONSTANTS {
                 break;
         }
 
+        if (m_middlemanSensorDist_in < MIDDLEMAN_HAS_CONE_THRESH_IN) {
+            closeClaw();
+        }
         moveLiftToTargetPositionAtTargetSpeed();
     }
 
