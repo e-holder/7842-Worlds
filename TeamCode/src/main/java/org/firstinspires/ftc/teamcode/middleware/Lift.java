@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 90;
     private final int CLAW_OPENING_COUNT_MAX = 90;
 
-    private final int DELAY_FOR_GRAB = 12;
+//    private final int DELAY_FOR_GRAB = 0;
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 30;
     private final int MOVE_TO_POLE_COUNT_MAX = 450;
 
@@ -317,7 +317,7 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_LOW_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
+                m_delayForGrabCounter = 0; //m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_LOW_POLE_POS;
                 break;
             case MOVE_TO_LOW_POLE_POS:
@@ -332,7 +332,7 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_MID_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
+                m_delayForGrabCounter = 0; //m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_MID_POLE_POS;
                 break;
             case MOVE_TO_MID_POLE_POS:
@@ -347,7 +347,7 @@ public class Lift implements CONSTANTS {
                 break;
             case REQUEST_MOVE_TO_HIGH_POLE:
                 closeClaw();
-                m_delayForGrabCounter = m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
+                m_delayForGrabCounter = 0; //m_liftPos_in < ENTERING_ROBOT_IN ? DELAY_FOR_GRAB : 0;
                 m_state = LiftState.MOVE_TO_HIGH_POLE_POS;
                 break;
             case MOVE_TO_HIGH_POLE_POS:

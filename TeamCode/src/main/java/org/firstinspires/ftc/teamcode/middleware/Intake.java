@@ -71,7 +71,7 @@ public class Intake implements CONSTANTS {
 
     // Note: Arm limit (where limit switch triggers) is about -33.0 degrees
     private final double ARM_EJECT_DEG = -30.0;
-    private final double ARM_IDLE_DEG = -10.0;
+    private final double ARM_IDLE_DEG = -20.0;
     private final double ARM_LOW_JUNCTION_DEG = 30.0;
     private final double ARM_FAST_RESET_POINT_DEG = 50.0;  // If arm is further than this, go fast
     private final double ARM_BEACON_PLACE_DEG = 52.0;
@@ -99,7 +99,7 @@ public class Intake implements CONSTANTS {
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.52;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -1.0;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;
