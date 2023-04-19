@@ -50,6 +50,7 @@ public class RightBlue1Plus3Mid extends LinOpAutonomousBase {
         Pose2d IntakePosCone3 = new Pose2d(-48.45, 22.25, Math.toRadians(94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d IntakePosCone2 = new Pose2d(-47.6, 22.7, Math.toRadians(94.5));
+        Pose2d ScoreCone2Pos = new Pose2d(-48.75, 3.25, Math.toRadians(124.0));
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d ParkZone1Pos = new Pose2d(-53.0, -23.0, Math.toRadians(90.0));
         Pose2d ParkZone2Pos = new Pose2d(-49.0, 5.0, Math.toRadians(90.0));
@@ -70,6 +71,8 @@ public class RightBlue1Plus3Mid extends LinOpAutonomousBase {
                 .lineToSplineHeading(PreloadConeScorePos).build();
         Trajectory ScoreConeTraj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone5)
                 .lineToSplineHeading(ScoreConePos, ScoringVelo, ConstAccel).build();
+        Trajectory ScoreCone2Traj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone5)
+                .lineToSplineHeading(ScoreCone2Pos, ScoringVelo, ConstAccel).build();
 
         //Wait Trajectories for re-use
         TrajectorySequence WaitForDrop = m_vera.drivetrain
@@ -153,7 +156,7 @@ public class RightBlue1Plus3Mid extends LinOpAutonomousBase {
         m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
+        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
         m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
