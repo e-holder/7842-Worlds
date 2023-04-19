@@ -53,7 +53,7 @@ public class Intake implements CONSTANTS {
     private final double A_ARM_CONE3_DEG = 95.0; //old 89
     private final double A_ARM_CONE2_DEG = 90.0; //old 97
     private final double A_ARM_CONE1_DEG = 116.0; //104 is too high
-    private final double A_WRIST_POS_STACK_DELTA_DEG = 173.0;
+    private final double A_WRIST_POS_STACK_DELTA_DEG = 170.0;
     private final double A_WRIST_POS_CONE_DELTA_DEG = 180.0;
 
     // This set of variables is specified separately for Auto & TeleOp just above (assigned in the
@@ -87,7 +87,7 @@ public class Intake implements CONSTANTS {
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
-    private final double ARM_SPEED_AUTO = 465;
+    private final double ARM_SPEED_AUTO = 490;
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 

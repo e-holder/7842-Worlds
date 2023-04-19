@@ -123,7 +123,7 @@ public class LeftRed1Plus3Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone5Traj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone5");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -163,6 +163,21 @@ public class LeftRed1Plus3Mid extends LinOpAutonomousBase {
         m_vera.lift.dropCone();
         m_vera.drivetrain.stopFindingPole();
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Stack Cone 2
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(2);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
         m_vera.lift.moveLiftToBottom();
 
         //Park in zone
