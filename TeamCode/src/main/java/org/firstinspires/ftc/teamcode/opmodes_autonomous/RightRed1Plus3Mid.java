@@ -43,7 +43,7 @@ public class RightRed1Plus3Mid extends LinOpAutonomousBase {
 
         //Positions in order of route
         Pose2d PreloadConeScorePos = new Pose2d(-48.2, 0.0, Math.toRadians(120));
-        Pose2d IntakePosCone5 = new Pose2d(-49.2, 19.2, Math.toRadians(94.5));
+        Pose2d IntakePosCone5 = new Pose2d(-49.2, 19.1, Math.toRadians(94.5));
         Pose2d ScoreConePos = new Pose2d(-48.75, 2.0, Math.toRadians(124));
         Pose2d IntakePosCone4 = new Pose2d(-48.5, 20.65, Math.toRadians(94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
@@ -51,9 +51,9 @@ public class RightRed1Plus3Mid extends LinOpAutonomousBase {
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d IntakePosCone2 = new Pose2d(-47.6, 22.7, Math.toRadians(94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
-        Pose2d ParkZone1Pos = new Pose2d(-51.51, -23.5, Math.toRadians(90.0));
-        Pose2d ParkZone2Pos = new Pose2d(-49.0, 0.0, Math.toRadians(90.0));
-        Pose2d ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(90.0));
+        Pose2d ParkZone1Pos = new Pose2d(-53.0, -23.0, Math.toRadians(90.0));
+        Pose2d ParkZone2Pos = new Pose2d(-49.0, 5.0, Math.toRadians(90.0));
+        Pose2d ParkZone3Pos = new Pose2d(-51.0, 33.5, Math.toRadians(90.0));
 
         //Velocities and Accelerations for re-use
         TrajectoryVelocityConstraint ScoringVelo = Drivetrain
@@ -73,11 +73,11 @@ public class RightRed1Plus3Mid extends LinOpAutonomousBase {
 
         //Wait Trajectories for re-use
         TrajectorySequence WaitForDrop = m_vera.drivetrain
-                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.8).build();
+                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.95).build();
         TrajectorySequence WaitForDown = m_vera.drivetrain
                 .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.2).build();
         TrajectorySequence WaitForIntake = m_vera.drivetrain
-                .trajectorySequenceBuilder(IntakePosCone5).waitSeconds(0.6).build();
+                .trajectorySequenceBuilder(IntakePosCone5).waitSeconds(0.65).build();
         TrajectorySequence WaitToPark = m_vera.drivetrain
                 .trajectorySequenceBuilder(ScoreConePos).waitSeconds(2.0).build();
 
