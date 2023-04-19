@@ -123,7 +123,7 @@ public class RightRed1Plus3Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone5Traj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone5");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -138,7 +138,7 @@ public class RightRed1Plus3Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone4");
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone4");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
