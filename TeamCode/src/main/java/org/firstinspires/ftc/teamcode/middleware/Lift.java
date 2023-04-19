@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 90;
     private final int CLAW_OPENING_COUNT_MAX = 90;
 
-    private final int DELAY_FOR_GRAB = 4;
+    private final int DELAY_FOR_GRAB = 6;
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 30;
     private final int MOVE_TO_POLE_COUNT_MAX = 450;
 
