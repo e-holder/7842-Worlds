@@ -43,9 +43,9 @@ public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
 
         //Positions in order of route
         Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        Pose2d IntakePosCone5 = new Pose2d(-47.6, -19, Math.toRadians(-94.5));
+        Pose2d IntakePosCone5 = new Pose2d(-48.5, -19.3, Math.toRadians(-94.5));
         Pose2d ScoreConePos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone4 = new Pose2d(-47.6, -18.5, Math.toRadians(-94.5));
+        Pose2d IntakePosCone4 = new Pose2d(-48.3, -19.35, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.6, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
@@ -119,6 +119,7 @@ public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
         //Stack Cone 5
         m_vera.intake.turnOnStackTapeSensing();
         m_vera.intake.moveToIntakeConePos(5);
+        m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectory(IntakeCone5Traj);
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
         m_vera.drivetrain.followTrajectory(ScoreConeTraj);
@@ -131,24 +132,26 @@ public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
-//        //Stack Cone 4
-//        m_vera.intake.turnOnStackTapeSensing();
-//        m_vera.intake.moveToIntakeConePos(4);
-//        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
-//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-//        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
-//        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone4");
-//        m_vera.lift.moveLiftToMidPole();
-//        m_vera.intake.moveToIdlePos();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-//        m_vera.lift.dropCone();
-//        m_vera.drivetrain.stopFindingPole();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//        m_vera.lift.moveLiftToBottom();
-//
+        //Stack Cone 4
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(4);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone4");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
 //        //Stack Cone 3
 //        m_vera.intake.turnOnStackTapeSensing();
 //        m_vera.intake.moveToIntakeConePos(3);
+//        m_vera.intake.turnOffStackTapeSensing();
 //        m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
 //        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
 //        m_vera.drivetrain.followTrajectory(ScoreConeTraj);
