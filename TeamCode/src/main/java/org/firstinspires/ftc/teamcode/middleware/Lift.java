@@ -40,7 +40,7 @@ public class Lift implements CONSTANTS {
     private final int CLAW_GRABBING_COUNT_MAX = 90;
     private final int CLAW_OPENING_COUNT_MAX = 90;
 
-    private final int DELAY_FOR_GRAB = 6;
+    private final int DELAY_FOR_GRAB = 7;
     private final int DELAY_FOR_MOVE_TO_BOTTOM = 30;
     private final int MOVE_TO_POLE_COUNT_MAX = 450;
 
@@ -52,7 +52,7 @@ public class Lift implements CONSTANTS {
     private final double ENTERING_ROBOT_IN = 8.75; // Distance to drop cone on descent (safety)
     private final double LOW_POLE_IN = 12.0;
     private final double MID_POLE_IN = 24.0;
-    private final double HIGH_POLE_IN = 38.5;
+    private final double HIGH_POLE_IN = 39.0;
 
     private final double LIFT_DRIVER_PLACE_DELTA_IN = 0.5;
     private final double LIFT_BOTTOM_TOL_IN = 0.5;
@@ -170,7 +170,7 @@ public class Lift implements CONSTANTS {
 
     private void closeClaw() {
         m_hwLift.setLiftClawPos(CLAW_CLOSED);
-        m_isClawClosed = false;
+        m_isClawClosed = true;
     }
 
     private void openClaw() {
