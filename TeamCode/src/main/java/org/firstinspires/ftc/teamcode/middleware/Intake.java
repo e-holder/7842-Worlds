@@ -152,7 +152,7 @@ public class Intake implements CONSTANTS {
     private int m_targetConeStackLevel;
     private int m_armPos_ticks;
     private int m_stackDataIdx = -1;
-    private double tapeXOffset = 0;
+    private double m_tapeXOffset = 0;
     private StringBuilder m_csvLogStr = new StringBuilder();
 
     // SUBSYSTEM has a public constructor here.
@@ -322,15 +322,23 @@ public class Intake implements CONSTANTS {
             m_poseY_in = m_vera.drivetrain.getPoseEstimate().getY();
             m_poseHead_deg = Math.toDegrees(m_vera.drivetrain.getPoseEstimate().getHeading());
         }
-        if (!m_isStackTapeCalibrationMode || Math.abs(m_poseY_in - m_priorPosY_in) > 0.5) {
-            if (m_vera.getAlliance() == Alliance.RED) {
-                m_leftVal = m_hwIntake.getLeftTapeSensorRed();
-                m_rightVal = m_hwIntake.getRightTapeSensorRed();
-            } else {
-                m_leftVal = m_hwIntake.getLeftTapeSensorBlue();
-                m_rightVal = m_hwIntake.getRightTapeSensorBlue();
+        if (m_vera.getAlliance() == Alliance.RED) {
+            m_leftVal = m_hwIntake.getLeftTapeSensorRed();
+            m_rightVal = m_hwIntake.getRightTapeSensorRed();
+        } else {
+            m_leftVal = m_hwIntake.getLeftTapeSensorBlue();
+            m_rightVal = m_hwIntake.getRightTapeSensorBlue();
+        }
+        if (m_leftVal >= STACK_TAPE_THRESH || m_rightVal >= STACK_TAPE_THRESH) {
+            if (m_stackDataIdx < 0) {
+                // On the very first over-threshold detection, update the robot's Y estimate.
+                m_firstTapeDetectPosY_in = m_poseY_in;
+                m_vera.drivetrain.setPoseEstimate(
+                        new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(),
+                                (m_vera.getAlliance() == Alliance.BLUE ? -10.5 : 10.5),
+                                m_vera.drivetrain.getPoseEstimate().getHeading()));
             }
-            if (m_leftVal >= STACK_TAPE_THRESH || m_rightVal >= STACK_TAPE_THRESH) {
+            if (!m_isStackTapeCalibrationMode || Math.abs(m_poseY_in - m_priorPosY_in) > 0.5) {
                 if (m_stackDataIdx < 499) {
                     m_stackDataIdx++;
                 }
@@ -340,23 +348,6 @@ public class Intake implements CONSTANTS {
                 m_stackTapeData[m_stackDataIdx][3] = m_poseY_in;
                 m_stackTapeData[m_stackDataIdx][4] = m_poseHead_deg;
                 m_priorPosY_in = m_poseY_in;
-
-                if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
-                    tapeXOffset = 0;
-                } else if (m_leftVal >= STACK_TAPE_THRESH) {
-                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.8 : 0.8);
-                } else if (m_rightVal >= STACK_TAPE_THRESH) {
-                    tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.8 : -0.8);
-                }
-
-                if (m_stackDataIdx == 0) {
-                    m_firstTapeDetectPosY_in = m_poseY_in;
-                    m_vera.drivetrain.setPoseEstimate(
-                            new Pose2d(m_vera.drivetrain.getPoseEstimate().getX()+tapeXOffset,
-                                    (m_vera.getAlliance() == Alliance.BLUE ? -10.5 : 10.5),
-                                    m_vera.drivetrain.getPoseEstimate().getHeading()));
-                    turnOffStackTapeSensing();
-                }
             }
         }
     }
@@ -524,6 +515,22 @@ public class Intake implements CONSTANTS {
 
     public void turnOffStackTapeSensing() {
         m_isStackTapeSensingOn = false;
+
+        // When the robot comes to a stop to intake a cone from the stack, the opmode should call
+        // this method. The current tape sensor inputs will be used to adjust the robot's X
+        // estimate. Note: The correction of X depends on field side (i.e., which side the tape is
+        // approached from in autonomous).
+        if (m_leftVal >= STACK_TAPE_THRESH && m_rightVal >= STACK_TAPE_THRESH) {
+            m_tapeXOffset = 0;
+        } else if (m_leftVal >= STACK_TAPE_THRESH) {
+            m_tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? -0.8 : 0.8);
+        } else if (m_rightVal >= STACK_TAPE_THRESH) {
+            m_tapeXOffset = (m_vera.getFieldSide() == FieldSide.LEFT ? 0.8 : -0.8);
+        }
+        m_vera.drivetrain.setPoseEstimate(
+                new Pose2d(m_vera.drivetrain.getPoseEstimate().getX() + m_tapeXOffset,
+                        m_vera.drivetrain.getPoseEstimate().getY(),
+                        m_vera.drivetrain.getPoseEstimate().getHeading()));
         logCsvString(m_vera.getAlliance() + " , left , , right , , X ,Y , Head");
         for (int idx = 0; idx <= m_stackDataIdx; idx++) {
             logCsvString("left, " + df3.format(m_stackTapeData[idx][0]) +
