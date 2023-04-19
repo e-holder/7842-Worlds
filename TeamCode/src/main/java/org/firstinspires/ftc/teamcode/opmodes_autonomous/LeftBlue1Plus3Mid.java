@@ -43,8 +43,8 @@ public class LeftBlue1Plus3Mid extends LinOpAutonomousBase {
 
         //Positions in order of route
         Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        Pose2d IntakePosCone5 = new Pose2d(-48.5, -19.3, Math.toRadians(-94.5));
-        Pose2d ScoreConePos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        Pose2d IntakePosCone5 = new Pose2d(-49, -19.3, Math.toRadians(-94.5));
+        Pose2d ScoreConePos = new Pose2d(-49, -2.0, Math.toRadians(-124));
         Pose2d IntakePosCone4 = new Pose2d(-48.3, -19.35, Math.toRadians(-94.5));
         //ScoreConePos TODO: make different traj for all cone scoring
         Pose2d IntakePosCone3 = new Pose2d(-47.6, -18.6, Math.toRadians(-94.5));
