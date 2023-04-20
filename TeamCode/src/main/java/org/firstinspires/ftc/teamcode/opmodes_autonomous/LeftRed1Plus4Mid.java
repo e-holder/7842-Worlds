@@ -136,7 +136,7 @@ public class LeftRed1Plus4Mid extends LinOpAutonomousBase {
 
         //Score Stack Cone 5
         m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone5");
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
