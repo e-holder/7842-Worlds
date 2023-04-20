@@ -59,7 +59,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
     protected void setPositions() {
         //Positions in order of route
-        Pose2d startPose = new Pose2d(0, 0, 0);
+        startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
         PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
         IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
