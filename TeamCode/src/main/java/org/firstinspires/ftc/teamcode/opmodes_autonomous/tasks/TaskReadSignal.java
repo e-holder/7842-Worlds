@@ -4,9 +4,11 @@ import org.firstinspires.ftc.teamcode.middleware.VisionPipelineSignal.Signal;
 
 public class TaskReadSignal extends AutonomousTask {
 
-    private enum TaskState {
+    public enum TaskState {
         WAIT_FOR_NON_BLACK_IMAGES,
         READ_SIGNAL,
+        SIGNAL_OKAY,
+        DONE
     }
 
     private TaskState m_state;
@@ -17,13 +19,18 @@ public class TaskReadSignal extends AutonomousTask {
         m_state = TaskState.WAIT_FOR_NON_BLACK_IMAGES;
     }
 
+    public void stopSignalVision() {
+        m_state = TaskState.DONE;
+    }
+
     // Do not call this method until the task status is TASK_DONE.
     public Signal getParkingZone() {
         return vera.vision.getParkingZone();
     }
 
-    @Override
-    public TaskStatus update() {
+    public TaskState getState() { return m_state; }
+
+    public TaskState update(boolean readFinal) {
         if (m_state != m_priorState) {
             m_priorState = m_state;
             vera.logCsvString("ReadSignal state, " + m_state);
@@ -53,10 +60,17 @@ public class TaskReadSignal extends AutonomousTask {
                 frameNumber = vera.vision.getSignalPipelineFrameCount();
                 if (frameNumber >= m_minFrameNumber) {
                     // Skip a few frames in case the first is sketchy.
-                    taskStatus = TaskStatus.DONE;
+                    m_state = TaskState.SIGNAL_OKAY;
                 }
                 break;
+            case SIGNAL_OKAY:
+                if (readFinal) {
+                    m_state = TaskState.DONE;
+                }
+                break;
+            case DONE:
+                break;
         }
-        return taskStatus;
+        return m_state;
     }
 }

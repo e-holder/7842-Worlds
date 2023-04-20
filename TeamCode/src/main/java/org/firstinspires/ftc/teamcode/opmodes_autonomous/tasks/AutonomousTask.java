@@ -18,5 +18,5 @@ public abstract class AutonomousTask implements CONSTANTS {
     public static FieldSide fieldSide = FieldSide.UNDEFINED;
 
     // All child classes (tasks which extend AutonomousTask) will have to provide an update method.
-    public abstract TaskStatus update();
+    public TaskStatus update() { return TaskStatus.DONE; }
 }
