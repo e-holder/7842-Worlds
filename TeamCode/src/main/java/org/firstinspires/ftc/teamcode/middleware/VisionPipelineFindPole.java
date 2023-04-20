@@ -192,14 +192,21 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                 Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_NONE);
 
         int rectWidth = 0;
+        int rectCenterX = 0;
+        int rectCenterY = 0;
         m_detectRectangle = null;
         for (MatOfPoint c : contours) {
             MatOfPoint2f copy = new MatOfPoint2f(c.toArray());
             Rect rect = Imgproc.boundingRect(copy);
 
+            // TODO: High not implemented explicitly (should work okay, though)
             int w = rect.width;
-            if (w > rectWidth) {
+            int x = (rect.x + w / 2);
+            int deltaX_pix = x - Vision.NOMINAL_MID_POLE_CENTER_PIX;
+            if ((w > rectWidth) || (Math.abs(deltaX_pix) < 250)) {
                 rectWidth = w;
+                rectCenterX = x;
+                rectCenterY = rect.y + (rect.height / 2);
                 m_detectRectangle = rect;
             }
             c.release();
@@ -209,9 +216,9 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         if (m_detectRectangle != null &&
                 m_detectRectangle.width > m_minPoleWidth_pix.get() &&
                 m_detectRectangle.width < m_maxPoleWidth_pix.get()) {
-            m_width_pix.set(m_detectRectangle.width);
-            m_poleCol_pix.set(m_detectRectangle.x + (m_detectRectangle.width / 2));
-            m_poleRow_pix = m_detectRectangle.y + (m_detectRectangle.height / 2);
+            m_width_pix.set(rectWidth);
+            m_poleCol_pix.set(rectCenterX);
+            m_poleRow_pix = rectCenterY;
         } else {
             m_width_pix.set(-1);
             m_poleCol_pix.set(-1);
