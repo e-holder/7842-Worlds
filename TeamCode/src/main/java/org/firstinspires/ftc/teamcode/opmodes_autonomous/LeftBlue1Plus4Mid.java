@@ -17,6 +17,23 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
+    Signal parkingZone = readSignalCone();
+
+    protected boolean moveIntakeIfNoCone;
+    protected Pose2d startPose;
+    protected Pose2d PreloadConeScorePos;
+    protected Pose2d IntakePosCone5;
+    protected Pose2d ScoreCone5Pos;
+    protected Pose2d IntakePosCone4;
+    protected Pose2d ScoreCone4Pos;
+    protected Pose2d IntakePosCone3;
+    protected Pose2d ScoreCone3Pos;
+    protected Pose2d IntakePosCone2;
+    protected Pose2d ScoreCone2Pos;
+    protected Pose2d ParkZone1Pos;
+    protected Pose2d ParkZone2Pos;
+    protected Pose2d ParkZone3Pos;
+
     protected void initializeRoute() {
         setupAlliance(Alliance.BLUE, FieldSide.LEFT);
     }
@@ -32,32 +49,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         return m_taskReadSignal.getParkingZone();
     }
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        boolean m_moveIntakeIfNoCone = true;
-
-        initializeVera();
-        Signal parkingZone = readSignalCone();
-
-        Pose2d startPose = new Pose2d(0, 0, 0);
-        m_vera.drivetrain.setPoseEstimate(startPose);
-
-        //Positions in order of route
-        Pose2d PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        Pose2d IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
-        Pose2d ScoreCone5Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone4 = new Pose2d(-48.5, -19.35, Math.toRadians(-94.5));
-        Pose2d ScoreCone4Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone3 = new Pose2d(-48.45, -19.45, Math.toRadians(-94.5));
-        Pose2d ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        Pose2d IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
-        Pose2d ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        Pose2d ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
-        Pose2d ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
-        Pose2d ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
-        //Positions in order of route
-
-
+    protected void runRoute() {
         //Velocities and Accelerations for re-use
         TrajectoryVelocityConstraint ScoringVelo = Drivetrain
                 .getVelocityConstraint(37, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
@@ -132,7 +124,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone5Traj);
         m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (m_moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
             m_vera.intake.moveToIdlePos();
         }
 
@@ -153,7 +145,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
         m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (m_moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
             m_vera.intake.moveToIdlePos();
         }
 
@@ -175,7 +167,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
         m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (m_moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
             m_vera.intake.moveToIdlePos();
         }
 
@@ -196,7 +188,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
         m_vera.intake.turnOffStackTapeSensing();
         m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (m_moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
             m_vera.intake.moveToIdlePos();
         }
 
@@ -226,5 +218,33 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         }
 
         stopVera();
+    }
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        moveIntakeIfNoCone = true;
+
+        initializeVera();
+        Signal parkingZone = readSignalCone();
+
+        Pose2d startPose = new Pose2d(0, 0, 0);
+        m_vera.drivetrain.setPoseEstimate(startPose);
+
+        //Positions in order of route
+        PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
+        IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
+        ScoreCone5Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone4 = new Pose2d(-48.5, -19.35, Math.toRadians(-94.5));
+        ScoreCone4Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone3 = new Pose2d(-48.45, -19.45, Math.toRadians(-94.5));
+        ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
+        ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
+        ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
+        ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
+        //Positions in order of route
+
+        runRoute();
     }
 }
