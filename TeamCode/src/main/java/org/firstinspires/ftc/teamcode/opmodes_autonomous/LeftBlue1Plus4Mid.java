@@ -17,8 +17,6 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
-    protected Signal parkingZone = readSignalCone();
-
     protected boolean moveIntakeIfNoCone;
     protected Pose2d startPose;
     protected Pose2d PreloadConeScorePos;
@@ -39,14 +37,42 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
     }
 
     // Use vision (webcam) to read the signal cone.
-    private Signal readSignalCone() {
-        TaskStatus status;
+    protected Signal readSignalCone() {
+        TaskReadSignal.TaskState status;
         do {
             getInputs();
-            status = m_taskReadSignal.update();
+            status = m_taskReadSignal.update(false);
             reportData();
-        } while ((status != TaskStatus.DONE) && !isStopRequested());
+        } while ((status != TaskReadSignal.TaskState.SIGNAL_OKAY) && !isStopRequested());
         return m_taskReadSignal.getParkingZone();
+    }
+
+    protected Signal readFinalSignal() {
+        TaskReadSignal.TaskState status;
+        do {
+            getInputs();
+            status = m_taskReadSignal.update(true);
+            reportData();
+        } while ((status != TaskReadSignal.TaskState.DONE) && !isStopRequested());
+        return m_taskReadSignal.getParkingZone();
+    }
+
+    protected void setPositions() {
+        //Positions in order of route
+        Pose2d startPose = new Pose2d(0, 0, 0);
+        m_vera.drivetrain.setPoseEstimate(startPose);
+        PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
+        IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
+        ScoreCone5Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone4 = new Pose2d(-48.5, -19.35, Math.toRadians(-94.5));
+        ScoreCone4Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone3 = new Pose2d(-48.45, -19.45, Math.toRadians(-94.5));
+        ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
+        ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
+        ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
+        ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
     }
 
     protected void runRoute() {
@@ -104,6 +130,8 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         Trajectory ParkZone3Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
                 .lineToLinearHeading(ParkZone3Pos, ParkVelo, ConstAccel).build();
         waitForStart();
+
+        Signal parkingZone = readFinalSignal();
 
         if (isStopRequested()) return;
 
@@ -225,26 +253,8 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         moveIntakeIfNoCone = true;
 
         initializeVera();
-        parkingZone = readSignalCone();
-
-        Pose2d startPose = new Pose2d(0, 0, 0);
-        m_vera.drivetrain.setPoseEstimate(startPose);
-
-        //Positions in order of route
-        PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
-        ScoreCone5Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        IntakePosCone4 = new Pose2d(-48.5, -19.35, Math.toRadians(-94.5));
-        ScoreCone4Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        IntakePosCone3 = new Pose2d(-48.45, -19.45, Math.toRadians(-94.5));
-        ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
-        ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
-        ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
-        ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
-        //Positions in order of route
-
+        readSignalCone();  // Ignore return value. This just initializes the reading process.
+        setPositions();
         runRoute();
     }
 }
