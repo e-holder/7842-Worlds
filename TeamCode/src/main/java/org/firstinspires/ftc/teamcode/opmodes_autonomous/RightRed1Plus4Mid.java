@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "Right Red 1+4 Mid")
-public class RightRed1Plus4Mid extends LeftBlue1Plus4Mid {
+public class RightRed1Plus4Mid extends RightBlue1Plus4Mid {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 

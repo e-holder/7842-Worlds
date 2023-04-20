@@ -17,7 +17,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
     private final TaskReadSignal m_taskReadSignal = new TaskReadSignal();
 
-    Signal parkingZone = readSignalCone();
+    protected Signal parkingZone = readSignalCone();
 
     protected boolean moveIntakeIfNoCone;
     protected Pose2d startPose;
@@ -225,7 +225,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         moveIntakeIfNoCone = true;
 
         initializeVera();
-        Signal parkingZone = readSignalCone();
+        parkingZone = readSignalCone();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);

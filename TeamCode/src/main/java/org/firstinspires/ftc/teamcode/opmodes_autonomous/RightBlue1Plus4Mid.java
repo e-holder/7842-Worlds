@@ -32,12 +32,183 @@ public class RightBlue1Plus4Mid extends LeftBlue1Plus4Mid {
         return m_taskReadSignal.getParkingZone();
     }
 
+    protected void runRoute() {
+        //Velocities and Accelerations for re-use
+        TrajectoryVelocityConstraint ScoringVelo = Drivetrain
+                .getVelocityConstraint(37, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryVelocityConstraint IntakeVelo = Drivetrain
+                .getVelocityConstraint(31, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryVelocityConstraint ParkVelo = Drivetrain
+                .getVelocityConstraint(90, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryAccelerationConstraint ConstAccel = Drivetrain
+                .getAccelerationConstraint(DriveConstants.MAX_ACCEL);
+
+        //Scoring Trajectories for re-use
+        Trajectory PreloadTraj = m_vera.drivetrain.trajectoryBuilder(startPose)
+                .lineToSplineHeading(PreloadConeScorePos).build();
+        Trajectory ScoreCone5Traj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone5)
+                .lineToSplineHeading(ScoreCone5Pos, ScoringVelo, ConstAccel).build();
+        Trajectory ScoreCone4Traj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone4)
+                .lineToSplineHeading(ScoreCone4Pos, ScoringVelo, ConstAccel).build();
+        Trajectory ScoreCone3Traj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone3)
+                .lineToSplineHeading(ScoreCone3Pos, ScoringVelo, ConstAccel).build();
+        Trajectory ScoreCone2Traj = m_vera.drivetrain.trajectoryBuilder(IntakePosCone2)
+                .lineToSplineHeading(ScoreCone2Pos, ScoringVelo, ConstAccel).build();
+
+        //Wait Trajectories for re-use
+        TrajectorySequence WaitForDrop = m_vera.drivetrain
+                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.95).build();
+        TrajectorySequence WaitForDown = m_vera.drivetrain
+                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.2).build();
+        TrajectorySequence WaitForIntake = m_vera.drivetrain
+                .trajectorySequenceBuilder(IntakePosCone5).waitSeconds(0.65).build();
+        TrajectorySequence WaitToPark = m_vera.drivetrain
+                .trajectorySequenceBuilder(ScoreCone5Pos).waitSeconds(2.0).build();
+
+        //Intake Trajectories for re-use
+        Trajectory IntakeCone5Traj = m_vera.drivetrain
+                .trajectoryBuilder(PreloadConeScorePos)
+                .lineToLinearHeading(IntakePosCone5, IntakeVelo, ConstAccel).build();
+        Trajectory IntakeCone4Traj = m_vera.drivetrain
+                .trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(IntakePosCone4, IntakeVelo, ConstAccel).build();
+        Trajectory IntakeCone3Traj = m_vera.drivetrain
+                .trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(IntakePosCone3, IntakeVelo, ConstAccel).build();
+        Trajectory IntakeCone2Traj = m_vera.drivetrain
+                .trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(IntakePosCone2, IntakeVelo, ConstAccel).build();
+
+        //Parking Trajectories
+        Trajectory ParkZone1Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(ParkZone1Pos, ParkVelo, ConstAccel).build();
+        Trajectory ParkZone2Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(ParkZone2Pos, ParkVelo, ConstAccel).build();
+        Trajectory ParkZone3Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+                .lineToLinearHeading(ParkZone3Pos, ParkVelo, ConstAccel).build();
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        //Scoring Preload
+        m_vera.drivetrain.followTrajectory(PreloadTraj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "preload");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Intake Stack Cone 5
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(5);
+        m_vera.drivetrain.followTrajectory(IntakeCone5Traj);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+            m_vera.intake.moveToIdlePos();
+        }
+
+        //Score Stack Cone 5
+        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Intake stack Cone 4
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(4);
+        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+            m_vera.intake.moveToIdlePos();
+        }
+
+        //Score Stack Cone 4
+        m_vera.drivetrain.followTrajectory(ScoreCone4Traj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone4");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+        m_vera.vision.setFindPoleMode(FindPoleMode.MID_SCORED_CONES, "");
+
+        //Intake stack Cone 3
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(3);
+        m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+            m_vera.intake.moveToIdlePos();
+        }
+
+        //Score Stack Cone 3
+        m_vera.drivetrain.followTrajectory(ScoreCone3Traj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+        m_vera.lift.moveLiftToBottom();
+
+        //Intake Stack Cone 2
+        m_vera.intake.turnOnStackTapeSensing();
+        m_vera.intake.moveToIntakeConePos(2);
+        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
+        m_vera.intake.turnOffStackTapeSensing();
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+            m_vera.intake.moveToIdlePos();
+        }
+
+        //Score Stack Cone 5
+        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.lift.moveLiftToBottom();
+
+        //Park in zone
+        switch (parkingZone) {
+            case ZONE1:
+                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
+                break;
+            case ZONE2:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
+                break;
+            case ZONE3:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
+                break;
+        }
+
+        stopVera();
+    }
+
     @Override
     public void runOpMode() throws InterruptedException {
         boolean m_moveIntakeIfNoCone = true;
 
         initializeVera();
-        Signal parkingZone = readSignalCone();
+        parkingZone = readSignalCone();
 
         Pose2d startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
