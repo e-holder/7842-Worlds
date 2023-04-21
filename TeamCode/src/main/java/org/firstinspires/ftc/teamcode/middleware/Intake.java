@@ -335,7 +335,7 @@ public class Intake implements CONSTANTS {
                 m_firstTapeDetectPosY_in = m_poseY_in;
                 m_vera.drivetrain.setPoseEstimate(
                         new Pose2d(m_vera.drivetrain.getPoseEstimate().getX(),
-                                (m_vera.getFieldSide() == FieldSide.LEFT ? -5.5 : 5.5),
+                                (m_vera.getFieldSide() == FieldSide.LEFT ? -11.198 : 11.198),
                                 m_vera.drivetrain.getPoseEstimate().getHeading()));
             }
             if (!m_isStackTapeCalibrationMode || Math.abs(m_poseY_in - m_priorPosY_in) > 0.5) {

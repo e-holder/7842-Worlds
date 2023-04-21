@@ -62,7 +62,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         startPose = new Pose2d(0, 0, 0);
         m_vera.drivetrain.setPoseEstimate(startPose);
         PreloadConeScorePos = new Pose2d(-48.5, -2.0, Math.toRadians(-120));
-        IntakePosCone5 = new Pose2d(-49.2, -19.3, Math.toRadians(-94.5));
+        IntakePosCone5 = new Pose2d(-51.25, -12, Math.toRadians(-94.5));
         ScoreCone5Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
         IntakePosCone4 = new Pose2d(-48.5, -19.35, Math.toRadians(-94.5));
         ScoreCone4Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
@@ -156,95 +156,95 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
             m_vera.intake.moveToIdlePos();
         }
 
-        //Score Stack Cone 5
-        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-        m_vera.lift.moveLiftToBottom();
-
-        //Intake stack Cone 4
-        m_vera.intake.turnOnStackTapeSensing();
-        m_vera.intake.moveToIntakeConePos(4);
-        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
-        m_vera.intake.turnOffStackTapeSensing();
-        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
-            m_vera.intake.moveToIdlePos();
-        }
-
-        //Score Stack Cone 4
-        m_vera.drivetrain.followTrajectory(ScoreCone4Traj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone4");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-        m_vera.lift.moveLiftToBottom();
-        m_vera.vision.setFindPoleMode(FindPoleMode.MID_SCORED_CONES, "");
-
-        //Intake stack Cone 3
-        m_vera.intake.turnOnStackTapeSensing();
-        m_vera.intake.moveToIntakeConePos(3);
-        m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
-        m_vera.intake.turnOffStackTapeSensing();
-        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
-            m_vera.intake.moveToIdlePos();
-        }
-
-        //Score Stack Cone 3
-        m_vera.drivetrain.followTrajectory(ScoreCone3Traj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-        m_vera.lift.moveLiftToBottom();
-
-        //Intake Stack Cone 2
-        m_vera.intake.turnOnStackTapeSensing();
-        m_vera.intake.moveToIntakeConePos(2);
-        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
-        m_vera.intake.turnOffStackTapeSensing();
-        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
-            m_vera.intake.moveToIdlePos();
-        }
-
-        //Score Stack Cone 5
-        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
-        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-        m_vera.lift.moveLiftToMidPole();
-        m_vera.intake.moveToIdlePos();
-        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-        m_vera.lift.dropCone();
-        m_vera.drivetrain.stopFindingPole();
-        m_vera.lift.moveLiftToBottom();
-
-        //Park in zone
-        switch (parkingZone) {
-            case ZONE1:
-                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
-                break;
-            case ZONE2:
-                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
-                break;
-            case ZONE3:
-                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
-                break;
-        }
-
+//        //Score Stack Cone 5
+//        m_vera.drivetrain.followTrajectory(ScoreCone5Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_POLE, "cone5");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//        m_vera.lift.moveLiftToBottom();
+//
+//        //Intake stack Cone 4
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(4);
+//        m_vera.drivetrain.followTrajectory(IntakeCone4Traj);
+//        m_vera.intake.turnOffStackTapeSensing();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+//        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+//            m_vera.intake.moveToIdlePos();
+//        }
+//
+//        //Score Stack Cone 4
+//        m_vera.drivetrain.followTrajectory(ScoreCone4Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone4");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//        m_vera.lift.moveLiftToBottom();
+//        m_vera.vision.setFindPoleMode(FindPoleMode.MID_SCORED_CONES, "");
+//
+//        //Intake stack Cone 3
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(3);
+//        m_vera.drivetrain.followTrajectory(IntakeCone3Traj);
+//        m_vera.intake.turnOffStackTapeSensing();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+//        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+//            m_vera.intake.moveToIdlePos();
+//        }
+//
+//        //Score Stack Cone 3
+//        m_vera.drivetrain.followTrajectory(ScoreCone3Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//        m_vera.lift.moveLiftToBottom();
+//
+//        //Intake Stack Cone 2
+//        m_vera.intake.turnOnStackTapeSensing();
+//        m_vera.intake.moveToIntakeConePos(2);
+//        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
+//        m_vera.intake.turnOffStackTapeSensing();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+//        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+//            m_vera.intake.moveToIdlePos();
+//        }
+//
+//        //Score Stack Cone 5
+//        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
+//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+//        m_vera.lift.moveLiftToMidPole();
+//        m_vera.intake.moveToIdlePos();
+//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+//        m_vera.lift.dropCone();
+//        m_vera.drivetrain.stopFindingPole();
+//        m_vera.lift.moveLiftToBottom();
+//
+//        //Park in zone
+//        switch (parkingZone) {
+//            case ZONE1:
+//                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
+//                break;
+//            case ZONE2:
+//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
+//                break;
+//            case ZONE3:
+//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+//                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
+//                break;
+//        }
+//
         stopVera();
     }
 
