@@ -63,12 +63,12 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.setPoseEstimate(startPose);
         PreloadConeScorePos = new Pose2d(-48.27, -0.9, Math.toRadians(-120));
         IntakePosCone5 = new Pose2d(-51.25, -18.9, Math.toRadians(-94.0));
-        ScoreCone5Pos = new Pose2d(-48.3, 0.0, Math.toRadians(-124));
+        ScoreCone5Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
         IntakePosCone4 = new Pose2d(-51.25, -19.3, Math.toRadians(-93.0));
-        ScoreCone4Pos = new Pose2d(-48.3, 0.0, Math.toRadians(-124));
+        ScoreCone4Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
         IntakePosCone3 = new Pose2d(-51.25, -19.45, Math.toRadians(-92.95));
         ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
-        IntakePosCone2 = new Pose2d(-47.6, -18.7, Math.toRadians(-94.5));
+        IntakePosCone2 = new Pose2d(-51.25, -19.55, Math.toRadians(-92.9));
         ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
         ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
         ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
@@ -204,15 +204,13 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.followTrajectorySequence(WaitForDown);
         m_vera.lift.moveLiftToBottom();
 
-//        //Intake Stack Cone 2
-//        m_vera.intake.turnOnStackTapeSensing();
-//        m_vera.intake.moveToIntakeConePos(2);
-//        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
-//        m_vera.intake.turnOffStackTapeSensing();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
-//        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
-//            m_vera.intake.moveToIdlePos();
-//        }
+        //Intake Stack Cone 2
+        m_vera.intake.moveToIntakeConePos(2);
+        m_vera.drivetrain.followTrajectory(IntakeCone2Traj);
+        m_vera.drivetrain.followTrajectorySequence(WaitForIntake);
+        if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
+            m_vera.intake.moveToIdlePos();
+        }
 //
 //        //Score Stack Cone 5
 //        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
