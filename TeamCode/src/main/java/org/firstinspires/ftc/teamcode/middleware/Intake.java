@@ -51,7 +51,7 @@ public class Intake implements CONSTANTS {
     private final double A_ARM_CONE5_DEG = 82.5; //old 75
     private final double A_ARM_CONE4_DEG = 87.5; //old 80
     private final double A_ARM_CONE3_DEG = 95.0; //old 89
-    private final double A_ARM_CONE2_DEG = 90.0; //old 97
+    private final double A_ARM_CONE2_DEG = 100.0; //old 97
     private final double A_ARM_CONE1_DEG = 116.0; //104 is too high
     private final double A_WRIST_POS_STACK_DELTA_DEG = 170.0;
     private final double A_WRIST_POS_CONE_DELTA_DEG = 180.0;
@@ -99,7 +99,7 @@ public class Intake implements CONSTANTS {
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.6;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.4;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;

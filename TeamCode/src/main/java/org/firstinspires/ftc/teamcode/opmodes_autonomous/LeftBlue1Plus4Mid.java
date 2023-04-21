@@ -67,9 +67,9 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         IntakePosCone4 = new Pose2d(-51.25, -19.3, Math.toRadians(-93.0));
         ScoreCone4Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
         IntakePosCone3 = new Pose2d(-51.25, -19.45, Math.toRadians(-92.95));
-        ScoreCone3Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        ScoreCone3Pos = new Pose2d(-47.5, -0.2, Math.toRadians(-124));
         IntakePosCone2 = new Pose2d(-51.25, -19.55, Math.toRadians(-92.9));
-        ScoreCone2Pos = new Pose2d(-48.75, -2.0, Math.toRadians(-124));
+        ScoreCone2Pos = new Pose2d(-47.5, -0.2, Math.toRadians(-124));
         ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
         ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
         ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
@@ -211,32 +211,32 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         if (moveIntakeIfNoCone && !m_vera.intake.hasCone()) {
             m_vera.intake.moveToIdlePos();
         }
-//
-//        //Score Stack Cone 5
-//        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
-//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
-//        m_vera.lift.moveLiftToMidPole();
-//        m_vera.intake.moveToIdlePos();
-//        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
-//        m_vera.lift.dropCone();
-//        m_vera.drivetrain.stopFindingPole();
-//        m_vera.lift.moveLiftToBottom();
-//
-//        //Park in zone
-//        switch (parkingZone) {
-//            case ZONE1:
-//                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
-//                break;
-//            case ZONE2:
-//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
-//                break;
-//            case ZONE3:
-//                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
-//                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
-//                break;
-//        }
-//
+
+        //Score Stack Cone 5
+        m_vera.drivetrain.followTrajectory(ScoreCone2Traj);
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone2");
+        m_vera.lift.moveLiftToMidPole();
+        m_vera.intake.moveToIdlePos();
+        m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
+        m_vera.lift.dropCone();
+        m_vera.drivetrain.stopFindingPole();
+        m_vera.lift.moveLiftToBottom();
+
+        //Park in zone
+        switch (parkingZone) {
+            case ZONE1:
+                m_vera.drivetrain.followTrajectory(ParkZone1Traj);
+                break;
+            case ZONE2:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone2Traj);
+                break;
+            case ZONE3:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
+                m_vera.drivetrain.followTrajectory(ParkZone3Traj);
+                break;
+        }
+
         stopVera();
     }
 
