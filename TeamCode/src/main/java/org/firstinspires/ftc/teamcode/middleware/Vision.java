@@ -141,13 +141,13 @@ public class Vision implements CONSTANTS {
     public static final int NOMINAL_MID_POLE_CENTER_PIX =
             (VisionPipelineFindPole.BOX_WIDTH / 2) - 5;
     private final int MAX_MID_POLE_WIDTH_PIX = 120;
-    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 86;
+    public static final int NOMINAL_MID_POLE_WIDTH_PIX = 95;
     private final int MIN_MID_POLE_WIDTH_PIX = 47;  // TODO: Note this is too high if D > 10 in
 
     public static final int NOMINAL_MID_CONES_CENTER_PIX =
             (VisionPipelineFindPole.CONE_BOX_WIDTH / 2) - 5;
     private final int MAX_MID_CONES_WIDTH_PIX = VisionPipelineFindPole.CONE_BOX_WIDTH;
-    public static final int NOMINAL_MID_CONES_WIDTH_PIX = 360;
+    public static final int NOMINAL_MID_CONES_WIDTH_PIX = 385;
     private final int MIN_MID_CONES_WIDTH_PIX = 80;
 
     // Constants to control how much heading change to score cones based on pole detection.
@@ -262,7 +262,7 @@ public class Vision implements CONSTANTS {
                     // Distance to score needed to be greater for RED. Since it is easier for the
                     // camera to see Red vs Blue, it was assumed the scored Red cones were
                     // appearing significantly wider than Blue. This compensates for this.
-                    deltaWidthPix -= 30;
+                    deltaWidthPix -= 37;
                 }
                 distToScore_in =  deltaWidthPix * MID_CONES_WIDTH_PIX_TO_DIST_IN;
                 break;
@@ -296,7 +296,8 @@ public class Vision implements CONSTANTS {
     }
 
     public void setFindPoleMode(FindPoleMode newFindPoleMode, String status) {
-        logCsvString("Vision, setFindPoleMode, " + m_findPoleMode + " " + status);
+        logCsvString("Vision, setFindPoleMode, " + m_findPoleMode +
+                " " + m_vera.getAlliance() + " " + status);
         if (m_findPoleMode != newFindPoleMode) {
             m_findPoleMode = newFindPoleMode;
             switch (m_findPoleMode) {

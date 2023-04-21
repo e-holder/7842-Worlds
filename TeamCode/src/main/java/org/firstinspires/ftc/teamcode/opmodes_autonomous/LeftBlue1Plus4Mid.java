@@ -63,15 +63,15 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         m_vera.drivetrain.setPoseEstimate(startPose);
         PreloadConeScorePos = new Pose2d(-48.27, -0.9, Math.toRadians(-120));
         IntakePosCone5 = new Pose2d(-51.25, -18.9, Math.toRadians(-94.0));
-        ScoreCone5Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
+        ScoreCone5Pos = new Pose2d(-48.3, -0.7, Math.toRadians(-124));
         IntakePosCone4 = new Pose2d(-51.25, -19.3, Math.toRadians(-93.0));
-        ScoreCone4Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
+        ScoreCone4Pos = new Pose2d(-48.3, -0.7, Math.toRadians(-124));
         IntakePosCone3 = new Pose2d(-51.25, -19.45, Math.toRadians(-92.95));
-        ScoreCone3Pos = new Pose2d(-47.5, -0.1, Math.toRadians(-124));
+        ScoreCone3Pos = new Pose2d(-47.5, -0.15, Math.toRadians(-124));
         IntakePosCone2 = new Pose2d(-51.25, -19.55, Math.toRadians(-92.9));
-        ScoreCone2Pos = new Pose2d(-47.5, -0.1, Math.toRadians(-124));
+        ScoreCone2Pos = new Pose2d(-47.5, -0.15, Math.toRadians(-124));
         ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
-        ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
+        ParkZone2Pos = new Pose2d(-49.0, -2, Math.toRadians(-90.0));
         ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
     }
 
@@ -88,9 +88,9 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
         //Wait Trajectories for re-use
         TrajectorySequence WaitForDrop = m_vera.drivetrain
-                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.95).build();
+                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.85).build();
         TrajectorySequence WaitForDown = m_vera.drivetrain
-                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.2).build();
+                .trajectorySequenceBuilder(PreloadConeScorePos).waitSeconds(0.1).build();
         TrajectorySequence WaitForIntake = m_vera.drivetrain
                 .trajectorySequenceBuilder(IntakePosCone5).waitSeconds(0.65).build();
         TrajectorySequence WaitToPark = m_vera.drivetrain
@@ -123,11 +123,11 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
                 .lineToSplineHeading(ScoreCone2Pos, ScoringVelo, ConstAccel).build();
 
         //Parking Trajectories
-        Trajectory ParkZone1Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+        Trajectory ParkZone1Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone2Pos)
                 .lineToLinearHeading(ParkZone1Pos, ParkVelo, ConstAccel).build();
-        Trajectory ParkZone2Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+        Trajectory ParkZone2Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone2Pos)
                 .lineToLinearHeading(ParkZone2Pos, ParkVelo, ConstAccel).build();
-        Trajectory ParkZone3Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone5Pos)
+        Trajectory ParkZone3Traj = m_vera.drivetrain.trajectoryBuilder(ScoreCone2Pos)
                 .lineToLinearHeading(ParkZone3Pos, ParkVelo, ConstAccel).build();
         waitForStart();
 
@@ -195,7 +195,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
 
         //Score Stack Cone 3
         m_vera.drivetrain.followTrajectory(ScoreCone3Traj);
-//        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
+        m_vera.drivetrain.findPole(FindPoleMode.MID_SCORED_CONES, "cone3");
         m_vera.lift.moveLiftToMidPole();
         m_vera.intake.moveToIdlePos();
         m_vera.drivetrain.followTrajectorySequence(WaitForDrop);
@@ -225,6 +225,7 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         //Park in zone
         switch (parkingZone) {
             case ZONE1:
+                m_vera.drivetrain.followTrajectorySequence(WaitForDown);
                 m_vera.drivetrain.followTrajectory(ParkZone1Traj);
                 break;
             case ZONE2:

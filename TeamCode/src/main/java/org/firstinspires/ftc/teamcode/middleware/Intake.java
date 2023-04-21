@@ -99,7 +99,7 @@ public class Intake implements CONSTANTS {
 
     private final double INTAKE_WHEELS_STALL_AMP = 8.0;
     private final double DEFAULT_INTAKE_WHEEL_SPEED = 1.0;
-    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.4;
+    private final double DEFAULT_INTAKE_WHEEL_EJECT_SPEED = -0.35;
     private final double INTAKE_CONE_HOLD_WHEEL_SPEED = 0.1;
     private final int EJECT_CONESTACK_DELAY_COUNT = 3;
     private final int EJECT_DURATION_COUNT = 18;

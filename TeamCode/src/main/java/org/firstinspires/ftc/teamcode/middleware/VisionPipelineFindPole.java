@@ -73,8 +73,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
     private final AtomicInteger m_maxPoleWidth_pix = new AtomicInteger(9999);
     private final AtomicBoolean m_isFindScoredConesMode = new AtomicBoolean(false);
     private final AtomicBoolean m_isFrameBlack = new AtomicBoolean(true);
-    private final AtomicInteger m_alliance = new AtomicInteger(Alliance.BLUE.ordinal());
 
+    private Alliance m_alliance = Alliance.BLUE;
     private final Telemetry m_telemetry;
     private final StringBuilder m_csvLogString = new StringBuilder();
 
@@ -119,7 +119,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
                 m_isFindScoredConesMode.set(false);
                 break;
         }
-        m_alliance.set(alliance.ordinal());
+        m_alliance = alliance;
     }
 
     public void setMinMaxWidth(int minPoleWidth_pix, int maxPoleWidth_pix) {
@@ -268,7 +268,8 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // component); Channel 2 is Cb (blue-difference [blue to yellow] chroma component).
         // In the Cb component, the blue cones will appear whiter than everything else we
         // expect to see in the frame, and likewise for Cr and red cones.
-        if (m_alliance.get() == Alliance.BLUE.ordinal()) {
+        logCsvString("ALLIANCE-FindPole: " + m_alliance);
+        if (m_alliance == Alliance.BLUE) {
             Core.extractChannel(m_matYCrCb, m_matPlaneOfInterest, 2);
         } else {
             Core.extractChannel(m_matYCrCb, m_matPlaneOfInterest, 1);
@@ -280,7 +281,7 @@ public class VisionPipelineFindPole extends OpenCvPipeline implements CONSTANTS 
         // Remove noise from the image data in the sample box using a blur filter.
         Imgproc.medianBlur(matConeBox, matConeBox, BLUR_SIZE);
 
-        Scalar lowerB = new Scalar(m_alliance.get() == Alliance.BLUE.ordinal() ?
+        Scalar lowerB = new Scalar(m_alliance == Alliance.BLUE ?
                 CONES_BLUE_LOWER_THRESH : CONES_RED_LOWER_THRESH);
         Scalar upperB = new Scalar(CONES_UPPER_THRESH);
         Core.inRange(matConeBox, lowerB, upperB, m_matWithinThreshC);
