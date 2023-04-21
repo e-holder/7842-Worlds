@@ -87,7 +87,7 @@ public class Intake implements CONSTANTS {
 
     private final double ARM_SPEED_FAST = 3500;  // Note: Increases appear to end around 3500..4500.
     private final double ARM_SPEED_SLOW = 2500;  // Used for initial reset, and driver control
-    private final double ARM_SPEED_AUTO = 520;
+    private final double ARM_SPEED_AUTO = 530;
     private final double ARM_SPEED_SLOW_EJECT = 2000; // Avoids disturbing cone stack.
     private final double ARM_DRIVER_CONTROL_CMD_SCALE = 20.0;
 
