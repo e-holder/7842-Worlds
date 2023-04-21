@@ -67,9 +67,9 @@ public class LeftBlue1Plus4Mid extends LinOpAutonomousBase {
         IntakePosCone4 = new Pose2d(-51.25, -19.3, Math.toRadians(-93.0));
         ScoreCone4Pos = new Pose2d(-48.3, -0.2, Math.toRadians(-124));
         IntakePosCone3 = new Pose2d(-51.25, -19.45, Math.toRadians(-92.95));
-        ScoreCone3Pos = new Pose2d(-47.5, -0.2, Math.toRadians(-124));
+        ScoreCone3Pos = new Pose2d(-47.5, -0.1, Math.toRadians(-124));
         IntakePosCone2 = new Pose2d(-51.25, -19.55, Math.toRadians(-92.9));
-        ScoreCone2Pos = new Pose2d(-47.5, -0.2, Math.toRadians(-124));
+        ScoreCone2Pos = new Pose2d(-47.5, -0.1, Math.toRadians(-124));
         ParkZone1Pos = new Pose2d(-47.5, -27.0, Math.toRadians(-90.0));
         ParkZone2Pos = new Pose2d(-49.0, -3.0, Math.toRadians(-90.0));
         ParkZone3Pos = new Pose2d(-48.0, 22.5, Math.toRadians(-90.0));
