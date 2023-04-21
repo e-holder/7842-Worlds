@@ -13,7 +13,7 @@ public class Vision implements CONSTANTS {
     // 0.285 = about 12 deg
     // 0.33 = about 30 deg
     private final double CAMERA_TILT_HIGH_POLE = 0.33;
-    private final double CAMERA_TILT_MID_POLE = 0.28;
+    private final double CAMERA_TILT_MID_POLE = 0.26;
     private final double CAMERA_TILT_HIGH_SCORED_CONES = 0.0;
     private final double CAMERA_TILT_MID_SCORED_CONES = 0.0;
 
